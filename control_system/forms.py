@@ -1,11 +1,6 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
 
-class CustomAuthenticationForm(AuthenticationForm):
-    ROLE_CHOICES = [
-        ('student', 'Student'),
-        ('teacher', 'Teacher'),
-        ('principal', 'Principal'),
-    ]
-    
-    role = forms.ChoiceField(choices=ROLE_CHOICES, widget=forms.RadioSelect)
+class UserForm(forms.Form):
+    username = forms.CharField(max_length=150, required=True, widget=forms.TextInput(attrs={'placeholder': 'Username'}))
+    password = forms.CharField(max_length=128, required=True, widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
+    user_type = forms.ChoiceField(choices=[('STUDENT', 'Student'), ('TEACHER', 'Teacher'), ('PRINCIPAL', 'Principal')], required=True)
