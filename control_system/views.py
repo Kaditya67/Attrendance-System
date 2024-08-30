@@ -1,41 +1,49 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.hashers import check_password
-from django.contrib.auth import login as auth_login
+from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.decorators import login_required
-from django.contrib.sessions.models import Session
+from control_system.models import Student, Teacher, Principal
+from .forms import UserForm
+
+
+from django.shortcuts import render, redirect
+from django.contrib.auth import login as auth_login
+from django.contrib.auth.hashers import check_password
+from .forms import UserLoginForm
 from control_system.models import Student, Teacher, Principal
 
 def user_login(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user_type = request.POST.get('user_type')  # Get the user type from the login form
-
-        # Check the user type and find the corresponding user
-        user = None
-        if user_type == 'STUDENT':
-            user = Student.objects.filter(username=username).first()
-        elif user_type == 'TEACHER':
-            user = Teacher.objects.filter(username=username).first()
-        elif user_type == 'PRINCIPAL':
-            user = Principal.objects.filter(username=username).first()
-
-        if user and check_password(password, user.password):
-            # Manually create a session for the user
-            request.session['user_id'] = user.id
-            request.session['user_type'] = user_type
-            request.session['username'] = username
-
+        form = UserLoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user_type = form.cleaned_data['user_type']
+            
+            user = None
             if user_type == 'STUDENT':
-                return redirect('student_dashboard')
+                user = Student.objects.filter(username=username).first()
             elif user_type == 'TEACHER':
-                return redirect('teacher_dashboard')
+                user = Teacher.objects.filter(username=username).first()
             elif user_type == 'PRINCIPAL':
-                return redirect('principal_dashboard')
-        else:
-            return render(request, 'login.html', {'error': 'Invalid credentials'})
+                user = Principal.objects.filter(username=username).first()
+
+            if user and check_password(password, user.password):
+                request.session['user_type'] = user_type
+                auth_login(request, user)  # Note: This won't actually work with custom models unless you adapt it
+                if user_type == 'STUDENT':
+                    return redirect('student_dashboard')
+                elif user_type == 'TEACHER':
+                    return redirect('teacher_dashboard')
+                elif user_type == 'PRINCIPAL':
+                    return redirect('principal_dashboard')
+            else:
+                form.add_error(None, 'Invalid username or password')
     else:
-        return render(request, 'login.html')
+        form = UserLoginForm()
+
+    return render(request, 'login.html', {'form': form})
+
+
 
 @login_required
 def student_dashboard(request):
@@ -55,13 +63,10 @@ def principal_dashboard(request):
         return redirect('login')
     return render(request, 'principal_dashboard.html')
 
-def done(request):
-    return render(request, 'done.html')
 
 from django.shortcuts import render, redirect
-from django.contrib.auth.hashers import make_password
-from control_system.models import Student, Teacher, Principal
 from .forms import UserForm
+from control_system.models import Student, Teacher, Principal
 
 def add_user(request):
     if request.method == 'POST':
@@ -80,8 +85,12 @@ def add_user(request):
             elif user_type == 'PRINCIPAL':
                 Principal.objects.create(username=username, password=hashed_password)
 
-            return redirect('done')  # Redirect to a success page or wherever you prefer
+            return redirect('success_page')  # Ensure 'success_page' is defined in your URL configuration
     else:
         form = UserForm()
 
     return render(request, 'add_user.html', {'form': form})
+
+
+def success_page(request):
+    return render(request, 'done.html')

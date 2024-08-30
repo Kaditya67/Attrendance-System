@@ -1,19 +1,14 @@
-<form method="post">
+<form method="post" action="{% url 'login' %}">
     {% csrf_token %}
     <input type="text" name="username" placeholder="Username" required>
     <input type="password" name="password" placeholder="Password" required>
-    
-    <!-- Dropdown for User Type -->
     <select name="user_type" required>
         <option value="" disabled selected>Select your role</option>
         <option value="STUDENT">Student</option>
         <option value="TEACHER">Teacher</option>
         <option value="PRINCIPAL">Principal</option>
     </select>
-
     <button type="submit">Login</button>
-    
-    <!-- Display error message if login fails -->
     {% if error %}
         <p style="color: red;">{{ error }}</p>
     {% endif %}
