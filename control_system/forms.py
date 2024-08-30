@@ -1,7 +1,24 @@
 from django import forms
 from django.contrib.auth.hashers import check_password
+from control_system.models import Student, Teacher, Principal  # Import models at the top
 
-from .models import Student, Teacher, Principal
+from django import forms
+
+class UserForm(forms.Form):
+    username = forms.CharField(
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={'placeholder': 'Username'})
+    )
+    password = forms.CharField(
+        max_length=128,
+        required=True,
+        widget=forms.PasswordInput(attrs={'placeholder': 'Password'})
+    )
+    user_type = forms.ChoiceField(
+        choices=[('STUDENT', 'Student'), ('TEACHER', 'Teacher'), ('PRINCIPAL', 'Principal')],
+        required=True
+    )
 
 
 class UserLoginForm(forms.Form):
@@ -29,13 +46,10 @@ class UserLoginForm(forms.Form):
         if username and password and user_type:
             user = None
             if user_type == 'STUDENT':
-                from control_system.models import Student
                 user = Student.objects.filter(username=username).first()
             elif user_type == 'TEACHER':
-                from control_system.models import Teacher
                 user = Teacher.objects.filter(username=username).first()
             elif user_type == 'PRINCIPAL':
-                from control_system.models import Principal
                 user = Principal.objects.filter(username=username).first()
 
             if user and not check_password(password, user.password):
