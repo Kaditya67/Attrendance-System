@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Manage Permissions</h2>
+
+  <div class="navbar">
+    <div id="tab-principal" class="nav-item" onclick="showTab('principal')">Principal</div>
+    <div id="tab-hod" class="nav-item" onclick="showTab('hod')">HOD</div>
+    <div id="tab-teacher" class="nav-item" onclick="showTab('teacher')">Teacher</div>
+    <div id="tab-staff" class="nav-item" onclick="showTab('staff')">Staff</div>
+    <div id="tab-student" class="nav-item" onclick="showTab('student')">Student</div>
+  </div>
+
+  <form method="post" action="{% url 'update_permissions' %}">
+    {% csrf_token %}
+
+    <div id="principal" class="tab-content">
+      <h3>Principal Permissions</h3>
+      <input type="text" id="principal-search" placeholder="Search permissions..." onkeyup="filterPermissions('principal')">
+      <div id="principal-perms" class="permissions-list">
+          {% for perm in principal_perms %}
+            <label>
+              <input type="checkbox" name="principal_perms" value="{{ perm.codename }}" {% if perm.is_checked %}checked{% endif %}>
+              {{ perm.name }}
+            </label>
+          {% endfor %}
+      </div>
+    </div>
+
+    <div id="hod" class="tab-content" style="display:none;">
+      <h3>HOD Permissions</h3>
+      <input type="text" id="hod-search" placeholder="Search permissions..." onkeyup="filterPermissions('hod')">
+      <div id="hod-perms" class="permissions-list">
+          {% for perm in hod_perms %}
+            <label>
+              <input type="checkbox" name="hod_perms" value="{{ perm.codename }}" {% if perm.is_checked %}checked{% endif %}>
+              {{ perm.name }}
+            </label>
+          {% endfor %}
+      </div>
+    </div>
+
+    <div id="teacher" class="tab-content" style="display:none;">
+      <h3>Teacher Permissions</h3>
+      <input type="text" id="teacher-search" placeholder="Search permissions..." onkeyup="filterPermissions('teacher')">
+      <div id="teacher-perms" class="permissions-list">
+          {% for perm in teacher_perms %}
+            <label>
+              <input type="checkbox" name="teacher_perms" value="{{ perm.codename }}" {% if perm.is_checked %}checked{% endif %}>
+              {{ perm.name }}
+            </label>
+          {% endfor %}
+      </div>
+    </div>
+
+    <div id="staff" class="tab-content" style="display:none;">
+      <h3>Staff Permissions</h3>
+      <input type="text" id="staff-search" placeholder="Search permissions..." onkeyup="filterPermissions('staff')">
+      <div id="staff-perms" class="permissions-list">
+          {% for perm in staff_perms %}
+            <label>
+              <input type="checkbox" name="staff_perms" value="{{ perm.codename }}" {% if perm.is_checked %}checked{% endif %}>
+              {{ perm.name }}
+            </label>
+          {% endfor %}
+      </div>
+    </div>
+
+    <div id="student" class="tab-content" style="display:none;">
+      <h3>Student Permissions</h3>
+      <input type="text" id="student-search" placeholder="Search permissions..." onkeyup="filterPermissions('student')">
+      <div id="student-perms" class="permissions-list">
+          {% for perm in student_perms %}
+            <label>
+              <input type="checkbox" name="student_perms" value="{{ perm.codename }}" {% if perm.is_checked %}checked{% endif %}>
+              {{ perm.name }}
+            </label>
+          {% endfor %}
+      </div>
+    </div>
+
+    {% comment %} <h3>Special Permissions</h3>
+    <div class="permissions-list">
+      <label>
+        <input type="checkbox" name="is_staff" value="true" {% if user.is_staff %}checked{% endif %}>
+        Is Staff
+      </label><br>
+      <label>
+        <input type="checkbox" name="is_superuser" value="true" {% if user.is_superuser %}checked{% endif %}>
+        Is Superuser
+      </label>
+    </div> {% endcomment %}
+
+    <button type="submit" class="submit-btn">Update Permissions</button>
+
+    <script>
+      function showTab(tabName) {
+        // Hide all tab contents
+        var tabs = document.getElementsByClassName("tab-content");
+        for (var i = 0; i < tabs.length; i++) {
+          tabs[i].style.display = "none";
+        }
+
+        // Remove 'active' class from all tabs
+        var navItems = document.getElementsByClassName("nav-item");
+        for (var i = 0; i < navItems.length; i++) {
+          navItems[i].classList.remove("active");
+        }
+
+        // Show the selected tab
+        document.getElementById(tabName).style.display = "block";
+
+        // Add 'active' class to the selected tab
+        document.getElementById('tab-' + tabName).classList.add("active");
+      }
+
+      function filterPermissions(type) {
+        var input = document.getElementById(type + '-search');
+        var filter = input.value.toLowerCase();
+        var list = document.getElementById(type + '-perms');
+        var labels = list.getElementsByTagName('label');
+
+        for (var i = 0; i < labels.length; i++) {
+          var txtValue = labels[i].textContent || labels[i].innerText;
+          labels[i].style.display = txtValue.toLowerCase().indexOf(filter) > -1 ? '' : 'none';
+        }
+      }
+
+      // Show default tab (Principal)
+      showTab('principal');
+    </script>
+  </form>
+{% endblock %}
