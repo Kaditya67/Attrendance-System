@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HOD Dashboard</title>
+</head>
+<body>
+    <h2>HOD Dashboard</h2>
+    <h3>Department: {{ department.name }}</h3>
+    <h3>Teachers in this department:</h3>
+    <ul>
+        {% for teacher in teachers %}
+            <li>{{ teacher.user.username }}</li>
+        {% endfor %}
+    </ul>
+    <h3>Students in this department:</h3>
+    <ul>
+        {% for student in students %}
+            <li>{{ student.user.username }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
