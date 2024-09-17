@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+{% load static %}
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -50,11 +52,52 @@
             color: #080710; /* Dark text on hover */
             transform: translateY(-10px);
         }
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px; /* Space between logo and text */
+            margin-bottom: 30px;
+            margin-top: 20px; /* Adjust this value to move it closer to the top */
+        }
+    
+        .logo {
+            width: 80px; /* Adjust width as needed */
+            height: 80px; /* Adjust height as needed */
+        }
+    
+        .header-text {
+            text-align: center;
+        }
+    
+        .header-text h1 {
+            margin: 0;
+            font-size: 28px; /* Adjust font size as needed */
+            color: #F9F7EF; /* Light cream */
+        }
+    
+        .header-text h3 {
+            margin: 5px 0 0; /* Adjust margin for spacing */
+            font-size: 18px; /* Adjust font size as needed */
+            color: #AABD8C; /* Pale green */
+        }
     </style>
 </head>
 <body>
+    
     <div class="dashboard-container">
+        <div>
+            <div class="header-container">
+                <img src="{% static 'images/dbit_logo.png' %}" alt="dbit logo" class="logo">
+                <div class="header-text">
+                    <h1>Don Bosco Institute of Technology</h1>
+                    <h3>Attendance System</h3>
+                </div>
+            </div>
+        </div>
+
         <h2>Register as:</h2>
+    
         <div class="card-container">
             <a href="{% url 'register_principal' %}" class="card">Principal</a>
             <a href="{% url 'register_hod' %}" class="card">HOD</a>
