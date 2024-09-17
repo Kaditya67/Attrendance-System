@@ -1,14 +1,67 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #080710; /* Dark background */
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .dashboard-container {
+            text-align: center;
+        }
+        h2 {
+            color: #AABD8C; /* Pale green */
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .card {
+            background-color: #4B5D40; /* Dark greenish-gray */
+            border-radius: 10px;
+            padding: 20px;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        .card:hover {
+            background-color: #AABD8C; /* Pale green on hover */
+            color: #080710; /* Dark text on hover */
+            transform: translateY(-10px);
+        }
+    </style>
 </head>
 <body>
-    <h2>Register as : </h2>
-    <a href="{% url 'register_principal' %}">Principal</a><br>
-    <a href="{% url 'register_hod' %}">HOD</a><br>
-    <a href="{% url 'register_teacher' %}">Teacher</a><br>
-    <a href="{% url 'register_staff' %}">Staff</a><br>
-    <a href="{% url 'register_student' %}">Student</a><br>
+    <div class="dashboard-container">
+        <h2>Register as:</h2>
+        <div class="card-container">
+            <a href="{% url 'register_principal' %}" class="card">Principal</a>
+            <a href="{% url 'register_hod' %}" class="card">HOD</a>
+            <a href="{% url 'register_teacher' %}" class="card">Teacher</a>
+            <a href="{% url 'register_staff' %}" class="card">Staff</a>
+            <a href="{% url 'register_student' %}" class="card">Student</a>
+        </div>
+    </div>
 </body>
 </html>

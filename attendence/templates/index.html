@@ -6,41 +6,109 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Attendance System{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f0e9; /* Light cream background */
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4B5D40; /* Dark greenish-gray */
+            padding: 20px 0;
+            font-size: 2rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #AABD8C; /* Pale green */
+            padding: 20px 0;
+        }
+
+        ul {
+            list-style-type: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 0;
+        }
+
+        ul li {
+            flex: 1 1 auto;
+        }
+
+        a {
+            text-decoration: none;
+            padding: 12px 20px;
+            color: #080710; /* Soft black */
+            background-color: #fff;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            display: inline-block;
+            text-align: center;
+        }
+
+        a:hover {
+            background-color: #4B5D40; /* Dark greenish-gray on hover */
+            color: #fff;
+        }
+
+        main {
+            padding: 40px;
+            text-align: center;
+        }
+
+        footer {
+            background-color: #4B5D40; /* Dark greenish-gray */
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            a {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>All Navigation links</h1>
+    <h1>Navigation</h1>
     <nav>
         <ul>
-            <!-- Authentication Links -->
-            <li><a href="{% url 'login' %}">Login</a></li>
-            <li><a href="{% url 'logout' %}">Logout</a></li>
-
-            <!-- Registration Links -->
-            <li><a href="{% url 'register_student' %}">Register Student</a></li>
-            <li><a href="{% url 'register_teacher' %}">Register Teacher</a></li>
-            <li><a href="{% url 'register_hod' %}">Register HOD</a></li>
-            <li><a href="{% url 'register_staff' %}">Register Staff</a></li>
-            <li><a href="{% url 'register_principal' %}">Register Principal</a></li>
-
-            <!-- Dashboard Links -->
-            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-            <li><a href="{% url 'student_dashboard' %}">Student Dashboard</a></li>
-            <li><a href="{% url 'principal_dashboard' %}">Principal Dashboard</a></li>
-            <li><a href="{% url 'hod_dashboard' %}">HOD Dashboard</a></li>
-            <li><a href="{% url 'staff_dashboard' %}">Staff Dashboard</a></li>
-
-            <!-- Attendance and Grades Links -->
-            <li><a href="{% url 'mark_attendance' %}">Mark Attendance</a></li>
-            <li><a href="{% url 'view_grades' %}">View Grades</a></li>
-
-            <!-- HOD and Principal-specific Links -->
-            <li><a href="{% url 'view_teacher_details' %}">View Teacher Details</a></li>
-            <li><a href="{% url 'manage_teachers' %}">Manage Teachers</a></li>
-            <li><a href="{% url 'view_student_details' %}">View Student Details</a></li>
-
-            <!-- Other Links -->
-            <li><a href="{% url 'no_permission' %}">No Permission</a></li>
-            <li><a href="{% url 'index' %}">Home</a></li>
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'logout' %}">Logout</a>
+            <a href="{% url 'register_student' %}">Register Student</a>
+            <a href="{% url 'register_teacher' %}">Register Teacher</a>
+            <a href="{% url 'register_hod' %}">Register HOD</a>
+            <a href="{% url 'register_staff' %}">Register Staff</a>
+            <a href="{% url 'register_principal' %}">Register Principal</a>
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'student_dashboard' %}">Student Dashboard</a>
+            <a href="{% url 'principal_dashboard' %}">Principal Dashboard</a>
+            <a href="{% url 'hod_dashboard' %}">HOD Dashboard</a>
+            <a href="{% url 'staff_dashboard' %}">Staff Dashboard</a>
+            <a href="{% url 'mark_attendance' %}">Mark Attendance</a>
+            <a href="{% url 'view_grades' %}">View Grades</a>
+            <a href="{% url 'view_teacher_details' %}">View Teacher Details</a>
+            <a href="{% url 'manage_teachers' %}">Manage Teachers</a>
+            <a href="{% url 'view_student_details' %}">View Student Details</a>
+            <a href="{% url 'no_permission' %}">No Permission</a>
+            <a href="{% url 'index' %}">Home</a>
         </ul>
     </nav>
 
