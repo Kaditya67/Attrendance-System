@@ -30,3 +30,7 @@ class AttendanceAdmin(admin.ModelAdmin):
     list_filter = ('date', 'status')  # Ensure 'status' is a valid field
     search_fields = ('student__user__username', 'teacher__user__username')
     ordering = ('date',)
+
+
+from .models import Year
+admin.site.register(Year)

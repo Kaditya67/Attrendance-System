@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from .views import (
     register_student, register_teacher, register_hod, register_staff,
-    register_principal, login_view, logout_view, success, student_dashboard,
+    register_principal, login_view, logout_view, success,dashboard, student_dashboard,
     mark_attendance, principal_dashboard, hod_dashboard, staff_dashboard,
     view_teacher_details, manage_teachers, view_student_details, view_grades,
     # manage_permissions, update_permissions, permission_denied
@@ -22,6 +22,7 @@ urlpatterns = [
 
     # Success URL
     path('success/', success, name='success'),
+    path('dashboard/', dashboard, name='dashboard'),
 
     # Dashboard URLs
     path('student_dashboard/', student_dashboard, name='student_dashboard'),

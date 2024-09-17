@@ -379,3 +379,7 @@ def view_grades(request):
 #             'is_checked': perm in group.permissions.all()
 #         })
 #     return perm_list
+
+
+def dashboard(request):   
+    return render(request, 'dashboard.html')
