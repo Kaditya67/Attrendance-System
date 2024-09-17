@@ -118,7 +118,11 @@ def register_principal(request):
 
     return render(request, 'register_principal.html', {'form': form})
 
+def dash_teacher(request):
+    return render(request, 'dash_teacher.html')
 
+def demo_dash(request):
+    return render(request, 'demo_dash.html')
 # def register(request):
 #     if request.method == 'POST':
 #         form = UserRegistrationForm(request.POST)
