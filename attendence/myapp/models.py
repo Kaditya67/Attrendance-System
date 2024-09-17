@@ -19,6 +19,7 @@ class Profile(models.Model):
 class Department(models.Model):
     name = models.CharField(max_length=100, default="Unknown Department")
     year = models.ForeignKey('Year', on_delete=models.CASCADE, related_name='departments')
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
@@ -103,7 +104,7 @@ class Student(models.Model):
     roll_number = models.CharField(max_length=10, unique=True, null=True, blank=True, default=None)
     odd_sem = models.ForeignKey('OddSem', on_delete=models.SET_NULL, null=True, blank=True, related_name='students')
     even_sem = models.ForeignKey('EvenSem', on_delete=models.SET_NULL, null=True, blank=True, related_name='students')
-    year_of_study = models.CharField(max_length=4, default="2024")
+    year = models.IntegerField()
     cgpa = models.DecimalField(max_digits=4, decimal_places=2, default=0.00)
     mobile_no = models.CharField(max_length=15, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
@@ -169,7 +170,9 @@ class Attendance(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     date = models.DateField()
-    is_present = models.BooleanField()
+    status = models.CharField(max_length=10)  # Or whatever status logic you're using
+    is_present = models.BooleanField(default=False)  # Add this if it's missing
+
 
     def __str__(self):
         return f"{self.student.user.username} - {self.date} - {'Present' if self.is_present else 'Absent'}"

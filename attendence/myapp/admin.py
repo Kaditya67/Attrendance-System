@@ -1,43 +1,32 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import CustomUser, Principal, HOD, Teacher, Staff, Student
+from .models import Department, Student, Teacher, Attendance
 
-class CustomUserAdmin(BaseUserAdmin):
-    list_display = ('username', 'email', 'role')
-    fieldsets = (
-        (None, {'fields': ('username', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'email', 'role')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
-        ('Important dates', {'fields': ('last_login', 'date_joined')}),
-    )
-    add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2', 'role'),
-        }),
-    )
-    search_fields = ('username', 'email')
-    ordering = ('username',)
-    filter_horizontal = ()
+# Registering the Department model
+@admin.register(Department)
+class DepartmentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'created_at')  # Ensure 'created_at' exists in Department model
+    search_fields = ('name',)
 
-admin.site.register(CustomUser, CustomUserAdmin)
-
-class PrincipalAdmin(admin.ModelAdmin):
-    list_display = ('user', 'office_location', 'department')
-admin.site.register(Principal, PrincipalAdmin)
-
-class HODAdmin(admin.ModelAdmin):
-    list_display = ('user', 'department', 'office_number', 'managing_teachers')
-admin.site.register(HOD, HODAdmin)
-
-class TeacherAdmin(admin.ModelAdmin):
-    list_display = ('user', 'department', 'program', 'faculty_id')
-admin.site.register(Teacher, TeacherAdmin)
-
-class StaffAdmin(admin.ModelAdmin):
-    list_display = ('user', 'position', 'assigned_department', 'staff_id')
-admin.site.register(Staff, StaffAdmin)
-
+# Registering the Student model
+@admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ('user', 'department', 'roll_number', 'year_of_study', 'cgpa')
-admin.site.register(Student, StudentAdmin)
+    list_display = ('user', 'roll_number', 'department', 'year')  # Ensure 'year' exists in Student model
+    list_filter = ('department', 'year')  # Ensure 'year' exists and is a valid field
+    search_fields = ('user__username', 'roll_number')
+    ordering = ('roll_number',)
+
+# Registering the Teacher model
+@admin.register(Teacher)
+class TeacherAdmin(admin.ModelAdmin):
+    list_display = ('user', 'department')
+    search_fields = ('user__username', 'department__name')
+    list_filter = ('department',)
+    ordering = ('user__username',)
+
+# Registering the Attendance model
+@admin.register(Attendance)
+class AttendanceAdmin(admin.ModelAdmin):
+    list_display = ('student', 'teacher', 'date', 'status')  # Ensure 'status' exists in Attendance model
+    list_filter = ('date', 'status')  # Ensure 'status' is a valid field
+    search_fields = ('student__user__username', 'teacher__user__username')
+    ordering = ('date',)
