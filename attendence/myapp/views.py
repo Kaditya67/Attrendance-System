@@ -2,19 +2,20 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import StudentRegistrationForm
 
+from django.shortcuts import render, redirect
+from .forms import StudentRegistrationForm
+
 def register_student(request):
     if request.method == 'POST':
         form = StudentRegistrationForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Student registered successfully.')
-            return redirect('student_list')  # Redirect to a page that lists students or wherever appropriate
-        else:
-            messages.error(request, 'Please correct the errors below.')
+            return redirect('student_dashboard')  # Redirect to a success page or another view
     else:
         form = StudentRegistrationForm()
 
     return render(request, 'register_student.html', {'form': form})
+
 
 
 from django.shortcuts import render, redirect
@@ -171,9 +172,6 @@ def logout_view(request):
 # views.py
 from django.shortcuts import render
 
-def student_dashboard(request):
-    return render(request, 'student_dashboard.html')
-
 def success(request):
     return render(request, 'success.html')
 
@@ -286,6 +284,11 @@ def student_dashboard(request):
 
     return render(request, 'student_dashboard.html', {'department': department, 'courses': courses})
 
+
+@login_required
+def no_permission(request):
+    return render(request, 'no_permission.html')
+
 @login_required
 def view_grades(request):
     if not request.user.groups.filter(name='Student').exists():
@@ -383,3 +386,6 @@ def view_grades(request):
 
 def dashboard(request):   
     return render(request, 'dashboard.html')
+
+def index(request):
+    return render(request, 'index.html')
