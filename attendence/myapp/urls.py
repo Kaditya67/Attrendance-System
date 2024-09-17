@@ -4,7 +4,12 @@ from .views import (
     register_student, register_teacher, register_hod, register_staff,
     register_principal, login_view, logout_view, success,dashboard, student_dashboard,
     mark_attendance, principal_dashboard, hod_dashboard, staff_dashboard,
+<<<<<<< HEAD
     view_teacher_details, manage_teachers, view_student_details, view_grades,dash_teacher,demo_dash
+=======
+    view_teacher_details, manage_teachers, view_student_details, view_grades,
+    no_permission,index,
+>>>>>>> 0981763495b9f057d235013bd0309b2e525ba2eb
     # manage_permissions, update_permissions, permission_denied
 )
 
@@ -45,4 +50,9 @@ urlpatterns = [
     # path('manage_permissions/', manage_permissions, name='manage_permissions'),
     # path('update_permissions/', update_permissions, name='update_permissions'),
     # path('permission_denied/', permission_denied, name='permission_denied'),
+
+    # Other URLs
+    path('no_permission/', no_permission, name='no_permission'),
+
+    path('', index, name='index'),
 ]

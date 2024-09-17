@@ -2,17 +2,18 @@ from django import forms
 from django.contrib.auth.models import User
 from .models import Student, Department, OddSem, EvenSem
 
+from django.core.exceptions import ValidationError
+from django.core.validators import EmailValidator
+
 class StudentRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
-    email = forms.EmailField()
+    email = forms.EmailField(validators=[EmailValidator(message="Enter a valid email address ending with @dbit.in")])
     mobile_no = forms.CharField(max_length=15, required=False)
     department = forms.ModelChoiceField(queryset=Department.objects.all())
-    odd_sem = forms.ModelChoiceField(queryset=OddSem.objects.all(), required=False)
-    even_sem = forms.ModelChoiceField(queryset=EvenSem.objects.all(), required=False)
     roll_number = forms.CharField(max_length=10)
-    year_of_study = forms.CharField(max_length=4, initial="2024")
+    year_of_study = forms.IntegerField()
     cgpa = forms.DecimalField(max_digits=4, decimal_places=2, initial=0.00)
     password = forms.CharField(widget=forms.PasswordInput, label='Password')
     confirm_password = forms.CharField(widget=forms.PasswordInput, label='Confirm Password')
@@ -21,9 +22,16 @@ class StudentRegistrationForm(forms.ModelForm):
         model = Student
         fields = [
             'username', 'first_name', 'last_name', 'email', 'mobile_no',
-            'department', 'odd_sem', 'even_sem', 'roll_number',
+            'department',
+            'roll_number',
             'year_of_study', 'cgpa', 'password', 'confirm_password'
         ]
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and not email.endswith('@dbit.in'):
+            raise ValidationError("Email must end with @dbit.in")
+        return email
 
     def clean(self):
         cleaned_data = super().clean()
@@ -49,6 +57,7 @@ class StudentRegistrationForm(forms.ModelForm):
         if commit:
             student.save()
         return student
+
 
 
 from django import forms
