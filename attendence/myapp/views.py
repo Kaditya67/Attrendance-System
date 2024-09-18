@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import login as auth_login, logout as auth_logout, get_user_model
+from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from .forms import (StudentRegistrationForm, TeacherRegistrationForm, 
@@ -91,7 +91,7 @@ def login_view(request):
             elif user.groups.filter(name='HOD').exists():
                 return redirect('hod_dashboard')
             elif user.groups.filter(name='Teacher').exists():
-                return redirect('dash_teacher')
+                return redirect('dash_teacher   ')
             elif user.groups.filter(name='Student').exists():
                 return redirect('student_dashboard')
             else:
@@ -187,7 +187,6 @@ def index(request):
 # from .models import (Student, Teacher, HOD, Staff, Principal, Department, 
 #                      EvenSem, OddSem, HonorsMinors)
 # from django.contrib.auth.decorators import login_required
-# from django.contrib.auth import get_user_model
 
 # def register_student(request):
 #     if request.method == "POST":
@@ -403,12 +402,13 @@ def hod_dashboard(request):
 
     return render(request, 'hod_dashboard.html', {'department': department, 'teachers': teachers, 'students': students})
 
+from django.shortcuts import get_object_or_404, redirect
 @login_required
 def manage_teachers(request):
-    if not request.user.groups.filter(name='HOD').exists():
+    if not (request.user.groups.filter(name='HOD').exists() or request.user.groups.filter(name='Principal').exists()):
         return redirect('no_permission')
 
-    hod_profile = HOD.objects.get(user=request.user)
+    hod_profile = get_object_or_404(HOD, user=request.user)
     department = hod_profile.department
     teachers = Teacher.objects.filter(department=department)
 
@@ -430,7 +430,7 @@ def staff_dashboard(request):
 @login_required
 def view_student_details(request):
     
-    if not request.user.groups.filter(name='Staff').exists():
+    if not (request.user.groups.filter(name='Staff').exists() or request.user.groups.filter(name='HOD').exists() or request.user.groups.filter(name='Principal').exists()):
         return redirect('no_permission')
 
     staff_profile = Staff.objects.get(user=request.user)
