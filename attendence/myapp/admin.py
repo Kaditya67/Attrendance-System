@@ -1,4 +1,5 @@
 from django.contrib import admin
+from .models import Department, Principal, Staff, Student, Teacher, Attendance,OddSem,EvenSem,SemesterCGPA,LabsBatches,Program,Lecture,HOD
 from .models import (
     Department, Student, Teacher, Attendance,
       OddSem, EvenSem,
@@ -15,7 +16,7 @@ class DepartmentAdmin(admin.ModelAdmin):
 # Registering the Student model
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ('user', 'roll_number', 'department', 'year')  # Ensure 'year' exists in Student model
+    list_displaStaffly = ('user', 'roll_number', 'department', 'year')  # Ensure 'year' exists in Student model
     list_filter = ('department', 'year')  # Ensure 'year' exists and is a valid field
     search_fields = ('user__username', 'roll_number')
     ordering = ('roll_number',)
@@ -44,4 +45,7 @@ admin.site.register(EvenSem)
 admin.site.register(Lecture)
 admin.site.register(LabsBatches)
 admin.site.register(Program)
+admin.site.register(HOD)
+admin.site.register(Staff)
+admin.site.register(Principal)
 admin.site.register(Course)

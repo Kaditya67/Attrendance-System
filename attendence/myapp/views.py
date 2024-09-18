@@ -51,6 +51,16 @@ def register_principal(request):
 def success(request):   
     return render(request, 'success.html')
 
+def register_teacher(request):
+    if request.method == 'POST':
+        form = TeacherRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('success')  # Redirect to a success page or wherever you want
+    else:
+        form = TeacherRegistrationForm()
+    
+    return render(request, 'register_teacher.html', {'form': form})
 @login_required
 def dashboard_view(request, role_name, template_name):
     if not request.user.groups.filter(name=role_name).exists():
