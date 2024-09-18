@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Department, Student, Teacher, Attendance
+from .models import Department, Student, Teacher, Attendance,OddSem,EvenSem,SemesterCGPA,LabsBatches,Program,Lecture
 
 # Registering the Department model
 @admin.register(Department)
@@ -34,3 +34,9 @@ class AttendanceAdmin(admin.ModelAdmin):
 
 from .models import Year
 admin.site.register(Year)
+admin.site.register(SemesterCGPA)
+admin.site.register(OddSem)
+admin.site.register(EvenSem)
+admin.site.register(Lecture)
+admin.site.register(LabsBatches)
+admin.site.register(Program)

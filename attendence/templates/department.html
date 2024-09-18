@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Information Table</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: #007BFF;
+            overflow: hidden;
+        }
+
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        .navbar a:hover {
+            background-color: #0056b3;
+        }
+
+        /* Page content styles */
+        .content {
+            padding: 20px;
+        }
+
+        h2 {
+            margin-top: 20px;
+            font-size: 24px;
+            color: #007BFF;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom:40px; 
+            padding-bottom: 10px;
+        }
+
+        .filter-container, .search-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        select, input[type="text"], button {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            margin: 5px;
+        }
+
+        select {
+            width: 200px;
+            background-color: #fff;
+        }
+
+        input[type="text"] {
+            width: 300px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 80%;
+            margin: 25px auto;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        td {
+            font-size: 16px;
+            background-color: #f9f9f9;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        table caption {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            table {
+                width: 100%;
+            }
+
+            th, td {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <a href="#">Menu</a>
+    <a href="#">Home</a>
+    <a href="#">Analytics</a>
+    <a href="#">Logout</a>
+</div>
+
+<!-- Page Content -->
+<div class="content">
+    <h2>HOD Dashboard</h2>
+
+    <div class="filter-container">
+        
+        <select id="semesterFilter">
+            <option value="">Select Semester</option>
+            <!-- Options will be populated dynamically -->
+        </select>
+        <select id="honorsMinorsFilter">
+            <option value="">Select Honors/Minors</option>
+            <!-- Options will be populated dynamically -->
+        </select>
+        <select id="statusFilter">
+            <option value="">Select Status</option>
+            <!-- Options will be populated dynamically -->
+        </select>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="search" placeholder="Search students...">
+        <button type="submit">Search</button>
+    </div>
+
+    <table>
+        
+        <tr>
+            <th>Name</th>
+            <th>Semester</th>
+            <th>Status</th>
+            <th>Honors/Minors</th>
+            <th>Attendance</th>
+            <th>CGPA</th>
+            <th>CGPA (Total)</th>
+            <th>KT</th>
+        </tr>
+        {% for student in students %}
+        <tr>
+            <td>{{ student.name }}</td>
+            <td>{{ student.odd_sem|yesno:"Odd,Even" }}</td>
+            <td>{{ student.status }}</td>
+            <td>{{ student.honors_minors.name }}</td>
+            <td>{{ student.attendance }}%</td>
+            <td>{{ student.cgpa }}</td>
+            <td>{{ student.cgpa_total }}</td>
+            <td>{{ student.KT }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+</body>
+</html>

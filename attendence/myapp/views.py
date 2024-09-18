@@ -5,23 +5,23 @@ from .forms import StudentRegistrationForm
 from django.shortcuts import render, redirect
 from .forms import StudentRegistrationForm
 
-def register_student(request):
-    if request.method == 'POST':
-        form = StudentRegistrationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('student_dashboard')  # Redirect to a success page or another view
-    else:
-        form = StudentRegistrationForm()
+# def register_student(request):
+#     if request.method == 'POST':
+#         form = StudentRegistrationForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('student_dashboard')  # Redirect to a success page or another view
+#     else:
+#         form = StudentRegistrationForm()
 
-    return render(request, 'register_student.html', {'form': form})
+#     return render(request, 'register_student.html', {'form': form})
 
 
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import AttendanceForm
-from .models import Principal, Teacher, Department, Student, HOD, Staff
+from .models import EvenSem, HonorsMinors, OddSem, Principal, Teacher, Department, Student, HOD, Staff
 
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from .forms import UserRegistrationForm, UserLoginForm
@@ -302,6 +302,55 @@ def view_grades(request):
     grades = student_profile.grades.all()  # Assuming Student has related grades
 
     return render(request, 'view_grades.html', {'grades': grades})
+
+
+def principal(request):
+    # Fetch query parameters for filtering
+    department_id = request.GET.get('department', '')
+    semester_id = request.GET.get('semester', '')
+    honors_minors_id = request.GET.get('honors_minors', '')
+    status = request.GET.get('status', '')
+    search_query = request.GET.get('search', '')
+
+    # Start with all students
+    students = Student.objects.all()
+
+    if department_id:
+        students = students.filter(department_id=department_id)
+    if semester_id:
+        even_sem = EvenSem.objects.filter(id=semester_id).first()
+        odd_sem = OddSem.objects.filter(id=semester_id).first()
+        students = students.filter(even_sem=even_sem) | students.filter(odd_sem=odd_sem)
+    if honors_minors_id:
+        students = students.filter(honors_minors_id=honors_minors_id)
+    if status:
+        students = students.filter(status=status)
+    if search_query:
+        students = students.filter(name__icontains=search_query)
+
+    # Fetch other data for the dropdowns
+    departments = Department.objects.all()
+    even_sems = EvenSem.objects.all()
+    odd_sems = OddSem.objects.all()
+    honors_minors = HonorsMinors.objects.all()
+    statuses = Student.objects.values_list('status', flat=True).distinct()
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        # Return HTML snippet for the table rows only
+        context = {
+            'students': students,
+        }
+        return render(request, 'student_table_rows.html', context)
+
+    context = {
+        'students': students,
+        'departments': departments,
+        'all_semesters': list(even_sems) + list(odd_sems),
+        'honors_minors': honors_minors,
+        'statuses': statuses,
+    }
+
+    return render(request, 'principal.html', context)
 
 
 
