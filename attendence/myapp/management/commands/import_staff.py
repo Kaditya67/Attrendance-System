@@ -17,29 +17,44 @@ class Command(BaseCommand):
                 reader = csv.DictReader(file)
 
                 for row in reader:
-                    # Extract department
-                    department = Department.objects.filter(name=row['assigned_department']).first()
+                    # Validate required fields
+                    required_fields = ['username', 'first_name', 'last_name', 'position', 'assigned_department', 'staff_id']
+                    missing_fields = [field for field in required_fields if not row.get(field)]
+
+                    if missing_fields:
+                        self.stdout.write(self.style.ERROR(f"Missing fields {', '.join(missing_fields)} for row: {row}"))
+                        continue
+
+                    # Extract and clean up department
+                    department_name = row['assigned_department'].strip()
+                    department = Department.objects.filter(name=department_name).first()
+
+                    if not department:
+                        self.stdout.write(self.style.ERROR(f"Department '{department_name}' not found for username {row['username']}"))
+                        continue
 
                     # Get or create user
                     user, created = User.objects.get_or_create(
                         username=row['username'],
                         defaults={
-                            'first_name': row['first_name'],
-                            'last_name': row['last_name'],
+                            'first_name': row['first_name'].strip(),
+                            'last_name': row['last_name'].strip(),
                         }
                     )
 
                     # Create or update Staff details
-                    staff, created = Staff.objects.update_or_create(
-                        user=user,
-                        defaults={
-                            'position': row['position'],
-                            'assigned_department': department,
-                            'staff_id': row['staff_id']
-                        }
-                    )
-
-                    self.stdout.write(self.style.SUCCESS(f'Successfully added/updated Staff {user.username}'))
+                    try:
+                        staff, created = Staff.objects.update_or_create(
+                            user=user,
+                            defaults={
+                                'position': row['position'].strip(),
+                                'assigned_department': department,
+                                'staff_id': row['staff_id'].strip()
+                            }
+                        )
+                        self.stdout.write(self.style.SUCCESS(f'Successfully added/updated Staff {user.username}'))
+                    except Exception as e:
+                        self.stdout.write(self.style.ERROR(f"Error updating/creating Staff {user.username}: {str(e)}"))
 
         except FileNotFoundError:
             raise CommandError(f"File '{csv_file}' does not exist")

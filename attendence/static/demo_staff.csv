@@ -1,4 +1,5 @@
 username,first_name,last_name,position,assigned_department,staff_id
-john_doe3,John,Doe,Lab Technician,Comps,ST101
-jane_smith3,Jane,Smith,IT Support,IT,ST102
-mike_johnson3,Mike,Johnson,Electrical Engineer,IT,ST103
+jdoe,John,Doe,Professor,Computer Science,CS101
+asmith,Alice,Smith,Assistant Professor,Mathematics,MATH202
+bwhite,Bob,White,Lecturer,Physics,PHYS303
+cblack,Charlie,Black,Lab Assistant,Chemistry,CHEM404
