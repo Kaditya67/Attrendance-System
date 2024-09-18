@@ -2,15 +2,28 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import StudentRegistrationForm
 
-from django.shortcuts import render, redirect
-from .forms import StudentRegistrationForm
+from django.contrib.auth.models import Group
+from django.contrib.auth import get_user_model
 
 def register_student(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = StudentRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('student_dashboard')  # Redirect to a success page or another view
+            # Save the new student and user
+            student = form.save()
+            
+            # Add the user to the "Student" group
+            user = student.user
+            student_group, created = Group.objects.get_or_create(name='Student')
+            user.groups.add(student_group)
+            
+            # Optionally, you can also add the user to the group using:
+            # student.user.groups.add(Group.objects.get(name='Student'))
+
+            messages.success(request, "Student registered successfully!")
+            return redirect('student_dashboard')
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = StudentRegistrationForm()
 
@@ -50,16 +63,30 @@ from .forms import TeacherRegistrationForm
 def success(request):   
     return render(request, 'success.html')
 
+from django.contrib.auth.models import Group
+from django.contrib.auth import get_user_model
+
 def register_teacher(request):
     if request.method == 'POST':
         form = TeacherRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('success')  # Redirect to a success page or wherever you want
+            # Save the new teacher and user
+            teacher = form.save()
+            
+            # Add the user to the "Teachers" group
+            user = teacher.user
+            teachers_group, created = Group.objects.get_or_create(name='Teacher')
+            user.groups.add(teachers_group)
+            
+            messages.success(request, "Teacher registered successfully!")
+            return redirect('dash_teacher')  # Redirect to a success page or wherever you want
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = TeacherRegistrationForm()
-    
+
     return render(request, 'teacher_register.html', {'form': form})
+
 
 
 # myapp/views.py
@@ -81,43 +108,94 @@ from .models import HOD, Staff, Principal
 from django.shortcuts import render, redirect
 from .forms import HODRegistrationForm
 
+from django.contrib.auth.models import Group
+from django.contrib import messages
+
 def register_hod(request):
     if request.method == 'POST':
         form = HODRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('success')  # Replace with your success URL
+            # Save the new HOD and user
+            hod = form.save()
+            
+            # Add the user to the "HODs" group
+            user = hod.user
+            hods_group, created = Group.objects.get_or_create(name='HOD')
+            user.groups.add(hods_group)
+            
+            messages.success(request, "HOD registered successfully!")
+            return redirect('hod_dashboard')  # Replace with your success URL
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = HODRegistrationForm()
+
     return render(request, 'register_hod.html', {'form': form})
+
 
 
 # views.py
 from django.shortcuts import render, redirect
 from .forms import StaffRegistrationForm
 
+from django.contrib.auth.models import Group
+from django.contrib import messages
+from django.shortcuts import redirect, render
+from django.contrib.auth import login as auth_login
+
 def register_staff(request):
     if request.method == 'POST':
         form = StaffRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('success_url')  # Replace with your success URL
+            # Save the new staff user
+            user = form.save()
+
+            # Add the user to the "Staff" group
+            staff_group, created = Group.objects.get_or_create(name='Staff')
+            user.groups.add(staff_group)
+
+            # Optionally log in the new staff member
+            # auth_login(request, user)  # Uncomment if you want to log them in automatically
+
+            messages.success(request, "Staff registered successfully!")
+            return redirect('staff_dashboard')  # Replace with your actual success URL
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = StaffRegistrationForm()
+
     return render(request, 'register_staff.html', {'form': form})
 
+
+
+from django.contrib.auth.models import Group
+from django.contrib import messages
+from django.shortcuts import redirect, render
+from django.contrib.auth import login as auth_login
 
 def register_principal(request):
     if request.method == 'POST':
         form = PrincipalRegistrationForm(request.POST)
         if form.is_valid():
+            # Save the new Principal and user
             user = form.save()
-            # auth_login(request, user)
-            return redirect('success')  # Replace with your success URL
+
+            # Add the user to the "Principals" group
+            principals_group, created = Group.objects.get_or_create(name='Principal')
+            user.groups.add(principals_group)
+
+            # Optionally log in the new principal
+            auth_login(request, user)
+
+            messages.success(request, "Principal registered successfully!")
+            return redirect('principal_dashboard')  # Replace with your success URL
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = PrincipalRegistrationForm()
 
     return render(request, 'register_principal.html', {'form': form})
+
 
 def dash_teacher(request):
     return render(request, 'dash_teacher.html')
@@ -157,13 +235,30 @@ def demo_dash(request):
 #     return render(request, 'register.html', {'form': form})
 
 
+from django.contrib.auth import login as auth_login
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+
 def login_view(request):
     if request.method == 'POST':
         form = UserLoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             auth_login(request, user)
-            return redirect('dashboard')
+            
+            # Redirect based on user role/type
+            if user.is_superuser:
+                return redirect('/admin/')  # Redirect superuser/admin to their dashboard
+            elif user.groups.filter(name='Principal').exists():
+                return redirect('principal_dashboard')  # Redirect Principal
+            elif user.groups.filter(name='HOD').exists():
+                return redirect('hod_dashboard')  # Redirect HOD
+            elif user.groups.filter(name='Teacher').exists():
+                return redirect('teacher_dashboard')  # Redirect Teacher
+            elif user.groups.filter(name='Student').exists():
+                return redirect('student_dashboard')  # Redirect Student
+            else:
+                return redirect('dashboard')  # Default dashboard if no group is found
     else:
         form = UserLoginForm()
     
@@ -186,7 +281,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import AttendanceForm
 from .models import Teacher
 
-@login_required
+# @login_required
 def mark_attendance(request):
     if not request.user.groups.filter(name='Teacher').exists():
         return redirect('no_permission')  # Redirect to a page showing no permission message
@@ -205,7 +300,7 @@ def mark_attendance(request):
 
 
 
-@login_required
+# @login_required
 def principal_dashboard(request):
     if not request.user.groups.filter(name='Principal').exists():
         return redirect('no_permission')  # Redirect to a page showing no permission message
@@ -219,7 +314,7 @@ def principal_dashboard(request):
 
     return render(request, 'principal_dashboard.html', {'department': department, 'teachers': teachers})
 
-@login_required
+# @login_required
 def view_teacher_details(request):
     if not request.user.groups.filter(name='Principal').exists():
         return redirect('no_permission')
@@ -241,7 +336,7 @@ def hod_dashboard(request):
 
     return render(request, 'hod_dashboard.html', {'department': department, 'teachers': teachers, 'students': students})
 
-@login_required
+# @login_required
 def manage_teachers(request):
     if not request.user.groups.filter(name='HOD').exists():
         return redirect('no_permission')
@@ -252,7 +347,7 @@ def manage_teachers(request):
 
     return render(request, 'manage_teachers.html', {'teachers': teachers})
 
-@login_required
+# @login_required
 def staff_dashboard(request):
     if not request.user.groups.filter(name='Staff').exists():
         return redirect('no_permission')
@@ -265,8 +360,9 @@ def staff_dashboard(request):
 
     return render(request, 'staff_dashboard.html', {'department': department, 'students': students})
 
-@login_required
+# @login_required
 def view_student_details(request):
+    
     if not request.user.groups.filter(name='Staff').exists():
         return redirect('no_permission')
 
@@ -276,24 +372,26 @@ def view_student_details(request):
 
     return render(request, 'view_student_details.html', {'students': students})
 
-@login_required
+# @login_required
 def student_dashboard(request):
     if not request.user.groups.filter(name='Student').exists():
         return redirect('no_permission')
 
     student_profile = Student.objects.get(user=request.user)
     department = student_profile.department
-    # Fetch student's details
-    courses = student_profile.courses_taught.all()  # Assuming Student has related courses
+    
+    # Fetch student's enrolled courses
+    courses = student_profile.courses.all()  # Use `courses` if it's a ManyToManyField
 
     return render(request, 'student_dashboard.html', {'department': department, 'courses': courses})
+
 
 
 @login_required
 def no_permission(request):
     return render(request, 'no_permission.html')
 
-@login_required
+# @login_required
 def view_grades(request):
     if not request.user.groups.filter(name='Student').exists():
         return redirect('no_permission')

@@ -1,9 +1,9 @@
+from .models import Student, Department
 from django import forms
-from django.contrib.auth.models import User
-from .models import Student, Department, OddSem, EvenSem
-
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 from django.core.validators import EmailValidator
+from django.db import transaction  # Add this line
 
 class StudentRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
@@ -22,9 +22,7 @@ class StudentRegistrationForm(forms.ModelForm):
         model = Student
         fields = [
             'username', 'first_name', 'last_name', 'email', 'mobile_no',
-            'department',
-            'roll_number',
-            'year_of_study', 'cgpa', 'password', 'confirm_password'
+            'department', 'roll_number', 'year_of_study', 'cgpa', 'password', 'confirm_password'
         ]
 
     def clean_email(self):
@@ -43,6 +41,7 @@ class StudentRegistrationForm(forms.ModelForm):
         
         return cleaned_data
 
+    @transaction.atomic
     def save(self, commit=True):
         user = User.objects.create_user(
             username=self.cleaned_data['username'],
@@ -54,6 +53,7 @@ class StudentRegistrationForm(forms.ModelForm):
         
         student = super().save(commit=False)
         student.user = user
+        
         if commit:
             student.save()
         return student
@@ -98,7 +98,7 @@ class TeacherRegistrationForm(forms.ModelForm):
     email = forms.EmailField()
     experience = forms.CharField(widget=forms.Textarea, required=False)
     department = forms.ModelChoiceField(queryset=Department.objects.all())
-    program = forms.ModelChoiceField(queryset=Program.objects.all())
+    # program = forms.ModelChoiceField(queryset=Program.objects.all())
     courses_taught = forms.ModelMultipleChoiceField(queryset=Course.objects.all(), required=False)
     faculty_id = forms.CharField(max_length=10)
     password = forms.CharField(widget=forms.PasswordInput, label='Password')
@@ -106,7 +106,9 @@ class TeacherRegistrationForm(forms.ModelForm):
 
     class Meta:
         model = Teacher
-        fields = ['username', 'first_name', 'last_name', 'mobile_no', 'email', 'experience', 'department', 'program', 'courses_taught', 'faculty_id', 'password', 'confirm_password']
+        fields = ['username', 'first_name', 'last_name', 'mobile_no', 'email', 'experience', 'department', 
+                #   'program',
+                    'courses_taught', 'faculty_id', 'password', 'confirm_password']
 
     def clean(self):
         cleaned_data = super().clean()

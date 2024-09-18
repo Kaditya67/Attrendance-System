@@ -32,7 +32,7 @@ class AttendanceAdmin(admin.ModelAdmin):
     ordering = ('date',)
 
 
-from .models import Year
+from .models import Year, Course
 admin.site.register(Year)
 admin.site.register(SemesterCGPA)
 admin.site.register(OddSem)
@@ -40,3 +40,4 @@ admin.site.register(EvenSem)
 admin.site.register(Lecture)
 admin.site.register(LabsBatches)
 admin.site.register(Program)
+admin.site.register(Course)

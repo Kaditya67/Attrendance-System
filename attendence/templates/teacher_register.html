@@ -95,7 +95,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        <div class="col-md-6 mb-3">
+                        {% comment %} <div class="col-md-6 mb-3">
                             <label for="program" class="form-label">Program</label>
                             <select name="program" id="program" class="form-select" required>
                                 {% for prog in form.program.field.queryset %}
@@ -111,7 +111,7 @@
                                     {% endfor %}
                                 </div>
                             {% endif %}
-                        </div>
+                        </div> {% endcomment %}
                     </div>
                 </div>
 

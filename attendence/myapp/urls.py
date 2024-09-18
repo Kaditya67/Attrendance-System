@@ -4,10 +4,11 @@ from .views import (
     index, no_permission, 
     register_student,
     register_teacher, register_hod, register_staff,
-    register_principal, login_view, logout_view, success,dashboard, student_dashboard,
-    mark_attendance, principal_dashboard, hod_dashboard, staff_dashboard,
-    view_teacher_details, manage_teachers, view_student_details, view_grades,dash_teacher,demo_dash
-    # manage_permissions, update_permissions, permission_denied
+    register_principal, login_view, logout_view, success,
+    dashboard, student_dashboard, mark_attendance, 
+    principal_dashboard, hod_dashboard, staff_dashboard, 
+    view_teacher_details, manage_teachers, view_student_details, view_grades,
+    dash_teacher, demo_dash
 )
 
 urlpatterns = [
@@ -31,6 +32,8 @@ urlpatterns = [
     path('principal_dashboard/', principal_dashboard, name='principal_dashboard'),
     path('hod_dashboard/', hod_dashboard, name='hod_dashboard'),
     path('staff_dashboard/', staff_dashboard, name='staff_dashboard'),
+    path('dash_teacher/', dash_teacher, name='dash_teacher'),
+    path('demo_dash/', demo_dash, name='demo_dash'),
 
     # Attendance and Grades URLs
     path('mark_attendance/', mark_attendance, name='mark_attendance'),
@@ -41,15 +44,9 @@ urlpatterns = [
     path('manage_teachers/', manage_teachers, name='manage_teachers'),
     path('view_student_details/', view_student_details, name='view_student_details'),
 
-    path('dash_teacher/',dash_teacher, name='dash_teacher'),
-    path('demo_dash/',demo_dash, name='demo_dash'),
     # Permissions URLs
-    # path('manage_permissions/', manage_permissions, name='manage_permissions'),
-    # path('update_permissions/', update_permissions, name='update_permissions'),
-    # path('permission_denied/', permission_denied, name='permission_denied'),
-
-    # Other URLs
     path('no_permission/', no_permission, name='no_permission'),
 
+    # Home
     path('', index, name='index'),
 ]

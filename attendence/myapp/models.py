@@ -81,7 +81,7 @@ class LabsBatches(models.Model):
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name='teachers')
-    program = models.ForeignKey(Program, on_delete=models.SET_NULL, null=True, blank=True, related_name='teachers')
+    # program = models.ForeignKey(Program, on_delete=models.SET_NULL, null=True, blank=True, related_name='teachers')
     courses_taught = models.ManyToManyField(Course, blank=True)
     faculty_id = models.CharField(max_length=10, unique=True, default="UNKNOWN")
     mobile_no = models.CharField(max_length=15, blank=True, null=True)
@@ -112,6 +112,8 @@ class Student(models.Model):
     mobile_no = models.CharField(max_length=15, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
+    courses = models.ManyToManyField('Course', related_name='students', blank=True)  # Add this field
+
 
     class Meta:
         permissions = [
