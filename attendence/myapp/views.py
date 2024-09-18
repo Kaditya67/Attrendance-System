@@ -59,7 +59,7 @@ def register_teacher(request):
     else:
         form = TeacherRegistrationForm()
     
-    return render(request, 'teacher_register.html', {'form': form})
+    return render(request, 'register_teacher.html', {'form': form})
 
 
 # myapp/views.py

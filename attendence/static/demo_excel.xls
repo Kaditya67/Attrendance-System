@@ -1,0 +1,6 @@
+username,first_name,last_name,department,roll_number,year,cgpa,mobile_no,email,address
+john_doe,John,Doe,Computer,CS101,3,8.50,9876543210,john.doe@example.com,123 Main St
+jane_smith,Jane,Smith,Information Technology,IT102,2,9.00,9876543211,jane.smith@example.com,456 Oak St
+mike_johnson,Mike,Johnson,Electrical,EE103,4,7.75,9876543212,mike.johnson@example.com,789 Pine St
+anna_brown,Anna,Brown,Mechanical,ME104,1,8.20,9876543213,anna.brown@example.com,321 Birch St
+david_white,David,White,Civil,CE105,3,8.85,9876543214,david.white@example.com,654 Cedar St
