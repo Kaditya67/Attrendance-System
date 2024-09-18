@@ -17,8 +17,15 @@ class Command(BaseCommand):
                 reader = csv.DictReader(file)
 
                 for row in reader:
-                    # Extract department
-                    department = Department.objects.filter(name=row['department']).first()
+                    # Extract or create department
+                    department, _ = Department.objects.get_or_create(name=row['department'])
+
+                    # Check if the department already has an HOD
+                    existing_hod = HOD.objects.filter(department=department).first()
+
+                    if existing_hod:
+                        self.stdout.write(self.style.WARNING(f"Department '{department.name}' already has an HOD: {existing_hod.user.username}. Skipping."))
+                        continue  # Skip this row or handle it as needed
 
                     # Get or create user
                     user, created = User.objects.get_or_create(
@@ -29,17 +36,15 @@ class Command(BaseCommand):
                         }
                     )
 
-                    # Create or update HOD details
-                    hod, created = HOD.objects.update_or_create(
+                    # Create HOD
+                    hod = HOD.objects.create(
                         user=user,
-                        defaults={
-                            'department': department,
-                            'office_number': row['office_number'],
-                            'managing_teachers': row['managing_teachers']
-                        }
+                        department=department,
+                        office_number=row['office_number'],
+                        managing_teachers=row['managing_teachers']
                     )
 
-                    self.stdout.write(self.style.SUCCESS(f'Successfully added/updated HOD {user.username}'))
+                    self.stdout.write(self.style.SUCCESS(f'Successfully added HOD {user.username} for department {department.name}'))
 
         except FileNotFoundError:
             raise CommandError(f"File '{csv_file}' does not exist")

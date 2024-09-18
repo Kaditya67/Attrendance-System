@@ -16,10 +16,13 @@ class Command(BaseCommand):
             with open(csv_file, mode='r') as file:
                 reader = csv.DictReader(file)
 
-                for row in reader:
-                    # Extract department
-                    department = Department.objects.filter(name=row['department']).first()
+                # Check if a Principal already exists
+                existing_principal = Principal.objects.first()
 
+                if existing_principal:
+                    self.stdout.write(self.style.WARNING(f"A principal already exists: {existing_principal.user.username}. Updating principal data."))
+                
+                for row in reader:
                     # Get or create user
                     user, created = User.objects.get_or_create(
                         username=row['username'],
@@ -29,12 +32,11 @@ class Command(BaseCommand):
                         }
                     )
 
-                    # Create or update Principal details
+                    # Create or update Principal
                     principal, created = Principal.objects.update_or_create(
                         user=user,
                         defaults={
-                            'office_location': row['office_location'],
-                            'department': department
+                            'office_location': row['office_location']
                         }
                     )
 

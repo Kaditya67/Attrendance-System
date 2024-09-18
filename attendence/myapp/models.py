@@ -101,6 +101,7 @@ class Student(models.Model):
     def __str__(self):
         return f"Student: {self.user.username} - Roll No: {self.roll_number}"
 
+
 class Enrollment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
@@ -113,14 +114,23 @@ class Enrollment(models.Model):
     def __str__(self):
         return f"{self.student.user.username} - {self.course.name} ({self.semester})"
 
+from django.db import models
+from django.contrib.auth.models import User
+
 class HOD(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name='hods')
-    office_number = models.CharField(max_length=50, blank=True, null=True)
-    managing_teachers = models.IntegerField(default=0)
+    department = models.OneToOneField('Department', on_delete=models.CASCADE, null=True, blank=True)  # Ensures only one HOD per department
+    office_number = models.CharField(max_length=20, blank=True, null=True)
+    managing_teachers = models.IntegerField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['department'], name='unique_hod_per_department')
+        ]
 
     def __str__(self):
-        return f"HOD: {self.user.username} - Department: {self.department.name if self.department else 'No Department'}"
+        return f'{self.user.first_name} {self.user.last_name} - HOD of {self.department.name}'
+
 
 class Staff(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -131,13 +141,22 @@ class Staff(models.Model):
     def __str__(self):
         return f"Staff: {self.user.username} - Position: {self.position}"
 
+from django.db import models
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+
 class Principal(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    office_location = models.CharField(max_length=255, blank=True, null=True)
-    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name='principals')
+    # department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True)
+    office_location = models.CharField(max_length=100, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if Principal.objects.exists() and not self.pk:
+            raise ValidationError('Only one Principal can exist.')
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Principal: {self.user.username} - Department: {self.department.name if self.department else 'No Department'}"
+        return f'{self.user.first_name} {self.user.last_name} - Principal'
 
 class Lecture(models.Model):
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name='lectures')
