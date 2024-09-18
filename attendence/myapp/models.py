@@ -172,9 +172,9 @@ class Lecture(models.Model):
 class Attendance(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
-    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE)
     date = models.DateField()
-    status = models.CharField(max_length=10, choices=[('Present', 'Present'), ('Absent', 'Absent')])
+    status = models.CharField(max_length=20)  # e.g., "Present", "Absent", etc.
+    is_present = models.BooleanField(default=False)  # Add this if needed
 
     def __str__(self):
         return f"{self.student.username} - {self.lecture.program.name} - {self.date} - {self.status}"
