@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import Department, Student, Teacher, Attendance,OddSem,EvenSem,SemesterCGPA,LabsBatches,Program,Lecture
+from .models import (
+    Department, Student, Teacher, Attendance,
+      OddSem, EvenSem,
+      
+    SemesterCGPA, LabsBatches, Program, Lecture, Course, Year
+)
 
 # Registering the Department model
 @admin.register(Department)
@@ -31,8 +36,7 @@ class AttendanceAdmin(admin.ModelAdmin):
     search_fields = ('student__user__username', 'teacher__user__username')
     ordering = ('date',)
 
-
-from .models import Year, Course
+# Registering the remaining models
 admin.site.register(Year)
 admin.site.register(SemesterCGPA)
 admin.site.register(OddSem)

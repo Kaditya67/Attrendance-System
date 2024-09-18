@@ -1,4 +1,147 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">Welcome to your Dashboard</h1>
+
+    {% if department %}
+        <h2>Department: {{ department.name }}</h2>
+    {% endif %}
+
+    {% if teachers %}
+        <div class="section">
+            <h3>Teachers in Your Department</h3>
+            <ul class="list-group">
+                {% for teacher in teachers %}
+                    <li class="list-group-item">{{ teacher.first_name }} {{ teacher.last_name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if students %}
+        <div class="section">
+            <h3>Students in Your Department</h3>
+            <ul class="list-group">
+                {% for student in students %}
+                    <li class="list-group-item">{{ student.first_name }} {{ student.last_name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if courses %}
+        <div class="section">
+            <h3>Your Courses</h3>
+            <ul class="list-group">
+                {% for course in courses %}
+                    <li class="list-group-item">{{ course.name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <!-- Additional sections for different roles -->
+    {% if is_teacher %}
+        <div class="section">
+            <h3>Teacher Specific Section</h3>
+            <!-- Add content specific to teachers -->
+        </div>
+    {% elif is_hod %}
+        <div class="section">
+            <h3>HOD Specific Section</h3>
+            <!-- Add content specific to HODs -->
+        </div>
+    {% elif is_staff %}
+        <div class="section">
+            <h3>Staff Specific Section</h3>
+            <!-- Add content specific to staff -->
+        </div>
+    {% elif is_student %}
+        <div class="section">
+            <h3>Student Specific Section</h3>
+            <!-- Add content specific to students -->
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+
+{% comment %} {% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">Welcome to your Dashboard</h1>
+
+    {% if department %}
+        <h2>Department: {{ department.name }}</h2>
+    {% endif %}
+
+    {% if teachers %}
+        <div class="section">
+            <h3>Teachers in Your Department</h3>
+            <ul class="list-group">
+                {% for teacher in teachers %}
+                    <li class="list-group-item">{{ teacher.first_name }} {{ teacher.last_name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if students %}
+        <div class="section">
+            <h3>Students in Your Department</h3>
+            <ul class="list-group">
+                {% for student in students %}
+                    <li class="list-group-item">{{ student.first_name }} {{ student.last_name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if courses %}
+        <div class="section">
+            <h3>Your Courses</h3>
+            <ul class="list-group">
+                {% for course in courses %}
+                    <li class="list-group-item">{{ course.name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <!-- Additional sections for different roles -->
+    {% if request.user.groups.filter(name="Teacher").exists %}
+        <div class="section">
+            <h3>Teacher Specific Section</h3>
+            <!-- Add content specific to teachers -->
+        </div>
+    {% elif request.user.groups.filter(name="HOD").exists %}
+        <div class="section">
+            <h3>HOD Specific Section</h3>
+            <!-- Add content specific to HODs -->
+        </div>
+    {% elif request.user.groups.filter(name="Staff").exists %}
+        <div class="section">
+            <h3>Staff Specific Section</h3>
+            <!-- Add content specific to staff -->
+        </div>
+    {% elif request.user.groups.filter(name="Student").exists %}
+        <div class="section">
+            <h3>Student Specific Section</h3>
+            <!-- Add content specific to students -->
+        </div>
+    {% endif %}
+</div>
+{% endblock %} {% endcomment %}
+
+
+
+{% comment %} <!DOCTYPE html>
 {% load static %}
 
 <html lang="en">
@@ -107,4 +250,4 @@
         </div>
     </div>
 </body>
-</html>
+</html> {% endcomment %}

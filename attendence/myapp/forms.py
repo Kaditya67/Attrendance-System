@@ -1,9 +1,48 @@
-from .models import Student, Department
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.core.validators import EmailValidator
-from django.db import transaction  # Add this line
+from django.db import transaction
+from .models import Student, Department
+
+from django import forms
+from django.contrib.auth.models import User
+from django import forms
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
+
+class UserLoginForm(forms.Form):
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={'placeholder': 'Username', 'class': 'form-control'}),
+        label='Username'
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'placeholder': 'Password', 'class': 'form-control'}),
+        label='Password'
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = None  # Store the authenticated user
+        super(UserLoginForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get("username")
+        password = cleaned_data.get("password")
+
+        if username and password:
+            # Use Django's authenticate function to check user credentials
+            user = authenticate(username=username, password=password)
+            if user is None:
+                raise forms.ValidationError("Invalid username or password")
+            self.user = user  # Save the authenticated user
+
+        return cleaned_data
+
+    def get_user(self):
+        return self.user
+
 
 class StudentRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
@@ -58,38 +97,10 @@ class StudentRegistrationForm(forms.ModelForm):
             student.save()
         return student
 
-
-
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import Teacher, HOD, Staff, Principal, Department, Program, Course, Attendance
+from .models import Teacher, Department, Course
 
-# Common Forms
-class UserRegistrationForm(forms.ModelForm):
-    user_type = forms.ChoiceField(choices=[('TEACHER', 'Teacher'), ('PRINCIPAL', 'Principal')])
-    faculty_id = forms.CharField(max_length=10, required=False)  # Make sure this matches the Teacher model
-
-    class Meta:
-        model = User
-        fields = ['username', 'password', 'email', 'user_type', 'faculty_id']
-        widgets = {
-            'password': forms.PasswordInput(),
-        }
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data['password'])
-        if commit:
-            user.save()
-        return user
-
-class UserLoginForm(AuthenticationForm):
-    class Meta:
-        model = User
-        fields = ['username', 'password']
-
-# Teacher Forms
 class TeacherRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
     first_name = forms.CharField(max_length=30)
@@ -98,7 +109,6 @@ class TeacherRegistrationForm(forms.ModelForm):
     email = forms.EmailField()
     experience = forms.CharField(widget=forms.Textarea, required=False)
     department = forms.ModelChoiceField(queryset=Department.objects.all())
-    # program = forms.ModelChoiceField(queryset=Program.objects.all())
     courses_taught = forms.ModelMultipleChoiceField(queryset=Course.objects.all(), required=False)
     faculty_id = forms.CharField(max_length=10)
     password = forms.CharField(widget=forms.PasswordInput, label='Password')
@@ -106,8 +116,7 @@ class TeacherRegistrationForm(forms.ModelForm):
 
     class Meta:
         model = Teacher
-        fields = ['username', 'first_name', 'last_name', 'mobile_no', 'email', 'experience', 'department', 
-                #   'program',
+        fields = ['username', 'first_name', 'last_name', 'mobile_no', 'email', 'experience', 'department',
                     'courses_taught', 'faculty_id', 'password', 'confirm_password']
 
     def clean(self):
@@ -138,7 +147,11 @@ class TeacherRegistrationForm(forms.ModelForm):
             self.save_m2m()  # Save many-to-many fields
         return teacher
 
-# HOD Forms
+
+from django import forms
+from django.contrib.auth.models import User
+from .models import HOD, Department
+
 class HODRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
     first_name = forms.CharField(max_length=30)
@@ -181,7 +194,10 @@ class HODRegistrationForm(forms.ModelForm):
             hod.save()
         return hod
 
-# Staff Forms
+from django import forms
+from django.contrib.auth.models import User
+from .models import Staff, Department
+
 class StaffRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
     first_name = forms.CharField(max_length=30)
@@ -224,7 +240,10 @@ class StaffRegistrationForm(forms.ModelForm):
             staff.save()
         return staff
 
-# Principal Forms
+from django import forms
+from django.contrib.auth.models import User
+from .models import Principal, Department
+
 class PrincipalRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
     first_name = forms.CharField(max_length=30)
@@ -266,8 +285,23 @@ class PrincipalRegistrationForm(forms.ModelForm):
             principal.save()
         return principal
 
-# Attendance Form
+
+from django import forms
+from .models import Attendance
+
+from django import forms
+from .models import Attendance
+
 class AttendanceForm(forms.ModelForm):
     class Meta:
         model = Attendance
-        fields = ['student', 'date', 'is_present']  # Adjust fields as needed
+        fields = ['student', 'date', 'status']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'status': forms.Select(choices=Attendance.STATUS_CHOICES, attrs={'class': 'form-control'})
+        }
+        labels = {
+            'student': 'Select Student',
+            'date': 'Attendance Date',
+            'status': 'Attendance Status'
+        }
