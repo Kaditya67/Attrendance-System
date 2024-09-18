@@ -1,14 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Grades</title>
+    <!-- Add Bootstrap CSS for better styling -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+        }
+        .card {
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .grade-list {
+            list-style: none;
+            padding: 0;
+        }
+        .grade-list li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
 </head>
 <body>
-    <h2>Your Grades</h2>
-    <ul>
-        {% for grade in grades %}
-            <li>{{ grade.course.name }}: {{ grade.grade }}</li>
-        {% endfor %}
-    </ul>
+    <div class="container">
+        <div class="card">
+            <h2 class="text-center mb-4">Your Grades</h2>
+            <ul class="grade-list">
+                {% for grade in grades %}
+                    <li>
+                        <strong>{{ grade.course.name }}</strong>: {{ grade.grade }}
+                    </li>
+                {% empty %}
+                    <li>No grades available.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Add Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

@@ -9,6 +9,136 @@
         <div class="form-container">
             <h1 class="text-center mb-4">Student Registration</h1>
 
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <!-- Display Messages -->
+                {% if messages %}
+                <div class="alert-container">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} mb-3">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Personal Details Section -->
+                <div class="form-section">
+                    <h2>Personal Details</h2>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.username.label_tag }}
+                            {{ form.username }}
+                            <div class="invalid-feedback">
+                                {% if form.username.errors %}{{ form.username.errors }}{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.first_name.label_tag }}
+                            {{ form.first_name }}
+                            <div class="invalid-feedback">
+                                {% if form.first_name.errors %}{{ form.first_name.errors }}{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.last_name.label_tag }}
+                            {{ form.last_name }}
+                            <div class="invalid-feedback">
+                                {% if form.last_name.errors %}{{ form.last_name.errors }}{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.email.label_tag }}
+                            {{ form.email }}
+                            <div class="invalid-feedback">
+                                {% if form.email.errors %}{{ form.email.errors }}{% endif %}
+                                <p>Please enter a valid email address ending with @dbit.in.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.mobile_no.label_tag }}
+                            {{ form.mobile_no }}
+                            <div class="invalid-feedback">
+                                {% if form.mobile_no.errors %}{{ form.mobile_no.errors }}{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Academic Details Section -->
+                <div class="form-section">
+                    <h2>Academic Details</h2>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.department.label_tag }}
+                            {{ form.department }}
+                            <div class="invalid-feedback">
+                                {% if form.department.errors %}{{ form.department.errors }}{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.roll_number.label_tag }}
+                            {{ form.roll_number }}
+                            <div class="invalid-feedback">
+                                {% if form.roll_number.errors %}{{ form.roll_number.errors }}{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.year_of_study.label_tag }}
+                            {{ form.year_of_study }}
+                            <div class="invalid-feedback">
+                                {% if form.year_of_study.errors %}{{ form.year_of_study.errors }}{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.cgpa.label_tag }}
+                            {{ form.cgpa }}
+                            <div class="invalid-feedback">
+                                {% if form.cgpa.errors %}{{ form.cgpa.errors }}{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password Section -->
+                <div class="form-section">
+                    <h2>Account Password</h2>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.password.label_tag }}
+                            {{ form.password }}
+                            <div class="invalid-feedback">
+                                {% if form.password.errors %}{{ form.password.errors }}{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.confirm_password.label_tag }}
+                            {{ form.confirm_password }}
+                            <div class="invalid-feedback">
+                                {% if form.confirm_password.errors %}{{ form.confirm_password.errors }}{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+        </div>
+    </div>
+{% endblock content %}
+
+
+
+{% comment %} {% extends "baseregister.html" %}
+{% block title %}Register Student{% endblock title %}
+{% block content %}
+    <div class="background">
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+    <div class="container">
+        <div class="form-container">
+            <h1 class="text-center mb-4">Student Registration</h1>
+
             <form method="post">
                 {% csrf_token %}
 
@@ -102,4 +232,4 @@
             {% endif %}
         </div>
     </div>
-{% endblock content %}
+{% endblock content %} {% endcomment %}
