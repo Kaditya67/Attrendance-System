@@ -1,3 +1,10 @@
 username,first_name,last_name,email,department,roll_number,year_of_study,mobile_no,address
-johndoe,7John,Doe,johndoe@dbit.in,Computer Science,12345,2024,555-1234,123 Elm St
-janedoe6,Jane,Doe,janedoe@dbit.in,Computer Science,67890,2023,555-5678,456 Maple Ave
+johndoe,John,Doe,johndoe@dbit.in,Computer Science,12345,2024,555-1234,123 Elm St
+michaelj,Michael,Johnson,michaelj@dbit.in,Mathematics,11223,2024,555-8765,789 Oak St
+sarahk,Sarah,Kim,sarahk@dbit.in,Mathematics,44556,2023,555-4321,101 Pine St
+alexr,Alex,Reed,alexr@dbit.in,Physics,78901,2024,555-6789,202 Birch St
+emilyt,Emily,Taylor,emilyt@dbit.in,Physics,23456,2022,555-9876,303 Cedar St
+davidb,David,Black,davidb@dbit.in,Chemistry,34567,2024,555-3456,404 Elm St
+lucyw,Lucy,White,lucyw@dbit.in,Chemistry,45678,2023,555-6543,505 Maple Ave
+oliverc,Oliver,Cruz,oliverc@dbit.in,Biology,56789,2024,555-1234,606 Oak St
+avaw,Ava,Wilson,avaw@dbit.in,Biology,67890,2022,555-2345,707 Pine St

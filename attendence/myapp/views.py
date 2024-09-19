@@ -101,7 +101,7 @@ def login_view(request):
             elif user.groups.filter(name='HOD').exists():
                 return redirect('hod_dashboard')
             elif user.groups.filter(name='Teacher').exists():
-                return redirect('dash_teacher   ')
+                return redirect('dash_teacher')
             elif user.groups.filter(name='Student').exists():
                 return redirect('student_dashboard')
             else:
@@ -115,22 +115,52 @@ def logout_view(request):
     auth_logout(request)
     return redirect('login')
 
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .forms import AttendanceForm
+from .models import Teacher, Course, Student, Attendance
+
 @login_required
 def mark_attendance(request):
+    # Check if user is in 'Teacher' group
     if not request.user.groups.filter(name='Teacher').exists():
+        messages.error(request, "You do not have permission to access this page.")
+        return redirect('no_permission')
+
+    # Retrieve the teacher
+    try:
+        teacher = Teacher.objects.get(user=request.user)
+    except Teacher.DoesNotExist:
+        messages.error(request, "Teacher profile not found.")
         return redirect('no_permission')
 
     if request.method == 'POST':
         form = AttendanceForm(request.POST)
         if form.is_valid():
-            attendance = form.save(commit=False)
-            attendance.teacher = Teacher.objects.get(user=request.user)
-            attendance.save()
+            course = form.cleaned_data.get('course')
+            students = Student.objects.filter(courses_taught=course)
+            
+            # Ensure all students for the selected course are marked
+            for student in students:
+                attendance_status = request.POST.get(f'student_{student.id}')
+                if attendance_status:
+                    Attendance.objects.update_or_create(
+                        student=student,
+                        date=form.cleaned_data.get('date'),
+                        defaults={'status': attendance_status, 'teacher': teacher}
+                    )
+                    
+            messages.success(request, "Attendance successfully marked.")
             return redirect('success')
+        else:
+            messages.error(request, "There was an error in the form. Please check your input.")
     else:
         form = AttendanceForm()
 
-    return render(request, 'mark_attendance.html', {'form': form})
+    courses = Course.objects.filter(teachers=teacher)
+    return render(request, 'mark_attendance.html', {'form': form, 'courses': courses})
+
 
 @login_required
 def no_permission(request):
