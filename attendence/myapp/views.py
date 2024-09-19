@@ -7,7 +7,8 @@ from .forms import (StudentRegistrationForm, TeacherRegistrationForm,
                     HODRegistrationForm, StaffRegistrationForm, 
                     PrincipalRegistrationForm, UserLoginForm, AttendanceForm)
 from .models import (Student, Teacher, HOD, Staff, Principal, Department, 
-                     EvenSem, OddSem, HonorsMinors)
+                    #  EvenSem, OddSem, 
+                     HonorsMinors)
 
 def register_user(request, form_class, group_name, template_name, success_redirect):
     if request.method == 'POST':
@@ -175,39 +176,66 @@ def view_grades(request):
 
     return render(request, 'view_grades.html', {'grades': grades})
 
+from django.shortcuts import render
+from django.db.models import Q
+
 def principal_view(request):
+    # Retrieve query parameters
     department_id = request.GET.get('department', '')
     semester_id = request.GET.get('semester', '')
     honors_minors_id = request.GET.get('honors_minors', '')
     status = request.GET.get('status', '')
     search_query = request.GET.get('search', '')
 
+    # Base query: Get all students
     students = Student.objects.all()
 
+    # Filter by department
     if department_id:
         students = students.filter(department_id=department_id)
+
+    # Filter by semester (handling both EvenSem and OddSem)
     if semester_id:
-        even_sem = EvenSem.objects.filter(id=semester_id).first()
-        odd_sem = OddSem.objects.filter(id=semester_id).first()
-        students = students.filter(even_sem=even_sem) | students.filter(odd_sem=odd_sem)
+        students = students.filter(
+            Q(even_sem__id=semester_id) | Q(odd_sem__id=semester_id)
+        )
+
+    # Filter by Honors/Minors
     if honors_minors_id:
         students = students.filter(honors_minors_id=honors_minors_id)
+
+    # Filter by status (make sure to verify that 'status' exists in the model)
     if status:
         students = students.filter(status=status)
-    if search_query:
-        students = students.filter(name__icontains=search_query)
 
+    # Search across name and user fields
+    if search_query:
+        students = students.filter(
+            Q(user__username__icontains=search_query) | 
+            Q(user__first_name__icontains=search_query) | 
+            Q(user__last_name__icontains=search_query)
+        )
+
+    # Fetch relevant data for filtering in the template
+    departments = Department.objects.all()
+    all_semesters = list(EvenSem.objects.all()) + list(OddSem.objects.all())
+    honors_minors = HonorsMinors.objects.all()
+    statuses = Student.objects.values_list('status', flat=True).distinct()
+
+    # Prepare the context for rendering
     context = {
         'students': students,
-        'departments': Department.objects.all(),
-        'all_semesters': list(EvenSem.objects.all()) + list(OddSem.objects.all()),
-        'honors_minors': HonorsMinors.objects.all(),
-        'statuses': Student.objects.values_list('status', flat=True).distinct()
+        'departments': departments,
+        'all_semesters': all_semesters,
+        'honors_minors': honors_minors,
+        'statuses': statuses
     }
 
+    # Handle AJAX request (if any)
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'student_table_rows.html', context)
 
+    # Render the full principal page
     return render(request, 'principal.html', context)
 
 def index(request):

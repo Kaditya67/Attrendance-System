@@ -50,15 +50,14 @@ class Semester(models.Model):
         ('Even', 'Even'),
     ]
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='semesters')
-    program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name='semesters')
     semester_type = models.CharField(max_length=10, choices=SEMESTER_CHOICES)
-    semester_number = models.IntegerField()
+    semester_number = models.IntegerField(default=1)
 
     class Meta:
-        unique_together = ('department', 'program', 'semester_number')
+        unique_together = ('department', 'semester_number')
 
     def __str__(self):
-        return f"{self.get_semester_type_display()} Semester {self.semester_number} - {self.program.name}"
+        return f"{self.get_semester_type_display()} Semester {self.semester_number} - {self.department.name}"
 
 class HonorsMinors(models.Model):
     name = models.CharField(max_length=100)
@@ -91,28 +90,41 @@ class Teacher(models.Model):
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name='students')
-    roll_number = models.CharField(max_length=10, unique=True)
-    year = models.ForeignKey(Year, on_delete=models.SET_NULL, null=True, blank=True, related_name='students')
-    courses = models.ManyToManyField(Course, through='Enrollment', blank=True)
+    roll_number = models.CharField(max_length=10, unique=True, null=True, blank=True)
+    semester = models.ForeignKey(Semester, on_delete=models.SET_NULL, null=True, blank=True, related_name='students')
+    year = models.CharField(max_length=20, null=True, blank=True)  # Allow character field for year
+    cgpa = models.DecimalField(max_digits=4, decimal_places=2, default=0.00)
     mobile_no = models.CharField(max_length=15, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
+    courses = models.ManyToManyField('Course', related_name='students', blank=True)
+    lab_batch = models.ForeignKey(LabsBatches, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def calculate_attendance_percentage(self):
+        total_classes = self.attendances.count()
+        attended_classes = self.attendances.filter(status='Present').count()
+        if total_classes > 0:
+            return (attended_classes / total_classes) * 100
+        return 0
+
+    def calculate_cgpa(self):
+        return self.cgpa
 
     def __str__(self):
         return f"Student: {self.user.username} - Roll No: {self.roll_number}"
 
 
 class Enrollment(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
-    date_enrolled = models.DateField(auto_now_add=True)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='enrollments')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrollments')
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name='enrollments')
 
     class Meta:
         unique_together = ('student', 'course', 'semester')
 
     def __str__(self):
-        return f"{self.student.user.username} - {self.course.name} ({self.semester})"
+        return f"Enrollment: {self.student.user.username} in {self.course.name} - {self.semester}"
+
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -147,16 +159,16 @@ from django.core.exceptions import ValidationError
 
 class Principal(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True)
-    office_location = models.CharField(max_length=100, blank=True, null=True)
+    office_location = models.CharField(max_length=255, default="Unknown Location")
 
-    def save(self, *args, **kwargs):
-        if Principal.objects.exists() and not self.pk:
-            raise ValidationError('Only one Principal can exist.')
-        super().save(*args, **kwargs)
+    class Meta:
+        permissions = [
+            ("can_view_principal", "Can view Principal details"),
+        ]
 
     def __str__(self):
-        return f'{self.user.first_name} {self.user.last_name} - Principal'
+        return f"Principal: {self.user.username} - Office: {self.office_location}"
+
 
 class Lecture(models.Model):
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name='lectures')
@@ -169,21 +181,45 @@ class Lecture(models.Model):
 
 from django.db import models
 
+# Attendance Model with lab_batch, reason, and status fields
 class Attendance(models.Model):
     STATUS_CHOICES = [
-        ('P', 'Present'),
-        ('A', 'Absent'),
-        ('L', 'Late'),
-        # Add other status options as needed
+        ('Present', 'Present'),
+        ('Absent', 'Absent'),
+        ('Sick Leave', 'Sick Leave'),
+        ('On Leave', 'On Leave'),
+        ('Permission Granted', 'Permission Granted'),
     ]
-    
-    student = models.ForeignKey('Student', on_delete=models.CASCADE)
-    teacher = models.ForeignKey('Teacher', on_delete=models.CASCADE)
-    date = models.DateField()  # Ensure this field exists
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='attendances')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='attendances')
+    lab_batch = models.ForeignKey(LabsBatches, on_delete=models.SET_NULL, null=True, blank=True)
+    date = models.DateField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Absent')
+    reason = models.TextField(blank=True, null=True)  # To capture reason for absence
 
     def __str__(self):
-        return f"{self.student} - {self.date} - {self.status}"
+        return f"Attendance: {self.student.user.username} - {self.course.name} - {self.date}"
+
+
+# # Attendance Notification and Analysis
+# class AttendanceAnalysis:
+#     @staticmethod
+#     def notify_absentee(student, threshold=75):
+#         attendance_percentage = student.calculate_attendance_percentage()
+#         if attendance_percentage < threshold:
+#             subject = f"Low Attendance Alert for {student.user.username}"
+#             message = f"Dear {student.user.username}, your attendance is below {threshold}%. Please ensure regular attendance."
+#             recipient_list = [student.email]
+#             send_mail(subject, message, 'admin@institution.com', recipient_list)
+
+#     @staticmethod
+#     def generate_attendance_report(student):
+#         report = {
+#             'student': student.user.username,
+#             'attendance_percentage': student.calculate_attendance_percentage(),
+#             'cgpa': student.calculate_cgpa(),
+#         }
+#         return report
 
 
 class SemesterCGPA(models.Model):
@@ -245,22 +281,22 @@ class SemesterCGPA(models.Model):
 #     def __str__(self):
 #         return f"{self.name} - {self.semester}"
 
-class EvenSem(models.Model):
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)
-    program = models.ForeignKey('Program', on_delete=models.CASCADE)
-    semester_number = models.IntegerField(default=1)  # Add this field to track semester number
+# class EvenSem(models.Model):
+#     department = models.ForeignKey(Department, on_delete=models.CASCADE)
+#     program = models.ForeignKey('Program', on_delete=models.CASCADE)
+#     semester_number = models.IntegerField(default=1)  # Add this field to track semester number
 
-    def __str__(self):
-        return f"Sem {self.semester_number} - Even {self.department.name}"
+#     def __str__(self):
+#         return f"Sem {self.semester_number} - Even {self.department.name}"
 
 
-class OddSem(models.Model):
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)
-    program = models.ForeignKey('Program', on_delete=models.CASCADE)
-    semester_number = models.IntegerField(default=1)  # Add this field to track semester number
+# class OddSem(models.Model):
+#     department = models.ForeignKey(Department, on_delete=models.CASCADE)
+#     program = models.ForeignKey('Program', on_delete=models.CASCADE)
+#     semester_number = models.IntegerField(default=1)  # Add this field to track semester number
 
-    def __str__(self):
-        return f"Sem {self.semester_number} - Odd {self.department.name}"
+#     def __str__(self):
+#         return f"Sem {self.semester_number} - Odd {self.department.name}"
 
 # class HonorsMinors(models.Model):
 #     name = models.CharField(max_length=100)

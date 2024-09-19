@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from myapp.models import Teacher, Department, Course
 import csv
 
@@ -13,6 +13,11 @@ class Command(BaseCommand):
         csv_file = kwargs['csv_file']
 
         try:
+            # Ensure the Teacher group exists
+            teacher_group, created = Group.objects.get_or_create(name='Teacher')
+            if created:
+                self.stdout.write(self.style.SUCCESS('Teacher group created.'))
+
             with open(csv_file, mode='r') as file:
                 reader = csv.DictReader(file)
 
@@ -47,15 +52,24 @@ class Command(BaseCommand):
                         defaults={
                             'first_name': row['first_name'],
                             'last_name': row['last_name'],
+                            'email': email,
                         }
                     )
+
+                    if created:
+                        self.stdout.write(self.style.SUCCESS(f'User {user.username} created.'))
+
+                    # Add user to the Teacher group
+                    if not user.groups.filter(name='Teacher').exists():
+                        user.groups.add(teacher_group)
+                        self.stdout.write(self.style.SUCCESS(f'User {user.username} added to Teacher group.'))
 
                     # Create or update Teacher details
                     teacher, created = Teacher.objects.update_or_create(
                         user=user,
                         defaults={
                             'faculty_id': row['faculty_id'],
-                            'department': department,  # Ensure this matches your Teacher model's field name
+                            'department': department,
                             'mobile_no': row.get('mobile_no', '').strip(),
                             'email': email,
                             'experience': row.get('experience', '').strip(),
