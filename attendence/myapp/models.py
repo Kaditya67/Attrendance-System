@@ -19,6 +19,7 @@ class Department(models.Model):
     name = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # year = models.ForeignKey('Year', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -35,11 +36,21 @@ class Course(models.Model):
 
     def __str__(self):
         return f"{self.code} - {self.name}"
+    
+# class Course(models.Model):
+#     name = models.CharField(max_length=100)
+#     department = models.ForeignKey(Department, on_delete=models.CASCADE)
+#     year = models.ForeignKey('Year', on_delete=models.CASCADE)
+    
+#     def __str__(self):
+#         return self.name
+    
 
 class Program(models.Model):
     name = models.CharField(max_length=100)
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='programs')
     year = models.ForeignKey(Year, on_delete=models.CASCADE, related_name='programs')
+    # semester = models.CharField(max_length=10)
 
     def __str__(self):
         return f"{self.name} - {self.department.name}"
@@ -85,6 +96,18 @@ class Teacher(models.Model):
 
     def __str__(self):
         return f"Teacher: {self.user.username} - Department: {self.department.name if self.department else 'No Department'}"
+    
+# class Teacher(models.Model):
+#     name = models.CharField(max_length=100)
+#     username = models.CharField(max_length=100, unique=True)
+#     password = models.CharField(max_length=100)
+#     department = models.ForeignKey(Department, on_delete=models.CASCADE)
+#     courses = models.ManyToManyField('Course', related_name='teachers', blank=True)
+#     honors_minors = models.ForeignKey('HonorsMinors', on_delete=models.SET_NULL, null=True, blank=True)
+
+#     def __str__(self):
+#         return self.name
+
 
 
 class Student(models.Model):
@@ -112,6 +135,49 @@ class Student(models.Model):
 
     def __str__(self):
         return f"Student: {self.user.username} - Roll No: {self.roll_number}"
+    
+
+# class Student(models.Model):
+#     name = models.CharField(max_length=100)
+#     username = models.CharField(max_length=100, unique=True)
+#     password = models.CharField(max_length=100)
+#     department = models.ForeignKey(Department, on_delete=models.CASCADE)
+#     labs_batches = models.ForeignKey('LabsBatches', on_delete=models.SET_NULL, null=True, blank=True)
+#     odd_sem = models.ForeignKey('OddSem', on_delete=models.SET_NULL, null=True, blank=True)
+#     even_sem = models.ForeignKey('EvenSem', on_delete=models.SET_NULL, null=True, blank=True)
+#     honors_minors = models.ForeignKey('HonorsMinors', on_delete=models.SET_NULL, null=True, blank=True)
+#     year = models.ForeignKey(Year, on_delete=models.SET_NULL, null=True, blank=True)
+#     status = models.CharField(max_length=50, default='Active')
+#     attendance_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+#     cgpa_total = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)  # Total CGPA
+#     courses = models.ManyToManyField('Course', related_name='students')
+
+#     def __str__(self):
+#         return self.name
+    
+#     @property
+#     def attendance_percentage(self):
+#         total_lectures = Lecture.objects.filter(student=self).count()
+#         attended_lectures = Attendance.objects.filter(student=self, status='Present').count()
+        
+#         if total_lectures > 0:
+#             return (attended_lectures / total_lectures) * 100
+#         return 0
+    
+
+#     @property
+#     def cgpa_total(self):
+#         semester_cgpas = SemesterCGPA.objects.filter(student=self)
+#         total_cgpa = sum(cgpa.cgpa for cgpa in semester_cgpas)
+#         return total_cgpa
+    
+#     @property
+#     def latest_cgpa(self):
+#         latest_cgpa_record = SemesterCGPA.objects.filter(student=self).order_by('-semester_number').first()
+#         if latest_cgpa_record:
+#             return latest_cgpa_record.cgpa
+#         return None
+
 
 
 class Enrollment(models.Model):
