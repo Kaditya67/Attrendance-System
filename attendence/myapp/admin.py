@@ -77,14 +77,9 @@ class LabsBatchesAdmin(admin.ModelAdmin):
 # Registering the Program model
 @admin.register(Program)
 class ProgramAdmin(admin.ModelAdmin):
-    list_display = ('name', 'department', 'get_semester')
+    list_display = ('name', 'department',)
     search_fields = ('name', 'department__name')
     list_filter = ('department',)
-
-    def get_semester(self, obj):
-        return obj.semester if obj.semester else 'No Semester'
-
-    get_semester.short_description = 'Semester'
 
 # Registering the HOD model
 @admin.register(HOD)
@@ -114,3 +109,8 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = ('name', 'code')
     search_fields = ('name', 'code')
     ordering = ('name',)
+
+
+from .models import SessionYear, Semester
+admin.site.register(SessionYear)
+admin.site.register(Semester)

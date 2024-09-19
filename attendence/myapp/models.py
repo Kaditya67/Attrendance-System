@@ -84,7 +84,7 @@ class Course(models.Model):
 class Program(models.Model):
     name = models.CharField(max_length=100, verbose_name="Program Name")
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='programs', verbose_name="Department")
-    year = models.ForeignKey(Year, on_delete=models.CASCADE, related_name='programs', verbose_name="Year")
+    year = models.ForeignKey(Year, on_delete=models.CASCADE, related_name='programs', verbose_name="Year", blank=True, null=True)
 
     def __str__(self):
         return f"{self.name} - {self.department.name}"
