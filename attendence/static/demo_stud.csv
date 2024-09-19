@@ -1,10 +1,5 @@
-username,first_name,last_name,email,department,roll_number,year_of_study,mobile_no,address
-johndoe,John,Doe,johndoe@dbit.in,Computer Science,12345,2024,555-1234,123 Elm St
-michaelj,Michael,Johnson,michaelj@dbit.in,Mathematics,11223,2024,555-8765,789 Oak St
-sarahk,Sarah,Kim,sarahk@dbit.in,Mathematics,44556,2023,555-4321,101 Pine St
-alexr,Alex,Reed,alexr@dbit.in,Physics,78901,2024,555-6789,202 Birch St
-emilyt,Emily,Taylor,emilyt@dbit.in,Physics,23456,2022,555-9876,303 Cedar St
-davidb,David,Black,davidb@dbit.in,Chemistry,34567,2024,555-3456,404 Elm St
-lucyw,Lucy,White,lucyw@dbit.in,Chemistry,45678,2023,555-6543,505 Maple Ave
-oliverc,Oliver,Cruz,oliverc@dbit.in,Biology,56789,2024,555-1234,606 Oak St
-avaw,Ava,Wilson,avaw@dbit.in,Biology,67890,2022,555-2345,707 Pine St
+username,first_name,last_name,email,department,roll_number,semester_type,semester_number,year,cgpa,mobile_no,address,courses,lab_batch
+student1,John,Doe,john.doe@dbit.in,Computer Science,CS101,Odd,1,2024,3.50,1234567890,123 Elm Street,Course1,LabBatch1
+student2,Jane,Smith,jane.smith@dbit.in,Mechanical Engineering,MA102,Even,2,2024,3.80,0987654321,456 Oak Avenue,Course2,LabBatch2
+student3,Alice,Johnson,alice.johnson@dbit.in,Electrical Engineering,PH103,Odd,1,2024,3.60,1122334455,789 Pine Road,Course3,LabBatch1
+student4,Bob,Williams,bob.williams@dbit.in,Civil Engineering,CH104,Even,2,2024,3.90,5566778899,101 Maple Lane,Course4,LabBatch2

@@ -2,12 +2,57 @@
 <html>
 <head>
     <title>Student Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .student-info {
+            margin: 5px 0;
+        }
+        .actions a {
+            text-decoration: none;
+            color: #007BFF;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .actions a:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
 </head>
 <body>
     <h2>Student Details</h2>
+
+    <a href="{% url 'add_student' %}" class="btn">Add New Student</a>
+
     <ul>
         {% for student in students %}
-            <li>{{ student.user.username }} - {{ student.department.name }}</li>
+            <li>
+                <div class="student-info">
+                    <strong>Username:</strong> {{ student.user.username }}
+                </div>
+                <div class="student-info">
+                    <strong>Department:</strong> {{ student.department.name }}
+                </div>
+                <div class="actions">
+                    <a href="{% url 'edit_student' student.id %}">Edit</a> |
+                    <a href="{% url 'delete_student' student.id %}" onclick="return confirm('Are you sure you want to delete this student?');">Delete</a>
+                </div>
+            </li>
+        {% empty %}
+            <li>No students found.</li>
         {% endfor %}
     </ul>
 </body>

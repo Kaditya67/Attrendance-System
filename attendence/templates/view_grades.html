@@ -27,6 +27,11 @@
         .grade-list li {
             padding: 10px;
             border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+        }
+        .grade-list .course-name {
+            font-weight: bold;
         }
     </style>
 </head>
@@ -37,7 +42,8 @@
             <ul class="grade-list">
                 {% for grade in grades %}
                     <li>
-                        <strong>{{ grade.course.name }}</strong>: {{ grade.grade }}
+                        <span class="course-name">{{ grade.course.name }}</span>
+                        <span>{{ grade.grade }}</span>
                     </li>
                 {% empty %}
                     <li>No grades available.</li>

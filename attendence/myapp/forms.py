@@ -3,13 +3,9 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.core.validators import EmailValidator
 from django.db import transaction
-from .models import Student, Department
-
-from django import forms
-from django.contrib.auth.models import User
-from django import forms
+from .models import Student, Department, Teacher, HOD, Staff, Principal, Course, Attendance, Semester
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
+
 
 class UserLoginForm(forms.Form):
     username = forms.CharField(
@@ -32,7 +28,6 @@ class UserLoginForm(forms.Form):
         password = cleaned_data.get("password")
 
         if username and password:
-            # Use Django's authenticate function to check user credentials
             user = authenticate(username=username, password=password)
             if user is None:
                 raise forms.ValidationError("Invalid username or password")
@@ -42,7 +37,6 @@ class UserLoginForm(forms.Form):
 
     def get_user(self):
         return self.user
-
 
 class StudentRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
@@ -63,6 +57,10 @@ class StudentRegistrationForm(forms.ModelForm):
             'username', 'first_name', 'last_name', 'email', 'mobile_no',
             'department', 'roll_number', 'year_of_study', 'cgpa', 'password', 'confirm_password'
         ]
+        help_texts = {
+            'email': 'Enter a valid email address ending with @dbit.in',
+            'year_of_study': 'Enter your current year of study (e.g., 1 for First Year).'
+        }
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -97,10 +95,6 @@ class StudentRegistrationForm(forms.ModelForm):
             student.save()
         return student
 
-from django import forms
-from django.contrib.auth.models import User
-from .models import Teacher, Department, Course
-
 class TeacherRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
     first_name = forms.CharField(max_length=30)
@@ -118,6 +112,9 @@ class TeacherRegistrationForm(forms.ModelForm):
         model = Teacher
         fields = ['username', 'first_name', 'last_name', 'mobile_no', 'email', 'experience', 'department',
                     'courses_taught', 'faculty_id', 'password', 'confirm_password']
+        help_texts = {
+            'faculty_id': 'Unique ID assigned to the faculty member.',
+        }
 
     def clean(self):
         cleaned_data = super().clean()
@@ -147,11 +144,6 @@ class TeacherRegistrationForm(forms.ModelForm):
             self.save_m2m()  # Save many-to-many fields
         return teacher
 
-
-from django import forms
-from django.contrib.auth.models import User
-from .models import HOD, Department
-
 class HODRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
     first_name = forms.CharField(max_length=30)
@@ -166,6 +158,10 @@ class HODRegistrationForm(forms.ModelForm):
     class Meta:
         model = HOD
         fields = ['username', 'first_name', 'last_name', 'email', 'password', 'confirm_password', 'department', 'office_number', 'managing_teachers']
+        help_texts = {
+            'department': 'The department this HOD manages.',
+            'managing_teachers': 'Number of teachers this HOD manages.'
+        }
 
     def clean(self):
         cleaned_data = super().clean()
@@ -194,10 +190,6 @@ class HODRegistrationForm(forms.ModelForm):
             hod.save()
         return hod
 
-from django import forms
-from django.contrib.auth.models import User
-from .models import Staff, Department
-
 class StaffRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
     first_name = forms.CharField(max_length=30)
@@ -212,6 +204,10 @@ class StaffRegistrationForm(forms.ModelForm):
     class Meta:
         model = Staff
         fields = ['username', 'first_name', 'last_name', 'email', 'password', 'confirm_password', 'position', 'assigned_department', 'staff_id']
+        help_texts = {
+            'position': 'The staff position or role.',
+            'staff_id': 'Unique ID assigned to the staff member.'
+        }
 
     def clean(self):
         cleaned_data = super().clean()
@@ -240,10 +236,6 @@ class StaffRegistrationForm(forms.ModelForm):
             staff.save()
         return staff
 
-from django import forms
-from django.contrib.auth.models import User
-from .models import Principal, Department
-
 class PrincipalRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
     first_name = forms.CharField(max_length=30)
@@ -257,6 +249,9 @@ class PrincipalRegistrationForm(forms.ModelForm):
     class Meta:
         model = Principal
         fields = ['username', 'first_name', 'last_name', 'email', 'password', 'confirm_password', 'office_location', 'department']
+        help_texts = {
+            'office_location': 'The location of the principal’s office.',
+        }
 
     def clean(self):
         cleaned_data = super().clean()
@@ -285,23 +280,159 @@ class PrincipalRegistrationForm(forms.ModelForm):
             principal.save()
         return principal
 
+class AttendanceForm(forms.Form):
+    course = forms.ModelChoiceField(queryset=Course.objects.none(), label='Select Course')
+    date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), label='Attendance Date')
+
+    def __init__(self, *args, **kwargs):
+        teacher_courses = kwargs.pop('teacher_courses', None)
+        super().__init__(*args, **kwargs)
+        if teacher_courses:
+            self.fields['course'].queryset = teacher_courses
+        else:
+            self.fields['course'].queryset = Course.objects.none()  # No courses available if no teacher_courses provided
+
+
+
+# Extra features form
 
 from django import forms
-from .models import Attendance
+from .models import Enrollment, Course, Student, Semester
 
-from django import forms
-from .models import Attendance
+class CourseEnrollmentForm(forms.ModelForm):
+    course = forms.ModelChoiceField(queryset=Course.objects.none(), label='Select Course')
+    semester = forms.ModelChoiceField(queryset=Semester.objects.none(), label='Select Semester')
 
-class AttendanceForm(forms.ModelForm):
     class Meta:
-        model = Attendance
-        fields = ['student', 'date', 'status']
+        model = Enrollment
+        fields = ['course', 'semester']
+
+    def __init__(self, *args, **kwargs):
+        student = kwargs.pop('student', None)
+        super().__init__(*args, **kwargs)
+        if student:
+            self.fields['course'].queryset = Course.objects.filter(department=student.department)
+            self.fields['semester'].queryset = Semester.objects.filter(session_year__department=student.department)
+
+
+from django import forms
+from .models import Course, Department, Year
+
+class CourseManagementForm(forms.ModelForm):
+    code = forms.CharField(max_length=10)
+    name = forms.CharField(max_length=100)
+    department = forms.ModelChoiceField(queryset=Department.objects.all())
+    year = forms.ModelChoiceField(queryset=Year.objects.all())
+
+    class Meta:
+        model = Course
+        fields = ['code', 'name', 'department', 'year']
+
+
+from django import forms
+from .models import Lecture, Course, Semester, Program
+
+class LectureSchedulingForm(forms.ModelForm):
+    course = forms.ModelChoiceField(queryset=Course.objects.all(), label='Select Course')
+    semester = forms.ModelChoiceField(queryset=Semester.objects.all(), label='Select Semester')
+    program = forms.ModelChoiceField(queryset=Program.objects.all(), label='Select Program')
+    date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), label='Date')
+    time_slot = forms.ChoiceField(choices=Lecture.TIME_SLOT_CHOICES, label='Time Slot')
+
+    class Meta:
+        model = Lecture
+        fields = ['course', 'semester', 'program', 'date', 'time_slot']
+
+
+from django import forms
+from .models import Attendance, Course
+
+class AttendanceReportForm(forms.Form):
+    course = forms.ModelChoiceField(queryset=Course.objects.all(), label='Select Course')
+    date_from = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), label='From Date')
+    date_to = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), label='To Date')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['course'].queryset = Course.objects.all()
+
+
+from django import forms
+from .models import Student
+
+class StudentProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['email', 'mobile_no', 'address', 'cgpa']
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'status': forms.Select(choices=Attendance.STATUS_CHOICES, attrs={'class': 'form-control'})
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'mobile_no': forms.TextInput(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control'}),
+            'cgpa': forms.NumberInput(attrs={'class': 'form-control'})
         }
-        labels = {
-            'student': 'Select Student',
-            'date': 'Attendance Date',
-            'status': 'Attendance Status'
+
+
+from django import forms
+from .models import Teacher
+
+class TeacherProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Teacher
+        fields = ['email', 'mobile_no', 'experience']
+        widgets = {
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'mobile_no': forms.TextInput(attrs={'class': 'form-control'}),
+            'experience': forms.Textarea(attrs={'class': 'form-control'}),
         }
+
+
+from django import forms
+from django.contrib.auth.forms import PasswordResetForm
+
+class CustomPasswordResetForm(PasswordResetForm):
+    email = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class': 'form-control'}))
+
+from django import forms
+from .models import Student
+
+class StudentProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['student_id', 'department', 'roll_number', 'semester', 'year', 'cgpa', 'mobile_no', 'email', 'address', 'courses', 'lab_batch']
+        widgets = {
+            'courses': forms.CheckboxSelectMultiple,
+            'lab_batch': forms.Select,
+        }
+
+from django import forms
+from .models import Student
+
+class StudentForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['student_id', 'department', 'roll_number', 'semester', 'year', 'cgpa', 'mobile_no', 'email', 'address', 'courses', 'lab_batch']
+        widgets = {
+            'courses': forms.CheckboxSelectMultiple,
+            'lab_batch': forms.Select,
+        }
+
+from django import forms
+from .models import Course
+
+class CourseForm(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = ['code', 'name', 'department', 'year']
+        widgets = {
+            'department': forms.Select,
+            'year': forms.Select,
+        }
+
+
+from django import forms
+from .models import Lecture, Course, Program, Semester
+
+class LectureForm(forms.ModelForm):
+    class Meta:
+        model = Lecture
+        fields = ['program', 'course', 'semester', 'date', 'time_slot']

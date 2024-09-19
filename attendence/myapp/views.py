@@ -1,26 +1,28 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
-from .forms import (StudentRegistrationForm, TeacherRegistrationForm, 
-                    HODRegistrationForm, StaffRegistrationForm, 
-                    PrincipalRegistrationForm, UserLoginForm, AttendanceForm)
+from .forms import (StudentRegistrationForm, TeacherRegistrationForm,
+                    HODRegistrationForm, StaffRegistrationForm,
+                    PrincipalRegistrationForm, UserLoginForm, AttendanceForm,
+                    CourseEnrollmentForm, CourseManagementForm, LectureSchedulingForm, 
+                    AttendanceReportForm, StudentProfileUpdateForm, PasswordResetForm)
 from .models import (Student, Teacher, HOD, Staff, Principal, Department, Semester,
-                    #  EvenSem, OddSem, 
-                     HonorsMinors)
+                     HonorsMinors, Course, Attendance)
+from django.db.models import Q
 
 def register_user(request, form_class, group_name, template_name, success_redirect):
     if request.method == 'POST':
         form = form_class(request.POST)
         if form.is_valid():
-            student = form.save()  # Save the form and get the Student instance
-            user = student.user  # Access the associated User instance
+            user_instance = form.save()
+            user = user_instance.user
             
             user_group, created = Group.objects.get_or_create(name=group_name)
-            user.groups.add(user_group)  # Add the User to the group
+            user.groups.add(user_group)
             
-            auth_login(request, user)  # Optional: Auto-login after registration
+            auth_login(request, user)
             
             messages.success(request, f"{group_name} registered successfully!")
             return redirect(success_redirect)
@@ -31,12 +33,11 @@ def register_user(request, form_class, group_name, template_name, success_redire
 
     return render(request, template_name, {'form': form})
 
-
 def register_student(request):
     return register_user(request, StudentRegistrationForm, 'Student', 'register_student.html', 'student_dashboard')
 
 def register_teacher(request):
-    return register_user(request, TeacherRegistrationForm, 'Teacher', 'teacher_register.html', 'dash_teacher')
+    return register_user(request, TeacherRegistrationForm, 'Teacher', 'register_teacher.html', 'dash_teacher')
 
 def register_hod(request):
     return register_user(request, HODRegistrationForm, 'HOD', 'register_hod.html', 'hod_dashboard')
@@ -47,21 +48,10 @@ def register_staff(request):
 def register_principal(request):
     return register_user(request, PrincipalRegistrationForm, 'Principal', 'register_principal.html', 'principal_dashboard')
 
-
 @login_required
 def success(request):   
     return render(request, 'success.html')
 
-def register_teacher(request):
-    if request.method == 'POST':
-        form = TeacherRegistrationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('success')  # Redirect to a success page or wherever you want
-    else:
-        form = TeacherRegistrationForm()
-    
-    return render(request, 'register_teacher.html', {'form': form})
 @login_required
 def dashboard_view(request, role_name, template_name):
     if not request.user.groups.filter(name=role_name).exists():
@@ -83,7 +73,7 @@ def dashboard_view(request, role_name, template_name):
         'department': department,
         'teachers': Teacher.objects.filter(department=department) if department else None,
         'students': Student.objects.filter(department=department) if department else None,
-        'courses': getattr(profile, 'courses', None)  # Assumes ManyToManyField for Student
+        'courses': getattr(profile, 'courses', None)
     }
 
     return render(request, template_name, context)
@@ -116,38 +106,28 @@ def logout_view(request):
     auth_logout(request)
     return redirect('login')
 
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .forms import AttendanceForm
-from .models import Teacher, Course, Student, Attendance
-
 @login_required
 def mark_attendance(request):
-    # Check if user is in 'Teacher' group
+    courses = Course.objects.none()
+    
     if not request.user.groups.filter(name='Teacher').exists():
         messages.error(request, "You do not have permission to access this page.")
         return redirect('no_permission')
 
-    # Retrieve the teacher
-    try:
-        teacher = Teacher.objects.get(user=request.user)
-    except Teacher.DoesNotExist:
-        messages.error(request, "Teacher profile not found.")
-        return redirect('no_permission')
+    teacher = get_object_or_404(Teacher, user=request.user)
 
     if request.method == 'POST':
-        form = AttendanceForm(request.POST)
+        form = AttendanceForm(request.POST, teacher_courses=teacher.courses_taught.all())
         if form.is_valid():
             course = form.cleaned_data.get('course')
-            students = Student.objects.filter(courses_taught=course)
-            
-            # Ensure all students for the selected course are marked
+            students = Student.objects.filter(courses=course)
+
             for student in students:
                 attendance_status = request.POST.get(f'student_{student.id}')
                 if attendance_status:
                     Attendance.objects.update_or_create(
                         student=student,
+                        course=course,
                         date=form.cleaned_data.get('date'),
                         defaults={'status': attendance_status, 'teacher': teacher}
                     )
@@ -157,58 +137,50 @@ def mark_attendance(request):
         else:
             messages.error(request, "There was an error in the form. Please check your input.")
     else:
-        form = AttendanceForm()
+        courses = teacher.courses_taught.all()
+        form = AttendanceForm(teacher_courses=courses)
 
-    courses = Course.objects.filter(teachers=teacher)
     return render(request, 'mark_attendance.html', {'form': form, 'courses': courses})
-
 
 @login_required
 def no_permission(request):
     return render(request, 'no_permission.html')
 
+@login_required
 def view_grades(request):
+    
     if not request.user.groups.filter(name='Student').exists():
         return redirect('no_permission')
 
-    student_profile = Student.objects.get(user=request.user)
+    student_profile = get_object_or_404(Student, user=request.user)
     grades = student_profile.grades.all()  # Assuming Student has related grades
 
     return render(request, 'view_grades.html', {'grades': grades})
 
-from django.shortcuts import render
-from django.db.models import Q
-
+@login_required
 def principal_view(request):
-    # Retrieve query parameters
     department_id = request.GET.get('department', '')
     semester_id = request.GET.get('semester', '')
     honors_minors_id = request.GET.get('honors_minors', '')
     status = request.GET.get('status', '')
     search_query = request.GET.get('search', '')
 
-    # Base query: Get all students
     students = Student.objects.all()
 
-    # Filter by department
     if department_id:
         students = students.filter(department_id=department_id)
 
-    # Filter by semester (handling both EvenSem and OddSem)
     if semester_id:
         students = students.filter(
             Q(even_sem__id=semester_id) | Q(odd_sem__id=semester_id)
         )
 
-    # Filter by Honors/Minors
     if honors_minors_id:
         students = students.filter(honors_minors_id=honors_minors_id)
 
-    # Filter by status (make sure to verify that 'status' exists in the model)
     if status:
         students = students.filter(status=status)
 
-    # Search across name and user fields
     if search_query:
         students = students.filter(
             Q(user__username__icontains=search_query) | 
@@ -216,13 +188,11 @@ def principal_view(request):
             Q(user__last_name__icontains=search_query)
         )
 
-    # Fetch relevant data for filtering in the template
     departments = Department.objects.all()
     all_semesters = Semester.objects.all()
     honors_minors = HonorsMinors.objects.all()
     statuses = Student.objects.values_list('status', flat=True).distinct()
 
-    # Prepare the context for rendering
     context = {
         'students': students,
         'departments': departments,
@@ -231,17 +201,279 @@ def principal_view(request):
         'statuses': statuses
     }
 
-    # Handle AJAX request (if any)
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'student_table_rows.html', context)
 
-    # Render the full principal page
     return render(request, 'principal.html', context)
 
 def index(request):
     return render(request, 'index.html')
 
+@login_required
+def principal_dashboard(request):
+    if not request.user.groups.filter(name='Principal').exists():
+        return redirect('no_permission')
 
+    principal_profile = get_object_or_404(Principal, user=request.user)
+    department = principal_profile.department
+    teachers = Teacher.objects.filter(department=department)
+
+    return render(request, 'principal_dashboard.html', {'department': department, 'teachers': teachers})
+
+@login_required
+def view_teacher_details(request):
+    if not request.user.groups.filter(name='Principal').exists():
+        return redirect('no_permission')
+
+    teachers = Teacher.objects.all()
+    return render(request, 'view_teacher_details.html', {'teachers': teachers})
+
+@login_required
+def hod_dashboard(request):
+    if not request.user.groups.filter(name='HOD').exists():
+        return redirect('no_permission')
+
+    hod_profile = get_object_or_404(HOD, user=request.user)
+    department = hod_profile.department
+
+    teachers = Teacher.objects.filter(department=department)
+    students = Student.objects.filter(department=department)
+
+    return render(request, 'hod_dashboard.html', {'department': department, 'teachers': teachers, 'students': students})
+
+@login_required
+def manage_teachers(request):
+    if not (request.user.groups.filter(name='HOD').exists() or request.user.groups.filter(name='Principal').exists()):
+        return redirect('no_permission')
+
+    hod_profile = get_object_or_404(HOD, user=request.user)
+    department = hod_profile.department
+    teachers = Teacher.objects.filter(department=department)
+
+    return render(request, 'manage_teachers.html', {'teachers': teachers})
+
+@login_required
+def staff_dashboard(request):
+    if not request.user.groups.filter(name='Staff').exists():
+        return redirect('no_permission')
+
+    staff_profile = get_object_or_404(Staff, user=request.user)
+    department = staff_profile.department
+
+    students = Student.objects.filter(department=department)
+    return render(request, 'staff_dashboard.html', {'students': students})
+
+@login_required
+def view_student_details(request):
+    if not request.user.groups.filter(name='Staff').exists():
+        return redirect('no_permission')
+
+    staff_profile = get_object_or_404(Staff, user=request.user)
+    department = staff_profile.department
+    students = Student.objects.filter(department=department)
+
+    return render(request, 'view_student_details.html', {'students': students})
+
+@login_required
+def student_dashboard(request):
+    if not request.user.groups.filter(name='Student').exists():
+        return redirect('no_permission')
+
+    student_profile = get_object_or_404(Student, user=request.user)
+    department = student_profile.department
+    courses = student_profile.courses.all()
+
+    return render(request, 'student_dashboard.html', {'department': department, 'courses': courses})
+
+@login_required
+def course_enrollment(request):
+    if not request.user.groups.filter(name='Student').exists():
+        return redirect('no_permission')
+
+    student_profile = get_object_or_404(Student, user=request.user)
+    form = CourseEnrollmentForm(request.POST or None, instance=student_profile)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Course enrollment updated successfully!")
+        return redirect('student_dashboard')
+
+    return render(request, 'course_enrollment.html', {'form': form})
+
+@login_required
+def course_management(request):
+    if not request.user.groups.filter(name='HOD').exists():
+        return redirect('no_permission')
+
+    form = CourseManagementForm(request.POST or None)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Course managed successfully!")
+        return redirect('hod_dashboard')
+
+    return render(request, 'course_management.html', {'form': form})
+
+@login_required
+def lecture_scheduling(request):
+    if not request.user.groups.filter(name='HOD').exists():
+        return redirect('no_permission')
+
+    form = LectureSchedulingForm(request.POST or None)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Lecture scheduled successfully!")
+        return redirect('hod_dashboard')
+
+    return render(request, 'lecture_scheduling.html', {'form': form})
+
+@login_required
+def attendance_reporting(request):
+    if not request.user.groups.filter(name='HOD').exists():
+        return redirect('no_permission')
+
+    form = AttendanceReportingForm(request.POST or None)
+
+    if form.is_valid():
+        report = form.generate_report()
+        messages.success(request, "Attendance report generated successfully!")
+        return render(request, 'attendance_report.html', {'report': report})
+
+    return render(request, 'attendance_reporting.html', {'form': form})
+
+@login_required
+def profile_update(request):
+    form = ProfileUpdateForm(request.POST or None, instance=request.user.profile)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Profile updated successfully!")
+        return redirect('dashboard')
+
+    return render(request, 'profile_update.html', {'form': form})
+
+@login_required
+def password_reset(request):
+    form = PasswordResetForm(request.POST or None)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Password reset successful!")
+        return redirect('login')
+
+    return render(request, 'password_reset.html', {'form': form})
+
+def dashboard(request):
+    department = request.user.department if hasattr(request.user, 'department') else None
+    teachers = department.teacher_set.all() if department else None
+    students = department.student_set.all() if department else None
+    courses = request.user.courses.all() if hasattr(request.user, 'courses') else None
+
+    is_teacher = request.user.groups.filter(name="Teacher").exists()
+    is_hod = request.user.groups.filter(name="HOD").exists()
+    is_staff = request.user.groups.filter(name="Staff").exists()
+    is_student = request.user.groups.filter(name="Student").exists()
+
+    context = {
+        'department': department,
+        'teachers': teachers,
+        'students': students,
+        'courses': courses,
+        'is_teacher': is_teacher,
+        'is_hod': is_hod,
+        'is_staff': is_staff,
+        'is_student': is_student,
+    }
+
+    return render(request, 'dashboard.html', context)
+
+@login_required
+def dash_teacher(request):
+    return render(request, 'dash_teacher.html')
+
+def demo_dash(request):
+    return render(request, 'demo_dash.html')
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Student
+from .forms import StudentForm
+
+# Add Student View
+def add_student(request):
+    if request.method == 'POST':
+        form = StudentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('view_student_details')
+    else:
+        form = StudentForm()
+    return render(request, 'add_edit_student.html', {'form': form, 'action': 'Add'})
+
+# Edit Student View
+def edit_student(request, student_id):
+    student = get_object_or_404(Student, id=student_id)
+    if request.method == 'POST':
+        form = StudentForm(request.POST, instance=student)
+        if form.is_valid():
+            form.save()
+            return redirect('view_student_details')
+    else:
+        form = StudentForm(instance=student)
+    return render(request, 'add_edit_student.html', {'form': form, 'action': 'Edit'})
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Course
+from .forms import CourseForm
+
+# Add Course View
+def add_course(request):
+    if request.method == 'POST':
+        form = CourseForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_courses')
+    else:
+        form = CourseForm()
+    return render(request, 'add_edit_course.html', {'form': form, 'action': 'Add'})
+
+# Edit Course View
+def edit_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    if request.method == 'POST':
+        form = CourseForm(request.POST, instance=course)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_courses')
+    else:
+        form = CourseForm(instance=course)
+    return render(request, 'add_edit_course.html', {'form': form, 'action': 'Edit'})
+
+from django.shortcuts import render, redirect
+from .models import Lecture
+from .forms import LectureForm
+
+# Schedule Lecture View
+def schedule_lecture(request):
+    if request.method == 'POST':
+        form = LectureForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('view_lectures')
+    else:
+        form = LectureForm()
+    return render(request, 'schedule_lecture.html', {'form': form})
+
+
+
+from django.shortcuts import render
+from .models import Attendance
+
+# View Attendance Report
+def view_attendance_report(request):
+    reports = Attendance.objects.all()  # Modify as needed for your reporting logic
+    return render(request, 'attendance_report.html', {'reports': reports})
 
 
 
@@ -378,12 +610,6 @@ def index(request):
 # def success(request):   
 #     return render(request, 'success.html')
 
-@login_required
-def dash_teacher(request):
-    return render(request, 'dash_teacher.html')
-
-def demo_dash(request):
-    return render(request, 'demo_dash.html')
     
 # def login_view(request):
 #     if request.method == 'POST':
@@ -431,94 +657,6 @@ def demo_dash(request):
 #         form = AttendanceForm()
 
 #     return render(request, 'mark_attendance.html', {'form': form})
-
-
-
-@login_required
-def principal_dashboard(request):
-    if not request.user.groups.filter(name='Principal').exists():
-        return redirect('no_permission')  # Redirect to a page showing no permission message
-
-    # Fetch principal's department
-    principal_profile = Principal.objects.get(user=request.user)
-    department = principal_profile.department
-
-    # Example of fetching data
-    teachers = Teacher.objects.filter(department=department)
-
-    return render(request, 'principal_dashboard.html', {'department': department, 'teachers': teachers})
-
-@login_required
-def view_teacher_details(request):
-    if not request.user.groups.filter(name='Principal').exists():
-        return redirect('no_permission')
-
-    teachers = Teacher.objects.all()
-    return render(request, 'view_teacher_details.html', {'teachers': teachers})
-
-@login_required
-def hod_dashboard(request):
-    if not request.user.groups.filter(name='HOD').exists():
-        return redirect('no_permission')
-
-    hod_profile = HOD.objects.get(user=request.user)
-    department = hod_profile.department
-
-    # Fetch department-specific data
-    teachers = Teacher.objects.filter(department=department)
-    students = Student.objects.filter(department=department)
-
-    return render(request, 'hod_dashboard.html', {'department': department, 'teachers': teachers, 'students': students})
-
-from django.shortcuts import get_object_or_404, redirect
-@login_required
-def manage_teachers(request):
-    if not (request.user.groups.filter(name='HOD').exists() or request.user.groups.filter(name='Principal').exists()):
-        return redirect('no_permission')
-
-    hod_profile = get_object_or_404(HOD, user=request.user)
-    department = hod_profile.department
-    teachers = Teacher.objects.filter(department=department)
-
-    return render(request, 'manage_teachers.html', {'teachers': teachers})
-
-@login_required
-def staff_dashboard(request):
-    if not request.user.groups.filter(name='Staff').exists():
-        return redirect('no_permission')
-
-    staff_profile = Staff.objects.get(user=request.user)
-    department = staff_profile.assigned_department
-
-    # Example of fetching department-specific data
-    students = Student.objects.filter(department=department)
-
-    return render(request, 'staff_dashboard.html', {'department': department, 'students': students})
-
-@login_required
-def view_student_details(request):
-    
-    if not (request.user.groups.filter(name='Staff').exists() or request.user.groups.filter(name='HOD').exists() or request.user.groups.filter(name='Principal').exists()):
-        return redirect('no_permission')
-
-    staff_profile = Staff.objects.get(user=request.user)
-    department = staff_profile.assigned_department
-    students = Student.objects.filter(department=department)
-
-    return render(request, 'view_student_details.html', {'students': students})
-
-@login_required
-def student_dashboard(request):
-    if not request.user.groups.filter(name='Student').exists():
-        return redirect('no_permission')
-
-    student_profile = Student.objects.get(user=request.user)
-    department = student_profile.department
-    
-    # Fetch student's enrolled courses
-    courses = student_profile.courses.all()  # Use `courses` if it's a ManyToManyField
-
-    return render(request, 'student_dashboard.html', {'department': department, 'courses': courses})
 
 
 
@@ -588,33 +726,6 @@ def student_dashboard(request):
 
 
 
-from django.shortcuts import render
-
-def dashboard(request):
-    # Fetch the department, teachers, students, and courses from your models as needed
-    department = request.user.department if hasattr(request.user, 'department') else None
-    teachers = department.teacher_set.all() if department else None
-    students = department.student_set.all() if department else None
-    courses = request.user.courses.all() if hasattr(request.user, 'courses') else None
-
-    # Check user roles and pass boolean values to the context
-    is_teacher = request.user.groups.filter(name="Teacher").exists()
-    is_hod = request.user.groups.filter(name="HOD").exists()
-    is_staff = request.user.groups.filter(name="Staff").exists()
-    is_student = request.user.groups.filter(name="Student").exists()
-
-    context = {
-        'department': department,
-        'teachers': teachers,
-        'students': students,
-        'courses': courses,
-        'is_teacher': is_teacher,
-        'is_hod': is_hod,
-        'is_staff': is_staff,
-        'is_student': is_student,
-    }
-
-    return render(request, 'dashboard.html', context)
 
 
 # def index(request):
