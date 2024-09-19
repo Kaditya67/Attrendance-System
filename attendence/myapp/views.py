@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 from .forms import (StudentRegistrationForm, TeacherRegistrationForm, 
                     HODRegistrationForm, StaffRegistrationForm, 
                     PrincipalRegistrationForm, UserLoginForm, AttendanceForm)
-from .models import (Student, Teacher, HOD, Staff, Principal, Department, 
+from .models import (Student, Teacher, HOD, Staff, Principal, Department, Semester,
                     #  EvenSem, OddSem, 
                      HonorsMinors)
 
@@ -218,7 +218,7 @@ def principal_view(request):
 
     # Fetch relevant data for filtering in the template
     departments = Department.objects.all()
-    all_semesters = list(EvenSem.objects.all()) + list(OddSem.objects.all())
+    all_semesters = Semester.objects.all()
     honors_minors = HonorsMinors.objects.all()
     statuses = Student.objects.values_list('status', flat=True).distinct()
 
