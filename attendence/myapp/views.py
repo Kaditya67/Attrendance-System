@@ -100,7 +100,7 @@ def login_view(request):
     else:
         form = UserLoginForm()
 
-    return render(request, 'login.html', {'form': form})
+    return render(request, 'admin/login.html', {'form': form})
 
 def logout_view(request):
     auth_logout(request)
