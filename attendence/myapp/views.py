@@ -333,7 +333,7 @@ def attendance_reporting(request):
     if not request.user.groups.filter(name='HOD').exists():
         return redirect('no_permission')
 
-    form = AttendanceReportingForm(request.POST or None)
+    form = AttendanceReportForm(request.POST or None)
 
     if form.is_valid():
         report = form.generate_report()
@@ -344,7 +344,7 @@ def attendance_reporting(request):
 
 @login_required
 def profile_update(request):
-    form = ProfileUpdateForm(request.POST or None, instance=request.user.profile)
+    form = StudentProfileUpdateForm(request.POST or None, instance=request.user.profile)
 
     if form.is_valid():
         form.save()
