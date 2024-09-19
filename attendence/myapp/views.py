@@ -7,7 +7,86 @@ from .forms import (StudentRegistrationForm, TeacherRegistrationForm,
                     HODRegistrationForm, StaffRegistrationForm, 
                     PrincipalRegistrationForm, UserLoginForm, AttendanceForm)
 from .models import (Student, Teacher, HOD, Staff, Principal, Department, 
-                     EvenSem, OddSem, HonorsMinors)
+                     EvenSem, OddSem, HonorsMinors, Year)
+
+def teacher(request):
+    search_query = request.GET.get('search', '')
+    teachers = Teacher.objects.all()
+    
+    if search_query:
+        teachers = teachers.filter(name__icontains=search_query)
+    
+    # Paginate the teachers list (10 teachers per page)
+    paginator = Paginator(teachers, 10)
+    page_number = request.GET.get('page')
+    paginated_teachers = paginator.get_page(page_number)
+
+    context = {
+        'teachers': paginated_teachers,
+    }
+    return render(request, 'teacher.html', context)
+
+
+def department(request):
+    all_years = Year.objects.all()
+    all_courses = Course.objects.all()  # Fetch all courses
+    department_id = request.GET.get('department', '')
+    semester_id = request.GET.get('semester', '')
+    honors_minors_id = request.GET.get('honors_minors', '')
+    status = request.GET.get('status', '')
+    search_query = request.GET.get('search', '')
+    year_id = request.GET.get('year', '')  # Get year filter from request
+
+    # Start with all students
+    students = Student.objects.all()
+
+    if department_id:
+        students = students.filter(department_id=department_id)
+    if semester_id:
+        even_sem = EvenSem.objects.filter(id=semester_id).first()
+        odd_sem = OddSem.objects.filter(id=semester_id).first()
+        students = students.filter(even_sem=even_sem) | students.filter(odd_sem=odd_sem)
+    if honors_minors_id:
+        students = students.filter(honors_minors_id=honors_minors_id)
+    if status:
+        students = students.filter(status=status)
+    if search_query:
+        students = students.filter(name__icontains=search_query)
+    if year_id:
+        students = students.filter(year_id=year_id)
+    
+    # Filter courses based on selected department and year
+    if request.GET.get('department'):
+        department_id = request.GET.get('department')
+        courses = all_courses.filter(department_id=department_id, year_id=year_id)
+    else:
+        courses = all_courses.none()
+
+    # Fetch other data for the dropdowns
+    departments = Department.objects.all()
+    even_sems = EvenSem.objects.all()
+    odd_sems = OddSem.objects.all()
+    honors_minors = HonorsMinors.objects.all()
+    statuses = Student.objects.values_list('status', flat=True).distinct()
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        # Return HTML snippet for the table rows only
+        context = {
+            'students': students,
+            'courses': courses,
+        }
+        return render(request, 'student_table_rows.html', context)
+
+    context = {
+        'departments': departments,
+        'students': students,
+        'all_semesters': list(even_sems) + list(odd_sems),
+        'honors_minors': honors_minors,
+        'statuses': statuses,
+        'all_years': all_years,
+        'courses': courses,
+    }
+    return render(request, 'department.html', context)
 
 def register_user(request, form_class, group_name, template_name, success_redirect):
     if request.method == 'POST':
