@@ -209,16 +209,16 @@ def principal_view(request):
 def index(request):
     return render(request, 'index.html')
 
+
 @login_required
 def principal_dashboard(request):
     if not request.user.groups.filter(name='Principal').exists():
         return redirect('no_permission')
 
-    principal_profile = get_object_or_404(Principal, user=request.user)
-    department = principal_profile.department
-    teachers = Teacher.objects.filter(department=department)
+    # Fetch all students for the principal's view
+    students = Student.objects.all()
 
-    return render(request, 'principal_dashboard.html', {'department': department, 'teachers': teachers})
+    return render(request, 'principal.html', {'students': students})
 
 @login_required
 def view_teacher_details(request):
