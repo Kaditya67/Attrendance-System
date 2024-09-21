@@ -11,6 +11,65 @@ from .forms import (StudentRegistrationForm, TeacherRegistrationForm,
 from .models import (Student, Teacher, HOD, Staff, Principal, Department, Semester,
                      HonorsMinors, Course, Attendance)
 from django.db.models import Q
+import plotly.graph_objects as go
+import plotly.io as pio
+import base64
+import io
+from django.shortcuts import render
+
+
+from django.shortcuts import render, redirect
+
+from django.shortcuts import render, redirect
+
+def student_form(request):
+    # Dummy student data
+    students = [
+        {'id': 1, 'name': 'John Doe', 'roll_number': '101'},
+        {'id': 2, 'name': 'Jane Smith', 'roll_number': '102'},
+        {'id': 3, 'name': 'Alice Johnson', 'roll_number': '103'},
+        {'id': 4, 'name': 'Bob Brown', 'roll_number': '104'},
+        {'id': 5, 'name': 'Charlie Davis', 'roll_number': '105'},
+        {'id': 6, 'name': 'David White', 'roll_number': '106'},
+        {'id': 7, 'name': 'Emma Watson', 'roll_number': '107'},
+        {'id': 8, 'name': 'Franklin Pierce', 'roll_number': '108'},
+        {'id': 9, 'name': 'Grace Hopper', 'roll_number': '109'},
+        {'id': 10, 'name': 'Hannah Lee', 'roll_number': '110'},
+        {'id': 11, 'name': 'Ian McKellen', 'roll_number': '111'},
+        {'id': 12, 'name': 'Jackie Chan', 'roll_number': '112'},
+        {'id': 13, 'name': 'Katherine Zeta', 'roll_number': '113'},
+        {'id': 14, 'name': 'Liam Hemsworth', 'roll_number': '114'},
+        {'id': 15, 'name': 'Monica Geller', 'roll_number': '115'},
+        {'id': 16, 'name': 'Nina Dobrev', 'roll_number': '116'},
+        {'id': 17, 'name': 'Olivia Pope', 'roll_number': '117'},
+        {'id': 18, 'name': 'Paul Newman', 'roll_number': '118'},
+        {'id': 19, 'name': 'Quincy Adams', 'roll_number': '119'},
+        {'id': 20, 'name': 'Rachel Green', 'roll_number': '120'},
+        {'id': 21, 'name': 'Sam Wilson', 'roll_number': '121'},
+        {'id': 22, 'name': 'Tina Fey', 'roll_number': '122'},
+        {'id': 23, 'name': 'Uma Thurman', 'roll_number': '123'},
+        {'id': 24, 'name': 'Victor Hugo', 'roll_number': '124'},
+        {'id': 25, 'name': 'Wanda Maximoff', 'roll_number': '125'},
+        {'id': 26, 'name': 'Xavier Woods', 'roll_number': '126'},
+        {'id': 27, 'name': 'Yasmin Bleeth', 'roll_number': '127'},
+        {'id': 28, 'name': 'Zachary Quinto', 'roll_number': '128'},
+    ]
+
+    if request.method == 'POST':
+        # Process attendance for each student
+        for student in students:
+            attendance_status = request.POST.get(f'attendance_{student["id"]}', 'absent')
+            # Here you can replace the logic to save the attendance in the database.
+            # For example:
+            # Attendance.objects.create(student_id=student["id"], status=attendance_status)
+            print(f"Student {student['name']} ({student['roll_number']}): {attendance_status}")
+
+        return redirect('student_form')  # Redirect to the form after submission
+
+    # Render the student form with the list of students
+    return render(request, 'student_form.html', {'students': students})
+
+
 
 def register_user(request, form_class, group_name, template_name, success_redirect):
     if request.method == 'POST':
@@ -276,14 +335,39 @@ def view_student_details(request):
 
 @login_required
 def student_dashboard(request):
-    if not request.user.groups.filter(name='Student').exists():
-        return redirect('no_permission')
+    # Example attendance data
+    attendance = 75  # 75% attendance
+    absent = 100 - attendance  # 25% absent
 
-    student_profile = get_object_or_404(Student, user=request.user)
-    department = student_profile.department
-    courses = student_profile.courses.all()
+    # Create pie chart using Plotly
+    fig = go.Figure(data=[go.Pie(
+        labels=['Present', 'Absent'],
+        values=[attendance, absent],
+        hole=.3,  # For a donut chart
+        marker=dict(
+            colors=['blue', 'white'],
+            line=dict(color='black', width=2)  # Add solid border
+        ),
+        hoverinfo='label+percent',  # Show label and percent on hover
+    )])
 
-    return render(request, 'student_dashboard.html', {'department': department, 'courses': courses})
+    # Update layout for better appearance
+    fig.update_layout(
+        title_text='Attendance Distribution',
+        annotations=[dict(text='Attendance', x=0.5, y=0.5, font_size=20, showarrow=False)],
+        showlegend=False,
+    )
+
+    # Convert the figure to HTML
+    graph_html = pio.to_html(fig, full_html=False)
+
+    context = {
+        'attendance_chart': graph_html,
+        'total_attendance': attendance
+    }
+    return render(request, 'student_dashboard.html', context)
+
+
 
 @login_required
 def course_enrollment(request):
