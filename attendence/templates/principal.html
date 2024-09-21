@@ -2,49 +2,107 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Principal Dashboard</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Include Bootstrap CSS (optional for additional styling) -->
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
+            background-color: #f4f4f9; /* Soft White */
+            color: #333333; /* Dark Gray */
             margin: 0;
+            overflow-x: hidden;
         }
+        
         .navbar {
-            background-color: #007BFF;
+            background-color: #007BFF; /* Bright Blue */
             overflow: hidden;
         }
+        
         .navbar a {
             float: left;
             display: block;
             color: white;
             text-align: center;
-            padding: 14px 20px;
+            padding: 15px 18px;
             text-decoration: none;
-            font-size: 17px;
+            font-size: 15px;
         }
+        
         .navbar a:hover {
-            background-color: #0056b3;
+            background-color: #0056b3; /* Dark Blue */
         }
+        
+        /* Sidebar CSS */
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333333; /* Dark Gray */
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+        
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 20px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+        }
+        
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+        
+        .sidebar .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+        
+        .openbtn {
+            font-size: 15px;
+            cursor: pointer;
+            background-color: #007BFF; /* Bright Blue */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+        }
+        
+        .openbtn:hover {
+            background-color: #0056b3; /* Dark Blue */
+        }
+        
+        /* Main content */
         .content {
+            transition: margin-left .5s;
             padding: 20px;
         }
+        
+        /* Page styling */
         h2 {
             margin-top: 20px;
             font-size: 24px;
-            color: #007BFF;
+            color: #007BFF; /* Bright Blue */
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 40px;
+            margin-bottom: 40px; 
             padding-bottom: 10px;
         }
+        
         .filter-container, .search-container {
             margin: 20px 0;
             text-align: center;
         }
+        
         select, input[type="text"], button {
             padding: 10px;
             border: 1px solid #ddd;
@@ -52,156 +110,282 @@
             font-size: 16px;
             margin: 5px;
         }
+        
         select {
             width: 200px;
-            background-color: #fff;
+            background-color: #ffffff; /* White */
         }
+        
         input[type="text"] {
             width: 300px;
         }
+        
         button {
-            background-color: #007BFF;
+            background-color: #007BFF; /* Bright Blue */
             color: white;
             border: none;
             cursor: pointer;
         }
+        
         button:hover {
-            background-color: #0056b3;
+            background-color: #0056b3; /* Dark Blue */
         }
+        
         table {
-            width: 100%;
-            margin: 25px 0;
+            width: 90%; /* Adjusted width */
+            margin: 25px auto;
             border-collapse: collapse;
-            background-color: white;
+            background-color: #ffffff; /* White */
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px; /* Rounded Corners */
+            overflow: hidden; /* Ensures border-radius effect */
         }
+        
         th, td {
             padding: 12px 15px;
             border: 1px solid #ddd;
             text-align: center;
         }
+        
         th {
-            background-color: #007BFF;
+            background-color: #007BFF; /* Bright Blue */
             color: white;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+        
         td {
             font-size: 16px;
-            background-color: #f9f9f9;
+            background-color: #f9f9f9; /* Light Gray */
         }
+        
         tr:nth-child(even) td {
             background-color: #f2f2f2;
         }
+        
         tr:hover {
             background-color: #f1f1f1;
         }
+        
         table caption {
             font-size: 18px;
             margin-bottom: 10px;
         }
+        
         @media (max-width: 768px) {
             table {
                 width: 100%;
             }
+        
             th, td {
                 font-size: 14px;
             }
         }
+        
+        /* Metrics Container */
+        .metrics-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px; /* Space between boxes */
+            margin: 20px 0;
+        }
+        
+        /* Metric Containers */
+        .metric-box {
+            width: 70%; /* Adjusted to fit within container */
+            background-color: #ffffff; /* White Background */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Light Shadow for Depth */
+            padding: 20px; /* Increased Padding for Better Spacing */
+            border-radius: 8px; /* Rounded Corners */
+            border: 1px solid #e0e0e0; /* Light Gray Border for Definition */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth Transition Effects */
+            margin-bottom:20px;
+        }
+        
+        .metric-box:hover {
+            background-color: #f1f9ff; /* Very Light Blue Background on Hover */
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2); /* Enhanced Shadow on Hover */
+        }
+        
+        .metric-box h3 {
+            color: #007BFF; /* Bright Blue */
+            font-size: 20px;
+            margin-bottom: 10px;
+            font-weight: bold; /* Emphasize Title */
+        }
+        
+        .metric-visualization {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .metric-visualization img {
+            width: 100%;
+            max-width: 250px; /* Adjusted for better fit */
+            height: auto;
+            border-radius: 6px; /* Slightly Rounded Corners */
+        }
+        
+        .metric-box p {
+            font-size: 16px;
+            color: #555555; /* Medium Gray for Text */
+        }
+        
+        
     </style>
 </head>
 <body>
 
 <!-- Navbar -->
 <div class="navbar">
-    <a href="#">Menu</a>
+    <a class="openbtn" onclick="openNav()">&#9776;</a>
     <a href="#">Home</a>
     <a href="#">Analytics</a>
     <a href="#">Logout</a>
 </div>
 
+<!-- Sidebar -->
+<div id="mySidebar" class="sidebar">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    <a href="#">Menu</a>
+    <a href="#">Departments</a>
+    <a href="#">Settings</a>
+    <a href="#">Help</a>
+</div>
+
 <!-- Page Content -->
-<div class="content">
+<div class="content" id="mainContent">
     <h2>Principal Dashboard</h2>
 
+    <!-- Metrics Section -->
+<!-- New Section for Metrics -->
+<div class="metrics-container">
+    <div class="metric-box" id="attendanceMetric">
+        <h3>Total Attendance</h3>
+        <div class="metric-visualization">
+            <!-- Placeholder for attendance visualization -->
+            <div class="placeholder">
+                <p>No Data Available</p>
+                <!-- You can use CSS to create a visual placeholder here -->
+            </div>
+        </div>
+        <p>Total Attendance: <span id="totalAttendance">75%</span></p>
+    </div>
+   
+</div>
+
+
+    <!-- Filters and Search -->
     <form id="filterForm" method="GET">
         <div class="filter-container">
-            <select id="departmentFilter" name="department" class="form-control">
+            <select id="departmentFilter" name="department">
                 <option value="">Select Department</option>
-                {% for department in departments %}
-                    <option value="{{ department.id }}" {% if request.GET.department == department.id|stringformat:"s" %}selected{% endif %}>{{ department.name }}</option>
-                {% endfor %}
+                <!-- Add department options here -->
             </select>
-            <select id="semesterFilter" name="semester" class="form-control">
+            <select id="semesterFilter" name="semester">
                 <option value="">Select Semester</option>
-                {% for semester in all_semesters %}
-                    <option value="{{ semester.id }}" {% if request.GET.semester == semester.id|stringformat:"s" %}selected{% endif %}>{{ semester }}</option>
-                {% endfor %}
+                <!-- Add semester options here -->
             </select>
-            <select id="honorsMinorsFilter" name="honors_minors" class="form-control">
-                <option value="">Select Honors/Minors</option>
-                {% for honor_minor in honors_minors %}
-                    <option value="{{ honor_minor.id }}" {% if request.GET.honors_minors == honor_minor.id|stringformat:"s" %}selected{% endif %}>{{ honor_minor.name }}</option>
-                {% endfor %}
-            </select>
-            <select id="statusFilter" name="status" class="form-control">
+            <select id="statusFilter" name="status">
                 <option value="">Select Status</option>
-                {% for status in statuses %}
-                    <option value="{{ status }}" {% if request.GET.status == status %}selected{% endif %}>{{ status }}</option>
-                {% endfor %}
+                <!-- Add status options here -->
+            </select>
+            <select id="honorsMinorsFilter" name="honors_minors">
+                <option value="">Select Honors/Minors</option>
+                <!-- Add honors/minors options here -->
             </select>
         </div>
 
         <div class="search-container">
-            <input type="text" id="search" name="search" class="form-control" placeholder="Search students..." value="{{ request.GET.search }}">
-            <button type="submit" class="btn btn-primary">Search</button>
+            <input type="text" id="search" name="search" placeholder="Search students..." value="">
+            <button type="submit">Search</button>
         </div>
     </form>
 
+    <!-- Student Information Table -->
     <table id="studentTable">
-        <caption>Student Information</caption>
         <thead>
             <tr>
+                <th>S.No</th>
                 <th>Name</th>
                 <th>Department</th>
                 <th>Semester</th>
                 <th>Status</th>
                 <th>Honors/Minors</th>
                 <th>Attendance</th>
-                <th>CGPA</th>
-                <th>Total CGPA</th>
+
             </tr>
         </thead>
         <tbody>
-            {% for student in students %}
+            <!-- Sample Data Rows -->
             <tr>
-                <td>{{ student.name }}</td>
-                <td>{{ student.department.name }}</td>
-                <td>
-                    {% if student.even_sem %}
-                        Even Semester {{ student.even_sem.semester_number }}<br>
-                    {% endif %}
-                    {% if student.odd_sem %}
-                        Odd Semester {{ student.odd_sem.semester_number }}<br>
-                    {% endif %}
-                </td>
-                <td>{{ student.status }}</td>
-                <td>{{ student.honors_minors.name }}</td>
-                <td>{{ student.attendance_percentage }}%</td>
-                <td>{{ student.latest_cgpa }}</td>
-                <td>{{ student.cgpa_total }}</td>
+                <td>1</td>
+                <td>John Doe</td>
+                <td>Computer Science</td>
+                <td>Semester 4</td>
+                <td>Active</td>
+                <td>Data Science</td>
+                <td>85%</td>
+
             </tr>
-            {% empty %}
             <tr>
-                <td colspan="8">No students found.</td>
+                <td>2</td>
+                <td>Jane Smith</td>
+                <td>Electronics</td>
+                <td>Semester 3</td>
+                <td>Inactive</td>
+                <td>Embedded Systems</td>
+                <td>78%</td>
+
             </tr>
-            {% endfor %}
+            <!-- Add more rows as needed -->
+            
+                {% for student in students %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ student.name }}</td>
+                    <td>
+                        {% if student.even_sem %}
+                            Even Semester {{ student.even_sem.semester_number }}<br>
+                        {% endif %}
+                        {% if student.odd_sem %}
+                            Odd Semester {{ student.odd_sem.semester_number }}<br>
+                        {% endif %}
+                    </td>
+                    <td>{{ student.status }}</td>
+                    <td>{{ student.honors_minors.name }}</td>
+                    <td>{{ student.attendance_percentage }}%</td>
+                    <td>{{ student.latest_cgpa }}</td>
+                    <td>{{ student.cgpa_total }}</td>
+                    <td>
+                        {% if student.year %}
+                            {% for course in courses %}
+                                {% if course.year == student.year %}
+                                    {{ course.name }}<br>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            
         </tbody>
     </table>
 </div>
 
+<!-- JavaScript for Sidebar -->
 <script>
+    function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+        document.getElementById("mainContent").style.marginLeft = "250px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+        document.getElementById("mainContent").style.marginLeft = "0";
+    }
+
     document.getElementById('filterForm').addEventListener('change', function() {
         fetchFilteredData();
     });
@@ -216,22 +400,14 @@
 
         fetch(window.location.href, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
             body: new URLSearchParams(formData).toString()
-        })
+        })  
         .then(response => response.text())
         .then(html => {
-            document.querySelector('.content').innerHTML = html;
+            document.getElementById('studentTable').innerHTML = html;
         });
-    }
+    }   
 </script>
-
-<!-- Add Bootstrap JS and dependencies -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 </body>
 </html>

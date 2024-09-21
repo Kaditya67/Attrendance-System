@@ -14,6 +14,7 @@ urlpatterns = [
     path('register/principal/', views.register_principal, name='register_principal'),
     
     # Dashboards
+    path('student_form',views.student_form,name='student_form'),
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('teacher/dashboard/', views.dash_teacher, name='dash_teacher'),
     path('hod/dashboard/', views.hod_dashboard, name='hod_dashboard'),
