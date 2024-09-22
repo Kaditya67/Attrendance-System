@@ -66,14 +66,34 @@ class SessionYear(models.Model):
             models.Index(fields=['end_date']),
         ]
 
+class Semester(models.Model):
+    SEMESTER_CHOICES = [
+        ('Odd', 'Odd'),
+        ('Even', 'Even'),
+    ]
+    semester_number = models.IntegerField(verbose_name="Semester Number",)
+    session_year = models.ForeignKey(SessionYear, on_delete=models.CASCADE, related_name='semesters', verbose_name="Session Year")
+    semester_type = models.CharField(max_length=10, choices=SEMESTER_CHOICES, verbose_name="Semester Type")
+
+    class Meta:
+        unique_together = ('session_year', 'semester_number')
+        indexes = [
+            models.Index(fields=['semester_number']),
+            models.Index(fields=['semester_type']),
+        ]
+
+    def __str__(self):
+        return f"{self.get_semester_type_display()} Semester {self.semester_number} - {self.session_year.academic_year} {self.session_year.department.name}"
+
 class Course(models.Model):
     code = models.CharField(max_length=10, unique=True, verbose_name="Course Code")
     name = models.CharField(max_length=100, verbose_name="Course Name")
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='courses', verbose_name="Department")
-    year = models.ForeignKey(Year, on_delete=models.CASCADE, related_name='courses', verbose_name="Year")
+    # department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='courses', verbose_name="Department")
+    # year = models.ForeignKey(Year, on_delete=models.CASCADE, related_name='courses', verbose_name="Year")
+    sem = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name='courses', verbose_name="Semester", blank=True, null=True)
 
     def __str__(self):
-        return f"{self.code} - {self.name}"
+        return f"{self.code} - {self.name} - {self.sem}"
 
     class Meta:
         indexes = [
@@ -93,25 +113,6 @@ class Program(models.Model):
         indexes = [
             models.Index(fields=['name']),
         ]
-
-class Semester(models.Model):
-    SEMESTER_CHOICES = [
-        ('Odd', 'Odd'),
-        ('Even', 'Even'),
-    ]
-    semester_number = models.IntegerField(verbose_name="Semester Number")
-    session_year = models.ForeignKey(SessionYear, on_delete=models.CASCADE, related_name='semesters', verbose_name="Session Year")
-    semester_type = models.CharField(max_length=10, choices=SEMESTER_CHOICES, verbose_name="Semester Type")
-
-    class Meta:
-        unique_together = ('session_year', 'semester_number')
-        indexes = [
-            models.Index(fields=['semester_number']),
-            models.Index(fields=['semester_type']),
-        ]
-
-    def __str__(self):
-        return f"{self.get_semester_type_display()} Semester {self.semester_number} - {self.session_year.academic_year}"
 
 class HonorsMinors(models.Model):
     name = models.CharField(max_length=100, verbose_name="Honors/Minors Name")
@@ -146,16 +147,29 @@ class Teacher(models.Model):
     mobile_no = models.CharField(max_length=15, blank=True, null=True, verbose_name="Mobile Number")
     email = models.EmailField(blank=True, null=True, verbose_name="Email")
     experience = models.TextField(blank=True, null=True, verbose_name="Experience")
-
-    def __str__(self):
-        return f"Teacher: {self.user.username} - Department: {self.department.name if self.department else 'No Department'}"
+    assigned_courses = models.ManyToManyField(Course, related_name='assigned_teachers', verbose_name="Assigned Courses", blank=True)
 
     class Meta:
+        # constraints = [
+        #     models.UniqueConstraint(fields=['department'], name='unique_hod_per_department'),
+        # ]
         indexes = [
             models.Index(fields=['faculty_id']),
             models.Index(fields=['mobile_no']),
             models.Index(fields=['email']),
         ]
+
+    def __str__(self):
+        return f"Teacher: {self.user.username} - Department: {self.department.name if self.department else 'No Department'}"
+
+
+class HOD(models.Model):
+    teacher = models.OneToOneField(Teacher, on_delete=models.CASCADE) 
+    office_number = models.CharField(max_length=20, blank=True, null=True, verbose_name="Office Number")
+    managing_teachers = models.IntegerField(verbose_name="Managing Teachers")
+
+    def __str__(self):
+        return self.teacher.user.get_full_name()
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -203,23 +217,6 @@ class Enrollment(models.Model):
 
     def __str__(self):
         return f"Enrollment: {self.student.user.username} in {self.course.name} - {self.semester}"
-
-class HOD(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    department = models.OneToOneField(Department, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Department")
-    office_number = models.CharField(max_length=20, blank=True, null=True, verbose_name="Office Number")
-    managing_teachers = models.IntegerField(verbose_name="Managing Teachers")
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['department'], name='unique_hod_per_department')
-        ]
-        indexes = [
-            models.Index(fields=['department']),
-        ]
-
-    def __str__(self):
-        return f'{self.user.first_name} {self.user.last_name} - HOD of {self.department.name}'
 
 class Staff(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

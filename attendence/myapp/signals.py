@@ -3,12 +3,8 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import Group
-from .models import HOD, Staff, Principal
+from .models import Staff, Principal
 
-@receiver(post_save, sender=HOD)
-def assign_hod_group(sender, instance, **kwargs):
-    group, created = Group.objects.get_or_create(name='HOD')
-    instance.user.groups.add(group)
 
 @receiver(post_save, sender=Staff)
 def assign_staff_group(sender, instance, **kwargs):

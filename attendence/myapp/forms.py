@@ -422,11 +422,7 @@ from .models import Course
 class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
-        fields = ['code', 'name', 'department', 'year']
-        widgets = {
-            'department': forms.Select,
-            'year': forms.Select,
-        }
+        fields = ['code', 'name', 'sem']
 
 
 from django import forms

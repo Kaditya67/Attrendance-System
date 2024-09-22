@@ -82,12 +82,15 @@ class ProgramAdmin(admin.ModelAdmin):
     list_filter = ('department',)
 
 # Registering the HOD model
-@admin.register(HOD)
-class HODAdmin(admin.ModelAdmin):
-    list_display = ('user', 'department', 'office_number')
-    search_fields = ('user__username', 'department__name')
-    list_filter = ('department',)
-    ordering = ('user__username',)
+# @admin.register(HOD)
+# class HODAdmin(admin.ModelAdmin):
+#     list_display = ('user', 'department', 'office_number')
+#     search_fields = ('user__username', 'department__name')
+#     list_filter = ('department',)
+#     ordering = ('user__username',)
+
+# Registering the HOD model
+admin.site.register(HOD)
 
 # Registering the Staff model
 @admin.register(Staff)
