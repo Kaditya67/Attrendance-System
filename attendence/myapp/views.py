@@ -118,6 +118,30 @@ def register_staff(request):
 def register_principal(request):
     return register_user(request, PrincipalRegistrationForm, 'Principal', 'register_principal.html', 'principal_dashboard')
 
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Student
+from .forms import StudentUpdateForm
+
+@login_required
+def update_student(request):
+    if not request.user.groups.filter(name='Student').exists():
+        return redirect('no_permission')
+    student = request.user.student  # Assuming a OneToOne relation with User
+    if request.method == 'POST':
+        form = StudentUpdateForm(request.POST, instance=student)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your details have been updated successfully.")
+            return redirect('student_dashboard')
+    else:
+        form = StudentUpdateForm(instance=student)
+
+    return render(request, 'update_student.html', {'form': form, 'student': student})
+
+
+
 @login_required
 def success(request):   
     return render(request, 'success.html')

@@ -101,6 +101,24 @@ class StudentRegistrationForm(forms.ModelForm):
             student.save()
         return student
 
+from django import forms
+from .models import Student
+
+class StudentUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['roll_number', 'address']
+        widgets = {
+            'roll_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Set other fields as disabled
+        for field in self.fields:
+            if field not in ['roll_number', 'address']:
+                self.fields[field].widget.attrs['disabled'] = 'disabled'
 
 
 class TeacherRegistrationForm(forms.ModelForm):

@@ -13,6 +13,8 @@ urlpatterns = [
     path('register/staff/', views.register_staff, name='register_staff'),
     path('register/principal/', views.register_principal, name='register_principal'),
     
+    path('update/student', views.update_student, name='update_student'),
+
     # Dashboards
     path('student_form',views.student_form,name='student_form'),
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
