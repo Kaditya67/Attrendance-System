@@ -1,7 +1,8 @@
 from django.contrib import admin
 from .models import (
     Department, Principal, Staff, Student, Teacher, Attendance, 
-    SemesterCGPA, LabsBatches, Program, Lecture, HOD, Course, Year
+    SemesterCGPA, LabsBatches, Program, Lecture, HOD, Course, 
+    Year
 )
 
 # Registering the Department model

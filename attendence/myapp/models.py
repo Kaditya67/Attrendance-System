@@ -56,7 +56,7 @@ class Year(models.Model):
         ('TE', 'Third Year'),
         ('BE', 'Fourth Year'),
     ]
-    name = models.CharField(max_length=10, choices=YEAR_CHOICES, unique=True, verbose_name="Year")
+    name = models.CharField(max_length=10, choices=YEAR_CHOICES, verbose_name="Year")
 
     def __str__(self):
         return self.get_name_display()
@@ -71,20 +71,28 @@ class Semester(models.Model):
         ('Odd', 'Odd'),
         ('Even', 'Even'),
     ]
+    
+    YEAR_CHOICES = [
+        ('FE', 'First Year'),
+        ('SE', 'Second Year'),
+        ('TE', 'Third Year'),
+        ('BE', 'Fourth Year'),
+    ]
+
     semester_number = models.IntegerField(verbose_name="Semester Number")
     session_year = models.ForeignKey(SessionYear, on_delete=models.CASCADE, related_name='semesters', verbose_name="Session Year")
     semester_type = models.CharField(max_length=10, choices=SEMESTER_CHOICES, verbose_name="Semester Type")
-    year = models.OneToOneField(Year, on_delete=models.CASCADE, related_name='semester', verbose_name="Year")  # One-to-one mapping
+    year = models.CharField(max_length=2, choices=YEAR_CHOICES, verbose_name="Year")  # Replace OneToOneField with CharField
 
     class Meta:
-        unique_together = ('session_year', 'semester_number')
+        unique_together = ('session_year', 'semester_number')  # Adjusted unique constraint
         indexes = [
             models.Index(fields=['semester_number']),
             models.Index(fields=['semester_type']),
         ]
 
     def __str__(self):
-        return f"{self.get_semester_type_display()} Semester {self.semester_number} - {self.session_year.academic_year} {self.session_year.department.name}"
+        return f"{self.get_semester_type_display()} Semester {self.semester_number} - {self.session_year.academic_year} {self.get_year_display() } - {self.session_year.department.name}"
 
 
 class Course(models.Model):
