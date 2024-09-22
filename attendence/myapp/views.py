@@ -343,10 +343,9 @@ def student_dashboard(request):
     fig = go.Figure(data=[go.Pie(
         labels=['Present', 'Absent'],
         values=[attendance, absent],
-        hole=.3,  # For a donut chart
         marker=dict(
-            colors=['blue', 'white'],
-            line=dict(color='black', width=2)  # Add solid border
+            colors=['#1a73e8', '#ffcc00'],  # Vibrant colors
+            line=dict(color='rgba(0, 0, 0, 0)', width=0)  # No border
         ),
         hoverinfo='label+percent',  # Show label and percent on hover
     )])
@@ -354,18 +353,21 @@ def student_dashboard(request):
     # Update layout for better appearance
     fig.update_layout(
         title_text='Attendance Distribution',
-        annotations=[dict(text='Attendance', x=0.5, y=0.5, font_size=20, showarrow=False)],
+        title_font=dict(size=24, color='#333'),  # Improved title styling
         showlegend=False,
+        margin=dict(l=0, r=0, t=40, b=0),  # Remove margins for a cleaner look
+        height=400  # Fixed height for consistency
     )
 
-    # Convert the figure to HTML
-    graph_html = pio.to_html(fig, full_html=False)
+    # Convert the figure to HTML without download options
+    graph_html = pio.to_html(fig, full_html=False, include_plotlyjs='cdn', config={'displayModeBar': False})
 
     context = {
         'attendance_chart': graph_html,
         'total_attendance': attendance
     }
     return render(request, 'student_dashboard.html', context)
+
 
 
 

@@ -3,19 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Student Dashboard</title>
-    <!-- Include Bootstrap CSS (optional for additional styling) -->
-    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            background-color: #f0f2f5; /* Softer background */
             color: #333333;
             margin: 0;
             overflow-x: hidden;
         }
 
         .navbar {
-            background-color: #007BFF;
+            background-color: #0062cc; /* Darker blue */
             overflow: hidden;
         }
 
@@ -30,7 +28,7 @@
         }
 
         .navbar a:hover {
-            background-color: #0056b3;
+            background-color: #004ba0; /* More distinct hover color */
         }
 
         .sidebar {
@@ -61,14 +59,14 @@
         .openbtn {
             font-size: 15px;
             cursor: pointer;
-            background-color: #007BFF;
+            background-color: #0062cc;
             color: white;
             border: none;
             padding: 10px 15px;
         }
 
         .openbtn:hover {
-            background-color: #0056b3;
+            background-color: #004ba0;
         }
 
         .content {
@@ -79,17 +77,12 @@
         h2 {
             margin-top: 20px;
             font-size: 24px;
-            color: #007BFF;
+            color: #004ba0; /* Darker blue for consistency */
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 40px; 
             padding-bottom: 10px;
-        }
-
-        .filter-container, .search-container {
-            margin: 20px 0;
-            text-align: center;
         }
 
         select, input[type="text"], button {
@@ -100,24 +93,15 @@
             margin: 5px;
         }
 
-        select {
-            width: 200px;
-            background-color: #ffffff;
-        }
-
-        input[type="text"] {
-            width: 300px;
-        }
-
         button {
-            background-color: #007BFF;
+            background-color: #0062cc;
             color: white;
             border: none;
             cursor: pointer;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: #004ba0;
         }
 
         table {
@@ -137,7 +121,7 @@
         }
 
         th {
-            background-color: #007BFF;
+            background-color: #004ba0; /* Consistent blue for header */
             color: white;
             font-weight: bold;
             text-transform: uppercase;
@@ -148,8 +132,6 @@
             font-size: 16px;
             background-color: #f9f9f9;
         }
-
-
 
         tr:hover {
             background-color: #f1f1f1;
@@ -196,7 +178,7 @@
         }
 
         .metric-box h3 {
-            color: #007BFF;
+            color: #0062cc;
             font-size: 20px;
             margin-bottom: 10px;
             font-weight: bold;
@@ -207,31 +189,19 @@
             margin-bottom: 15px;
         }
 
-        .metric-visualization img {
-            width: 100%;
-            max-width: 250px;
-            height: auto;
-            border-radius: 6px;
-        }
-
         .metric-box p {
             font-size: 16px;
             color: #555555;
         }
 
         .present {
-            background-color: green;
+            background-color: #28a745; /* Bootstrap success green */
             color: white;
         }
 
         .absent {
-            background-color: red;
+            background-color: #dc3545; /* Bootstrap danger red */
             color: white;
-        }
-
-        .metric-visualization{
-            width:100%;
-            
         }
     </style>
 </head>
@@ -258,101 +228,145 @@
 <div class="content" id="mainContent">
     <h2>Asad Sayyad</h2>
 
-<!-- Metrics Section -->
+    <!-- Metrics Section -->
+<!-- Updated Metrics Section with Enhanced Colors -->
 <div class="metrics-container">
-    <div class="metric-box" id="attendanceMetric">
-        <h3>Total Attendance</h3>
-        <div class="metric-visualization" style="width: 100%; height:400px;">
+    <div class="metric-box" id="attendanceMetric" style="color: rgb(14, 7, 7);">
+        <h3 style="color: rgb(14, 7, 7);">Total Attendance</h3>
+        <div class="metric-visualization" style="width: 100%; height:400px; background-color: #e8f0fe;">
             <!-- Display Pie Chart from Plotly -->
             {{ attendance_chart|safe }}
         </div>
-        <p>Total Attendance: <span id="totalAttendance">{{ total_attendance }}%</span></p>
+        <p>Total Attendance: <span id="totalAttendance" style="color: #141104;">{{ total_attendance }}%</span></p>
     </div>
 </div>
 
-
-
-
-
+<div>
     <!-- Student Information Table -->
     <table id="studentTable">
         <thead>
             <tr>
                 <th>S.No</th>
                 <th>Date</th>
-                <th>subject1</th>
-                <th>subject2</th>
-                <th>subject3</th>
-                <th>subject4</th>
-                <th>lab1</th>
-                <th>lab2</th>
-                <th>lab3</th>
-
+                <th>8:00 AM - 9:00 AM</th>
+                <th>9:00 AM - 10:00 AM</th>
+                <th>10:00 AM - 11:00 AM</th>
+                <th>Short Break</th>
+                <th>11:15 AM - 12:15 PM</th>
+                <th>Lunch Break</th>
+                <th>2:00 PM - 3:00 PM</th>
+                <th>3:00 PM - 4:00 PM</th>
+                <th>4:00 PM - 5:00 PM</th>
             </tr>
         </thead>
         <tbody>
-                       <!-- Sample Data Rows -->
-                       <tr>
-                        <td>1</td>
-                        <td>1/2/24</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>2/2/24</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>3/2/24</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>           <!-- Add more rows as needed -->
-                    <tr>
-                        <td>4</td>
-                        <td>4/2/24</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>           <!-- Add more rows as needed -->
-                    <tr>
-                        <td>5</td>
-                        <td>5/2/24</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>           <!-- Add more rows as needed -->
-            
-               
-
-            
+            <tr>
+                <td>1</td>
+                <td>1/2/24</td>
+                <td>Math</td>
+                <td style="color: red;">Maths (Absent)</td>
+                <td>Chemistry</td>
+                <td></td>
+                <td>Biology</td>
+                <td></td> 
+                <td>English</td>
+                <td>Lab 1</td>
+                <td>Lab 2</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>1/2/24</td>
+                <td>Math</td>
+                <td style="color: red;">Maths (Absent)</td>
+                <td>Chemistry</td>
+                <td></td>
+                <td>Biology</td>
+                <td></td> 
+                <td>English</td>
+                <td>Lab 1</td>
+                <td>Lab 2</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>1/2/24</td>
+                <td>Math</td>
+                <td style="color: red;">Maths (Absent)</td>
+                <td>Chemistry</td>
+                <td></td>
+                <td>Biology</td>
+                <td></td> 
+                <td>English</td>
+                <td>Lab 1</td>
+                <td>Lab 2</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>1/2/24</td>
+                <td>Math</td>
+                <td style="color: red;">Maths (Absent)</td>
+                <td>Chemistry</td>
+                <td></td>
+                <td>Biology</td>
+                <td></td> 
+                <td>English</td>
+                <td>Lab 1</td>
+                <td>Lab 2</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>1/2/24</td>
+                <td>Math</td>
+                <td style="color: red;">Maths (Absent)</td>
+                <td>Chemistry</td>
+                <td></td>
+                <td>Biology</td>
+                <td></td> 
+                <td>English</td>
+                <td>Lab 1</td>
+                <td>Lab 2</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>1/2/24</td>
+                <td>Math</td>
+                <td style="color: red;">Maths (Absent)</td>
+                <td>Chemistry</td>
+                <td></td>
+                <td>Biology</td>
+                <td></td> 
+                <td>English</td>
+                <td>Lab 1</td>
+                <td>Lab 2</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>1/2/24</td>
+                <td>Math</td>
+                <td style="color: red;">Maths (Absent)</td>
+                <td>Chemistry</td>
+                <td></td>
+                <td>Biology</td>
+                <td></td> 
+                <td>English</td>
+                <td>Lab 1</td>
+                <td>Lab 2</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>1/2/24</td>
+                <td>Math</td>
+                <td style="color: red;">Maths (Absent)</td>
+                <td>Chemistry</td>
+                <td></td>
+                <td>Biology</td>
+                <td></td> 
+                <td>English</td>
+                <td>Lab 1</td>
+                <td>Lab 2</td>
+            </tr>
         </tbody>
     </table>
+    
 </div>
 
 <!-- JavaScript for Sidebar -->
@@ -372,24 +386,13 @@
         const table = document.getElementById('studentTable');
         const rows = table.getElementsByTagName('tr');
 
-        for (let i = 1; i < rows.length; i++) { // Start from 1 to skip header row
-            const cells = rows[i].getElementsByTagName('td');
-
-            for (let j = 2; j < cells.length; j++) { // Start from 2 to skip S.No and Date
-                const isPresent = Math.random() < 0.5;
-                cells[j].textContent = isPresent ? 'Present' : 'Absent';
-                cells[j].className = isPresent ? 'present' : 'absent';
-
-                // Log each cell's status and class
-                console.log(`Row ${i}, Cell ${j}: ${cells[j].textContent}, Class: ${cells[j].className}`);
-            }
+        for (let i = 1; i < rows.length; i++) {
+            const statusCell = rows[i].getElementsByTagName('td')[2];
+            const status = Math.random() > 0.5 ? 'Present' : 'Absent';
+            statusCell.className = status === 'Present' ? 'present' : 'absent';
+            statusCell.textContent = status;
         }
     }
-
-    // Call the function to assign random attendance on page load
-    window.onload = assignAttendance;
 </script>
-
-
 </body>
 </html>
