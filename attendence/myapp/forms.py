@@ -42,7 +42,6 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from .models import Student, Department
-
 class StudentRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
     first_name = forms.CharField(max_length=30)
@@ -51,16 +50,19 @@ class StudentRegistrationForm(forms.ModelForm):
     mobile_no = forms.CharField(max_length=15, required=False)
     department = forms.ModelChoiceField(queryset=Department.objects.all(), widget=forms.Select(attrs={'onchange': 'updateSemesters()'}))
     roll_number = forms.CharField(max_length=10)
+    student_id = forms.CharField(max_length=20, required=True, label="Student ID")  # Added student_id
+    address = forms.CharField(widget=forms.Textarea, required=False, label="Address")  # Added address
     password = forms.CharField(widget=forms.PasswordInput, label='Password')
     confirm_password = forms.CharField(widget=forms.PasswordInput, label='Confirm Password')
     
-    semester = forms.ModelChoiceField(queryset=Semester.objects.none(), required=False)  # Initially empty
+    semester = forms.ModelChoiceField(queryset=Semester.objects.all(), required=False)  # Show all semesters
 
     class Meta:
         model = Student
         fields = [
             'username', 'first_name', 'last_name', 'email', 'mobile_no',
-            'department', 'roll_number', 'password', 'confirm_password', 'semester'
+            'department', 'roll_number', 'student_id', 'address', 
+            'password', 'confirm_password', 'semester'
         ]
         help_texts = {
             'email': 'Enter a valid email address ending with @dbit.in',

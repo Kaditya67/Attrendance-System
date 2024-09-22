@@ -91,7 +91,10 @@ def register_user(request, form_class, group_name, template_name, success_redire
     else:
         form = form_class()
 
-    return render(request, template_name, {'form': form})
+    # Get all semesters to pass to the template
+    all_semesters = Semester.objects.all()
+
+    return render(request, template_name, {'form': form, 'semesters': all_semesters})
 
 def register_student(request):
     return register_user(
@@ -101,7 +104,6 @@ def register_student(request):
         'register_student.html', 
         'student_dashboard'
     )
-
 
 
 def register_teacher(request):
