@@ -1,5 +1,5 @@
-username,first_name,last_name,email,department,roll_number,semester_type,semester_number,year,cgpa,mobile_no,address,courses,lab_batch
-student1,John,Doe,john.doe@dbit.in,Computer Science,CS101,Odd,1,2024,3.50,1234567890,123 Elm Street,Course1,LabBatch1
-student2,Jane,Smith,jane.smith@dbit.in,Mechanical Engineering,MA102,Even,2,2024,3.80,0987654321,456 Oak Avenue,Course2,LabBatch2
-student3,Alice,Johnson,alice.johnson@dbit.in,Electrical Engineering,PH103,Odd,1,2024,3.60,1122334455,789 Pine Road,Course3,LabBatch1
-student4,Bob,Williams,bob.williams@dbit.in,Civil Engineering,CH104,Even,2,2024,3.90,5566778899,101 Maple Lane,Course4,LabBatch2
+username,first_name,last_name,email,roll_number,semester,mobile_no,address,student_id
+johndoe,John,Doe,johndoe@dbit.in,12345,1,9876543210,123 Main St,STU001
+janedoe,Jane,Doe,janedoe@dbit.in,12346,1,9876543211,124 Main St,STU002
+alicealice,Alice,Smith,alicealice@dbit.in,12347,2,9876543212,125 Main St,STU003
+bobbob,Bob,Brown,bobbob@dbit.in,12348,2,9876543213,126 Main St,STU004
