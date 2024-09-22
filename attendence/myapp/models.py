@@ -33,6 +33,22 @@ class Department(models.Model):
             models.Index(fields=['name']),
         ]
 
+class SessionYear(models.Model):
+    academic_year = models.CharField(max_length=10, verbose_name="Academic Year")  # e.g., "2023-2024"
+    start_date = models.DateField(verbose_name="Start Date")
+    end_date = models.DateField(verbose_name="End Date")
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='sessions', verbose_name="Department")
+
+    def __str__(self):
+        return f"{self.academic_year} - {self.department.name}"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['academic_year']),
+            models.Index(fields=['start_date']),
+            models.Index(fields=['end_date']),
+        ]
+
 class Year(models.Model):
     YEAR_CHOICES = [
         ('FE', 'First Year'),
@@ -50,30 +66,15 @@ class Year(models.Model):
             models.Index(fields=['name']),
         ]
 
-class SessionYear(models.Model):
-    academic_year = models.CharField(max_length=10, verbose_name="Academic Year")  # e.g., "2023-2024"
-    start_date = models.DateField(verbose_name="Start Date")
-    end_date = models.DateField(verbose_name="End Date")
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='sessions', verbose_name="Department")
-
-    def __str__(self):
-        return f"{self.academic_year} - {self.department.name}"
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['academic_year']),
-            models.Index(fields=['start_date']),
-            models.Index(fields=['end_date']),
-        ]
-
 class Semester(models.Model):
     SEMESTER_CHOICES = [
         ('Odd', 'Odd'),
         ('Even', 'Even'),
     ]
-    semester_number = models.IntegerField(verbose_name="Semester Number",)
+    semester_number = models.IntegerField(verbose_name="Semester Number")
     session_year = models.ForeignKey(SessionYear, on_delete=models.CASCADE, related_name='semesters', verbose_name="Session Year")
     semester_type = models.CharField(max_length=10, choices=SEMESTER_CHOICES, verbose_name="Semester Type")
+    year = models.OneToOneField(Year, on_delete=models.CASCADE, related_name='semester', verbose_name="Year")  # One-to-one mapping
 
     class Meta:
         unique_together = ('session_year', 'semester_number')
@@ -84,6 +85,7 @@ class Semester(models.Model):
 
     def __str__(self):
         return f"{self.get_semester_type_display()} Semester {self.semester_number} - {self.session_year.academic_year} {self.session_year.department.name}"
+
 
 class Course(models.Model):
     code = models.CharField(max_length=10, unique=True, verbose_name="Course Code")
