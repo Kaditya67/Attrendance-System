@@ -532,17 +532,17 @@ from .models import Student
 #         form = StudentForm()
 #     return render(request, 'add_edit_student.html', {'form': form, 'action': 'Add'})
 
-# Edit Student View
-def edit_student(request, student_id):
-    student = get_object_or_404(Student, id=student_id)
-    if request.method == 'POST':
-        form = StudentForm(request.POST, instance=student)
-        if form.is_valid():
-            form.save()
-            return redirect('view_student_details')
-    else:
-        form = StudentForm(instance=student)
-    return render(request, 'add_edit_student.html', {'form': form, 'action': 'Edit'})
+# # Edit Student View
+# def edit_student(request, student_id):
+#     student = get_object_or_404(Student, id=student_id)
+#     if request.method == 'POST':
+#         form = StudentForm(request.POST, instance=student)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('view_student_details')
+#     else:
+#         form = StudentForm(instance=student)
+#     return render(request, 'add_edit_student.html', {'form': form, 'action': 'Edit'})
 
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Course
