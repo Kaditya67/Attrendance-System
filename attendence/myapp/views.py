@@ -7,7 +7,9 @@ from .forms import (StudentRegistrationForm, TeacherRegistrationForm,
                     HODRegistrationForm, StaffRegistrationForm,
                     PrincipalRegistrationForm, UserLoginForm, AttendanceForm,
                     CourseEnrollmentForm, CourseManagementForm, LectureSchedulingForm, 
-                    AttendanceReportForm, StudentProfileUpdateForm, PasswordResetForm)
+                    AttendanceReportForm, 
+                    # StudentProfileUpdateForm, 
+                    PasswordResetForm)
 from .models import (Student, Teacher, HOD, Staff, Principal, Department, Semester,
                      HonorsMinors, Course, Attendance)
 from django.db.models import Q
@@ -69,8 +71,6 @@ def student_form(request):
     # Render the student form with the list of students
     return render(request, 'student_form.html', {'students': students})
 
-
-
 def register_user(request, form_class, group_name, template_name, success_redirect):
     if request.method == 'POST':
         form = form_class(request.POST)
@@ -78,6 +78,7 @@ def register_user(request, form_class, group_name, template_name, success_redire
             user_instance = form.save()
             user = user_instance.user
             
+            # Add user to the specified group
             user_group, created = Group.objects.get_or_create(name=group_name)
             user.groups.add(user_group)
             
@@ -93,7 +94,15 @@ def register_user(request, form_class, group_name, template_name, success_redire
     return render(request, template_name, {'form': form})
 
 def register_student(request):
-    return register_user(request, StudentRegistrationForm, 'Student', 'register_student.html', 'student_dashboard')
+    return register_user(
+        request, 
+        StudentRegistrationForm, 
+        'Student', 
+        'register_student.html', 
+        'student_dashboard'
+    )
+
+
 
 def register_teacher(request):
     return register_user(request, TeacherRegistrationForm, 'Teacher', 'register_teacher.html', 'dash_teacher')
@@ -428,16 +437,16 @@ def attendance_reporting(request):
 
     return render(request, 'attendance_reporting.html', {'form': form})
 
-@login_required
-def profile_update(request):
-    form = StudentProfileUpdateForm(request.POST or None, instance=request.user.profile)
+# @login_required
+# def profile_update(request):
+#     form = StudentProfileUpdateForm(request.POST or None, instance=request.user.profile)
 
-    if form.is_valid():
-        form.save()
-        messages.success(request, "Profile updated successfully!")
-        return redirect('dashboard')
+#     if form.is_valid():
+#         form.save()
+#         messages.success(request, "Profile updated successfully!")
+#         return redirect('dashboard')
 
-    return render(request, 'profile_update.html', {'form': form})
+#     return render(request, 'profile_update.html', {'form': form})
 
 @login_required
 def password_reset(request):
@@ -484,18 +493,18 @@ def demo_dash(request):
 
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Student
-from .forms import StudentForm
+# from .forms import StudentForm
 
 # Add Student View
-def add_student(request):
-    if request.method == 'POST':
-        form = StudentForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('view_student_details')
-    else:
-        form = StudentForm()
-    return render(request, 'add_edit_student.html', {'form': form, 'action': 'Add'})
+# def add_student(request):
+#     if request.method == 'POST':
+#         form = StudentForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('view_student_details')
+#     else:
+#         form = StudentForm()
+#     return render(request, 'add_edit_student.html', {'form': form, 'action': 'Add'})
 
 # Edit Student View
 def edit_student(request, student_id):

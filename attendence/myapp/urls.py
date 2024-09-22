@@ -35,7 +35,7 @@ urlpatterns = [
     path('attendance/report/', views.attendance_reporting, name='attendance_reporting'),
     
     # Profile Management
-    path('profile/update/', views.profile_update, name='profile_update'),
+    # path('profile/update/', views.profile_update, name='profile_update'),
     
     # Password Reset
     path('password/reset/', views.password_reset, name='password_reset'),

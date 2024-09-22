@@ -38,28 +38,32 @@ class UserLoginForm(forms.Form):
     def get_user(self):
         return self.user
 
+from django import forms
+from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
+from .models import Student, Department
+
 class StudentRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
     email = forms.EmailField(validators=[EmailValidator(message="Enter a valid email address ending with @dbit.in")])
     mobile_no = forms.CharField(max_length=15, required=False)
-    department = forms.ModelChoiceField(queryset=Department.objects.all())
+    department = forms.ModelChoiceField(queryset=Department.objects.all(), widget=forms.Select(attrs={'onchange': 'updateSemesters()'}))
     roll_number = forms.CharField(max_length=10)
-    year_of_study = forms.IntegerField()
-    cgpa = forms.DecimalField(max_digits=4, decimal_places=2, initial=0.00)
     password = forms.CharField(widget=forms.PasswordInput, label='Password')
     confirm_password = forms.CharField(widget=forms.PasswordInput, label='Confirm Password')
+    
+    semester = forms.ModelChoiceField(queryset=Semester.objects.none(), required=False)  # Initially empty
 
     class Meta:
         model = Student
         fields = [
             'username', 'first_name', 'last_name', 'email', 'mobile_no',
-            'department', 'roll_number', 'year_of_study', 'cgpa', 'password', 'confirm_password'
+            'department', 'roll_number', 'password', 'confirm_password', 'semester'
         ]
         help_texts = {
             'email': 'Enter a valid email address ending with @dbit.in',
-            'year_of_study': 'Enter your current year of study (e.g., 1 for First Year).'
         }
 
     def clean_email(self):
@@ -72,10 +76,10 @@ class StudentRegistrationForm(forms.ModelForm):
         cleaned_data = super().clean()
         password = cleaned_data.get("password")
         confirm_password = cleaned_data.get("confirm_password")
-        
+
         if password and confirm_password and password != confirm_password:
             self.add_error('confirm_password', 'Passwords do not match')
-        
+
         return cleaned_data
 
     @transaction.atomic
@@ -87,13 +91,15 @@ class StudentRegistrationForm(forms.ModelForm):
             email=self.cleaned_data['email'],
             password=self.cleaned_data['password']
         )
-        
+
         student = super().save(commit=False)
         student.user = user
-        
+
         if commit:
             student.save()
         return student
+
+
 
 class TeacherRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
@@ -360,16 +366,16 @@ class AttendanceReportForm(forms.Form):
 from django import forms
 from .models import Student
 
-class StudentProfileUpdateForm(forms.ModelForm):
-    class Meta:
-        model = Student
-        fields = ['email', 'mobile_no', 'address', 'cgpa']
-        widgets = {
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'mobile_no': forms.TextInput(attrs={'class': 'form-control'}),
-            'address': forms.Textarea(attrs={'class': 'form-control'}),
-            'cgpa': forms.NumberInput(attrs={'class': 'form-control'})
-        }
+# class StudentProfileUpdateForm(forms.ModelForm):
+#     class Meta:
+#         model = Student
+#         fields = ['email', 'mobile_no', 'address', 'cgpa']
+#         widgets = {
+#             'email': forms.EmailInput(attrs={'class': 'form-control'}),
+#             'mobile_no': forms.TextInput(attrs={'class': 'form-control'}),
+#             'address': forms.Textarea(attrs={'class': 'form-control'}),
+#             'cgpa': forms.NumberInput(attrs={'class': 'form-control'})
+#         }
 
 
 from django import forms
@@ -395,26 +401,26 @@ class CustomPasswordResetForm(PasswordResetForm):
 from django import forms
 from .models import Student
 
-class StudentProfileUpdateForm(forms.ModelForm):
-    class Meta:
-        model = Student
-        fields = ['student_id', 'department', 'roll_number', 'semester', 'year', 'cgpa', 'mobile_no', 'email', 'address', 'courses', 'lab_batch']
-        widgets = {
-            'courses': forms.CheckboxSelectMultiple,
-            'lab_batch': forms.Select,
-        }
+# class StudentProfileUpdateForm(forms.ModelForm):
+#     class Meta:
+#         model = Student
+#         fields = ['student_id', 'department', 'roll_number', 'semester', 'year', 'cgpa', 'mobile_no', 'email', 'address', 'courses', 'lab_batch']
+#         widgets = {
+#             'courses': forms.CheckboxSelectMultiple,
+#             'lab_batch': forms.Select,
+#         }
 
 from django import forms
 from .models import Student
 
-class StudentForm(forms.ModelForm):
-    class Meta:
-        model = Student
-        fields = ['student_id', 'department', 'roll_number', 'semester', 'year', 'cgpa', 'mobile_no', 'email', 'address', 'courses', 'lab_batch']
-        widgets = {
-            'courses': forms.CheckboxSelectMultiple,
-            'lab_batch': forms.Select,
-        }
+# class StudentForm(forms.ModelForm):
+#     class Meta:
+#         model = Student
+#         fields = ['student_id', 'department', 'roll_number', 'semester', 'year', 'cgpa', 'mobile_no', 'email', 'address', 'courses', 'lab_batch']
+#         widgets = {
+#             'courses': forms.CheckboxSelectMultiple,
+#             'lab_batch': forms.Select,
+#         }
 
 from django import forms
 from .models import Course
@@ -422,7 +428,7 @@ from .models import Course
 class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
-        fields = ['code', 'name', 'sem']
+        fields = ['code', 'name']
 
 
 from django import forms

@@ -13,12 +13,14 @@ class DepartmentAdmin(admin.ModelAdmin):
     ordering = ('name',)
 
 # Registering the Student model
-@admin.register(Student)
-class StudentAdmin(admin.ModelAdmin):
-    list_display = ('user', 'roll_number', 'department', 'year')
-    list_filter = ('department', 'year')
-    search_fields = ('user__username', 'roll_number')
-    ordering = ('roll_number',)
+# @admin.register(Student)
+# class StudentAdmin(admin.ModelAdmin):
+#     list_display = ('user', 'roll_number', 'department', 'year')
+#     list_filter = ('department', 'year')
+#     search_fields = ('user__username', 'roll_number')
+#     ordering = ('roll_number',)
+
+admin.site.register(Student)
 
 # Registering the Teacher model
 @admin.register(Teacher)
@@ -52,12 +54,12 @@ class YearAdmin(admin.ModelAdmin):
     ordering = ('name',)
 
 # Registering the SemesterCGPA model
-@admin.register(SemesterCGPA)
-class SemesterCGPAAdmin(admin.ModelAdmin):
-    list_display = ('student', 'semester', 'cgpa')
-    search_fields = ('student__user__username', 'semester__name')
-    list_filter = ('semester',)
-    ordering = ('semester',)
+# @admin.register(SemesterCGPA)
+# class SemesterCGPAAdmin(admin.ModelAdmin):
+#     list_display = ('student', 'semester', 'cgpa')
+#     search_fields = ('student__user__username', 'semester__name')
+#     list_filter = ('semester',)
+#     ordering = ('semester',)
 
 # Registering the Lecture model
 @admin.register(Lecture)
