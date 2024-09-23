@@ -6,7 +6,8 @@ from django.contrib.auth.models import Group
 from .forms import (StudentRegistrationForm, TeacherRegistrationForm,
                     HODRegistrationForm, StaffRegistrationForm,
                     PrincipalRegistrationForm, UserLoginForm, AttendanceForm,
-                    CourseEnrollmentForm, CourseManagementForm, LectureSchedulingForm, 
+                    CourseEnrollmentForm, CourseManagementForm, 
+                    # LectureSchedulingForm, 
                     AttendanceReportForm, 
                     # StudentProfileUpdateForm, 
                     PasswordResetForm)
@@ -70,6 +71,82 @@ def student_form(request):
 
     # Render the student form with the list of students
     return render(request, 'student_form.html', {'students': students})
+
+from django.shortcuts import render, redirect
+from .forms import AttendanceForm
+from .models import Attendance
+
+# Create attendance
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Course, Student  # Import your models
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Course, Student, Semester, Teacher  # Import your models
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Course, Student, Semester, Teacher  # Import your models
+
+@login_required  # Ensure that the user is logged in
+def create_attendance(request):
+    # Debug: Print the incoming request method
+    print(f"Request method: {request.method}")
+    
+    # Get the logged-in teacher
+    teacher = get_object_or_404(Teacher, user=request.user)
+    print(f"Logged in teacher: {teacher.user.username}, Department: {teacher.department.name if teacher.department else 'No Department'}")
+
+    # Get all courses taught by the teacher
+    courses = teacher.courses_taught.all()
+    print(f"Courses taught by the teacher: {courses.count()} found.")
+
+    if not courses.exists():
+        print("No courses found for this teacher.")
+        return render(request, 'create_attendance.html', {'error': 'No courses available for this teacher.'})
+
+    # Retrieve all semesters for the courses taught by the teacher
+    semesters = Semester.objects.filter(courses__in=courses).distinct()
+    
+    if not semesters.exists():
+        print("No semesters found for the courses taught by this teacher.")
+        return render(request, 'create_attendance.html', {'error': 'No semesters found for the courses.'})
+
+    # Get all students from these semesters
+    students = Student.objects.filter(semester__in=semesters).distinct()
+    print(f"Students from the semesters: {students.count()} found.")
+
+    # Handle POST request
+    if request.method == 'POST':
+        # For testing, we won't be saving any form data
+        print("Received POST request, but skipping form processing for testing.")
+        return redirect('attendance_list')  # Redirect to a list view after "saving"
+    
+    # For GET request, render the template with course and student data
+    return render(request, 'create_attendance.html', {
+        'teacher': teacher,
+        'courses': courses,
+        'students': students,
+        'semesters': semesters,
+    })
+
+
+
+# Update attendance
+def update_attendance(request, pk):
+    attendance = Attendance.objects.get(pk=pk)
+    
+    if request.method == 'POST':
+        form = AttendanceForm(request.POST, instance=attendance)
+        if form.is_valid():
+            form.save()
+            return redirect('attendance_list')  # Redirect after updating
+    else:
+        form = AttendanceForm(instance=attendance)
+    
+    return render(request, 'update_attendance.html', {'form': form})
+
+
 
 def register_user(request, form_class, group_name, template_name, success_redirect):
     if request.method == 'POST':

@@ -69,6 +69,7 @@ class Year(models.Model):
 class Course(models.Model):
     code = models.CharField(max_length=10, unique=True, verbose_name="Course Code")
     name = models.CharField(max_length=100, verbose_name="Course Name")
+    is_lab = models.BooleanField(default=False, verbose_name="Is Lab")
 
     def __str__(self):
         return f"{self.code} - {self.name}"
@@ -251,18 +252,21 @@ class Principal(models.Model):
     def __str__(self):
         return f"Principal: {self.user.username} - Office: {self.office_location}"
 
+from django.db import models
+
+# Shared constant for time slot choices
+TIME_SLOT_CHOICES = [
+    ('8-9', '8:00 AM - 9:00 AM'),
+    ('9-10', '9:00 AM - 10:00 AM'),
+    ('10-11', '10:00 AM - 11:00 AM'),
+    ('11:15-12:15', '11:15 AM - 12:15 PM'),
+    ('12:15-1:15', '12:15 PM - 1:15 PM'),
+    ('2-3', '2:00 PM - 3:00 PM'),
+    ('3-4', '3:00 PM - 4:00 PM'),
+    ('4-5', '4:00 PM - 5:00 PM'),
+]
+
 class Lecture(models.Model):
-    TIME_SLOT_CHOICES = [
-        ('8-9', '8:00 AM - 9:00 AM'),
-        ('9-10', '9:00 AM - 10:00 AM'),
-        ('10-11', '10:00 AM - 11:00 AM'),
-        ('11:15-12:15', '11:15 AM - 12:15 PM'),
-        ('12:15-1:15', '12:15 PM - 1:15 PM'),
-        ('2-3', '2:00 PM - 3:00 PM'),
-        ('3-4', '3:00 PM - 4:00 PM'),
-        ('4-5', '4:00 PM - 5:00 PM'),
-    ]
-    
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name='lectures', verbose_name="Program")
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lectures', verbose_name="Course")
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name='lectures', verbose_name="Semester")
@@ -276,13 +280,16 @@ class Lecture(models.Model):
         indexes = [
             models.Index(fields=['date']),
             models.Index(fields=['time_slot']),
+            models.Index(fields=['date', 'time_slot']),  # Compound index for faster querying
         ]
+
 
 class Attendance(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='attendances', verbose_name="Student")
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='attendances', verbose_name="Course")
     lab_batch = models.ForeignKey(LabsBatches, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Lab Batch")
     date = models.DateField(verbose_name="Date")
+    time_slot = models.CharField(max_length=20, choices=TIME_SLOT_CHOICES, verbose_name="Time Slot", null=True, blank=True)
     present = models.BooleanField(default=False, verbose_name="Present")
 
     def __str__(self):
@@ -292,7 +299,9 @@ class Attendance(models.Model):
         indexes = [
             models.Index(fields=['date']),
             models.Index(fields=['present']),
+            models.Index(fields=['date', 'time_slot']),  # Compound index for faster querying
         ]
+
 
 class SemesterCGPA(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='semester_cgpas', verbose_name="Student")

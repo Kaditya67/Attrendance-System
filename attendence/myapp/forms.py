@@ -6,6 +6,17 @@ from django.db import transaction
 from .models import Student, Department, Teacher, HOD, Staff, Principal, Course, Attendance, Semester
 from django.contrib.auth import authenticate
 
+from django import forms
+from .models import Attendance
+
+class AttendanceForm(forms.ModelForm):
+    class Meta:
+        model = Attendance
+        fields = ['student', 'course', 'lab_batch', 'date', 'time_slot', 'present']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
 
 class UserLoginForm(forms.Form):
     username = forms.CharField(
@@ -355,19 +366,19 @@ class CourseManagementForm(forms.ModelForm):
         fields = ['code', 'name', 'department', 'year']
 
 
-from django import forms
-from .models import Lecture, Course, Semester, Program
+# from django import forms
+# from .models import Lecture, Course, Semester, Program
 
-class LectureSchedulingForm(forms.ModelForm):
-    course = forms.ModelChoiceField(queryset=Course.objects.all(), label='Select Course')
-    semester = forms.ModelChoiceField(queryset=Semester.objects.all(), label='Select Semester')
-    program = forms.ModelChoiceField(queryset=Program.objects.all(), label='Select Program')
-    date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), label='Date')
-    time_slot = forms.ChoiceField(choices=Lecture.TIME_SLOT_CHOICES, label='Time Slot')
+# class LectureSchedulingForm(forms.ModelForm):
+#     course = forms.ModelChoiceField(queryset=Course.objects.all(), label='Select Course')
+#     semester = forms.ModelChoiceField(queryset=Semester.objects.all(), label='Select Semester')
+#     program = forms.ModelChoiceField(queryset=Program.objects.all(), label='Select Program')
+#     date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), label='Date')
+#     time_slot = forms.ChoiceField(choices=Lecture.TIME_SLOT_CHOICES, label='Time Slot')
 
-    class Meta:
-        model = Lecture
-        fields = ['course', 'semester', 'program', 'date', 'time_slot']
+#     class Meta:
+#         model = Lecture
+#         fields = ['course', 'semester', 'program', 'date', 'time_slot']
 
 
 from django import forms

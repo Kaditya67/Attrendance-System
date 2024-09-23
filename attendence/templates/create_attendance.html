@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create/Update Attendance</title>
+</head>
+<body>
+    <h1>Attendance for {{ course.name }}</h1>
+    <h2>Logged in as: {{ teacher.user.username }}</h2>
+    <h3>
+        Department: 
+        {% if teacher.department %}
+            {{ teacher.department.name }}
+        {% else %}
+            No Department
+        {% endif %}
+    </h3>
+    
+    <h2>Courses Taught:</h2>
+    <ul>
+        {% for course in courses %}
+            <li>{{ course.name }} ({{ course.code }})</li>
+        {% empty %}
+            <li>No courses taught by this teacher.</li>
+        {% endfor %}
+    </ul>
+    
+    <h2>Students in Semester {{ semester.semester_number }} of {{ semester.session_year.academic_year }}</h2>
+    <ul>
+        {% for student in students %}
+            <li>{{ student.user.first_name }} {{ student.user.last_name }}</li>
+        {% empty %}
+            <li>No students found for this semester.</li>
+        {% endfor %}
+    </ul>
+    
+    {% if error %}
+        <p>{{ error }}</p>
+    {% endif %}
+    
+</body>
+</html>

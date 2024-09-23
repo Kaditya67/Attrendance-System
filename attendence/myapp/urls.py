@@ -35,6 +35,9 @@ urlpatterns = [
     
     # Attendance Reporting
     path('attendance/report/', views.attendance_reporting, name='attendance_reporting'),
+
+    path('attendance/create/', views.create_attendance, name='create_attendance'),
+    path('attendance/update/<int:pk>/', views.update_attendance, name='update_attendance'),
     
     # Profile Management
     # path('profile/update/', views.profile_update, name='profile_update'),
