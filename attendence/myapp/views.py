@@ -88,46 +88,53 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Course, Student, Semester, Teacher  # Import your models
 
-@login_required  # Ensure that the user is logged in
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Teacher, Semester, Student, Course
+
+@login_required
 def create_attendance(request):
-    # Debug: Print the incoming request method
-    print(f"Request method: {request.method}")
-    
     # Get the logged-in teacher
     teacher = get_object_or_404(Teacher, user=request.user)
-    print(f"Logged in teacher: {teacher.user.username}, Department: {teacher.department.name if teacher.department else 'No Department'}")
+    print(f"Logged in teacher: {teacher}")
 
     # Get all courses taught by the teacher
     courses = teacher.courses_taught.all()
-    print(f"Courses taught by the teacher: {courses.count()} found.")
+    print(f"Courses taught by the teacher: {courses}")
 
-    if not courses.exists():
-        print("No courses found for this teacher.")
+    # Check if the teacher has any courses
+    if courses.count() == 0:
         return render(request, 'create_attendance.html', {'error': 'No courses available for this teacher.'})
 
-    # Retrieve all semesters for the courses taught by the teacher
-    semesters = Semester.objects.filter(courses__in=courses).distinct()
-    
-    if not semesters.exists():
-        print("No semesters found for the courses taught by this teacher.")
-        return render(request, 'create_attendance.html', {'error': 'No semesters found for the courses.'})
+    # Dictionary to hold courses, their semesters, and students of those semesters
+    course_data = []
 
-    # Get all students from these semesters
-    students = Student.objects.filter(semester__in=semesters).distinct()
-    print(f"Students from the semesters: {students.count()} found.")
+    # Iterate through each course
+    for course in courses:
+        semester = course.semester  # Get the semester of the current course
+        print(f"Course: {course}, Semester: {semester}")
 
-    # Handle POST request
+        # Fetch students from this semester
+        students_in_semester = Student.objects.filter(semester=semester).distinct()
+        print(f"Students in Semester {semester}: {students_in_semester.count()}")
+
+        # Append the course, semester, and its students to the course_data list
+        course_data.append({
+            'course': course,
+            'semester': semester.semester_number,
+            'students': students_in_semester,
+        })
+
+    # Handle POST request (process attendance)
     if request.method == 'POST':
-        # For testing, we won't be saving any form data
-        print("Received POST request, but skipping form processing for testing.")
-        return redirect('attendance_list')  # Redirect to a list view after "saving"
-    
-    # For GET request, render the template with course and student data
+        print("Received POST request, processing attendance...")
+        # You can handle form data and save attendance here
+        return redirect('attendance_list')  # Redirect to attendance list after processing
+
+    # Render the attendance creation template with the course, semester, and students data
     return render(request, 'create_attendance.html', {
         'teacher': teacher,
-        'courses': courses,
-        'students': students,
-        'semesters': semesters,
+        'course_data': course_data,  # Send the course data (with semester and students) to the template
     })
 
 

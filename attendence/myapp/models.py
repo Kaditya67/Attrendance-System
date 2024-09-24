@@ -69,6 +69,7 @@ class Year(models.Model):
 class Course(models.Model):
     code = models.CharField(max_length=10, unique=True, verbose_name="Course Code")
     name = models.CharField(max_length=100, verbose_name="Course Name")
+    semester = models.ForeignKey('Semester', on_delete=models.CASCADE, related_name='course_list', verbose_name="Semester",blank=True, null=True)  # Change related_name
     is_lab = models.BooleanField(default=False, verbose_name="Is Lab")
 
     def __str__(self):
@@ -79,6 +80,7 @@ class Course(models.Model):
             models.Index(fields=['code']),
             models.Index(fields=['name']),
         ]
+
 
 class Semester(models.Model):
     SEMESTER_CHOICES = [
