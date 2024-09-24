@@ -24,7 +24,7 @@ urlpatterns = [
     path('staff/dashboard/', views.staff_dashboard, name='staff_dashboard'),
     
     # Attendance
-    path('mark_attendance/', views.mark_attendance, name='mark_attendance'),
+    path('mark_attendance/', views.attendance, name='mark_attendance'),
     
     # Course Management
     path('course/enrollment/', views.course_enrollment, name='course_enrollment'),

@@ -137,6 +137,78 @@ def create_attendance(request):
         'course_data': course_data,  # Send the course data (with semester and students) to the template
     })
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Teacher, Student, Attendance, Course, LabsBatches  # Make sure you import your models
+from django.utils import timezone
+from .models import TIME_SLOT_CHOICES 
+@login_required
+def attendance(request):
+    # Get the logged-in teacher
+    teacher = get_object_or_404(Teacher, user=request.user)
+    print(f"Logged in teacher: {teacher}")
+
+    # Get all courses taught by the teacher
+    courses = teacher.courses_taught.all()
+    print(f"Courses taught by the teacher: {courses}")
+
+    # Check if the teacher has any courses
+    if courses.count() == 0:
+        return render(request, 'mark_attendance.html', {'error': 'No courses available for this teacher.'})
+
+    # Dictionary to hold courses, their semesters, and students of those semesters
+    course_data = []
+
+    # Iterate through each course
+    for course in courses:
+        semester = course.semester  # Get the semester of the current course
+        print(f"Course: {course}, Semester: {semester}")
+
+        # Fetch students from this semester
+        students_in_semester = Student.objects.filter(semester=semester).distinct()
+        print(f"Students in Semester {semester}: {students_in_semester.count()}")
+
+        # Append the course, semester, and its students to the course_data list
+        course_data.append({
+            'course': course,
+            'semester': semester,
+            'students': students_in_semester,
+        })
+
+    # Handle POST request (process attendance)
+    if request.method == 'POST':
+        print("Received POST request, processing attendance...")
+        
+        # Common fields
+        lab_batch_id = request.POST.get('lab_batch')  # Get the selected lab batch
+        time_slot = request.POST.get('time_slot')  # Get the selected time slot
+        present_all = request.POST.get('present_all')  # Checkbox for marking all present
+
+        for course_info in course_data:
+            for student in course_info['students']:
+                # Determine attendance status based on checkbox
+                attendance_status = 'Present' if present_all else request.POST.get(f'student_{student.id}')
+
+                # Create an Attendance entry
+                Attendance.objects.create(
+                    student=student,
+                    course=course_info['course'],
+                    lab_batch=LabsBatches.objects.get(id=lab_batch_id) if lab_batch_id else None,
+                    date=timezone.now().date(),  # Current date
+                    time_slot=time_slot,  # Time slot from the form
+                    present=(attendance_status == 'Present'),  # Convert to boolean
+                )
+        
+        return redirect('success')  # Redirect to attendance list after processing
+
+    # Render the attendance creation template with the course, semester, and students data
+    return render(request, 'mark_attendance.html', {
+        'teacher': teacher,
+        'course_data': course_data,  # Send the course data (with semester and students) to the template
+        'time_slots': TIME_SLOT_CHOICES,  # Pass time slots to the template
+        'lab_batches': LabsBatches.objects.all(),  # Pass all lab batches to the template
+    })
+
 
 
 # Update attendance

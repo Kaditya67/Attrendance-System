@@ -33,6 +33,14 @@
             margin-bottom: 15px;
         }
     </style>
+    <script>
+        function toggleCheckboxes(source, className) {
+            const checkboxes = document.querySelectorAll(`.${className}`);
+            checkboxes.forEach((checkbox) => {
+                checkbox.checked = source.checked;
+            });
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -41,16 +49,33 @@
             <form method="post">
                 {% csrf_token %}
                 
-                <!-- Course Selection -->
+                <!-- Time Slot and Lab Batch -->
                 <div class="form-group">
-                    {{ form.course.label_tag }}
-                    {{ form.course }}
+                    <label for="time_slot">Select Time Slot:</label>
+                    <select name="time_slot" id="time_slot" class="form-control">
+                        {% for value, display in time_slots %}
+                            <option value="{{ value }}">{{ display }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
 
-                <!-- Date Selection -->
                 <div class="form-group">
-                    {{ form.date.label_tag }}
-                    {{ form.date }}
+                    <label for="lab_batch">Select Lab Batch:</label>
+                    <select name="lab_batch" id="lab_batch" class="form-control">
+                        {% for batch in lab_batches %}
+                            <option value="{{ batch.id }}">{{ batch.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Checkboxes for All Present and All Absent -->
+                <div class="form-check">
+                    <input type="checkbox" id="all-present" class="form-check-input" onclick="toggleCheckboxes(this, 'attendance-checkbox')">
+                    <label class="form-check-label" for="all-present">All Present</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="all-absent" class="form-check-input" onclick="toggleCheckboxes(this, 'attendance-checkbox')">
+                    <label class="form-check-label" for="all-absent">All Absent</label>
                 </div>
 
                 <!-- Table of Students -->
@@ -64,22 +89,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for student in students %}
-                            <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td>{{ student.user.username }}</td>
-                                <td>{{ student.roll_number }}</td>
-                                <td>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" id="student-{{ student.id }}-present" name="student_{{ student.id }}" value="Present">
-                                        <label class="form-check-label" for="student-{{ student.id }}-present">Present</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" id="student-{{ student.id }}-absent" name="student_{{ student.id }}" value="Absent">
-                                        <label class="form-check-label" for="student-{{ student.id }}-absent">Absent</label>
-                                    </div>
-                                </td>
-                            </tr>
+                        {% for data in course_data %}
+                            {% for student in data.students %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ student.user.get_full_name }}</td>
+                                    <td>{{ student.roll_number }}</td>
+                                    <td>
+                                        <input type="checkbox" name="student_{{ student.id }}" value="Present" class="attendance-checkbox" style="width: 20px; height: 20px;">
+                                    </td>
+                                </tr>
+                            {% endfor %}
                         {% endfor %}
                     </tbody>
                 </table>
