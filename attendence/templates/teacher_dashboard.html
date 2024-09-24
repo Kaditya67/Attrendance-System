@@ -40,7 +40,7 @@
 
 <!-- Navbar -->
 <div class="navbar">
-    <a href="{% url 'create_attendance' %}">Attendance</a>
+    <a href="{% url 'mark_attendance' %}">Attendance</a>
     <a href="{% url 'logout' %}">Logout</a>
 </div>
 
@@ -51,7 +51,7 @@
     <ul>
         {% for course in courses %}
             <li>
-                <a href="{% url 'create_attendance' course.id %}">{{ course.name }}</a>
+                <a href="{% url 'attendence' course.id %}">{{ course.name }}</a>
             </li>
         {% empty %}
             <li>No courses found.</li>
