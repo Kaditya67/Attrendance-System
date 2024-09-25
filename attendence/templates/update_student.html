@@ -1,0 +1,149 @@
+{% extends "student_base.html" %}
+{% load static %}
+{% block title %}Update Student Details{% endblock title %}
+{% block content %}
+<style>
+    .container {
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        color: #333;
+        font-size: 2rem;
+    }
+
+    .form-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #fff;
+    }
+
+    label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        display: block;
+        color: #555;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        transition: border-color 0.3s, box-shadow 0.3s;
+        resize: vertical; /* Allows resizing for textarea */
+    }
+
+    textarea {
+        min-height: 120px; /* Sets a minimum height for better visibility */
+    }
+
+    input[type="text"]:disabled,
+    input[type="email"]:disabled,
+    textarea:disabled {
+        background-color: #e9ecef; /* Light gray for disabled fields */
+        cursor: not-allowed;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    textarea:focus {
+        border-color: #007bff; /* Highlight border on focus */
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Subtle shadow effect */
+        outline: none;
+    }
+
+    .btn-primary {
+        padding: 12px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px); /* Slight lift effect on hover */
+    }
+
+    .alert-container {
+        margin-bottom: 20px;
+    }
+
+    .alert {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+</style>
+
+
+    <div class="container">
+        <h1 class="text-center mb-4">Update Your Details</h1>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Display Messages -->
+            {% if messages %}
+            <div class="alert-container">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="form-section">
+                <h2>Personal Details</h2>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" value="{{ student.user.username }}" disabled class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" value="{{ student.email }}" disabled class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="mobile_no">Mobile Number</label>
+                        <input type="text" id="mobile_no" value="{{ student.mobile_no }}" disabled class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="roll_number">Roll Number</label>
+                        {{ form.roll_number}}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="address">Address</label>
+                        <textarea id="address" name="address" class="form-control" placeholder="Enter your address here...">{{ student.address }}</textarea>
+                    </div>
+                </div>
+            </div>
+            
+
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+    </div>
+{% endblock content %}

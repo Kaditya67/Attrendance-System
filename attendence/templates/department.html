@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Information Table</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+        }
+        .navbar {
+            background-color: #007BFF;
+            overflow: hidden;
+        }
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+        .navbar a:hover {
+            background-color: #0056b3;
+        }
+        .content {
+            padding: 20px;
+        }
+        h2 {
+            margin-top: 20px;
+            font-size: 24px;
+            color: #007BFF;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 40px; 
+            padding-bottom: 10px;
+        }
+        .filter-container, .search-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        select, input[type="text"], button {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            margin: 5px;
+        }
+        select {
+            width: 200px;
+            background-color: #fff;
+        }
+        input[type="text"] {
+            width: 300px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 80%;
+            margin: 25px auto;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        td {
+            font-size: 16px;
+            background-color: #f9f9f9;
+        }
+        tr:nth-child(even) td {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        table caption {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 768px) {
+            table {
+                width: 100%;
+            }
+            th, td {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <a href="#">Menu</a>
+    <a href="#">Home</a>
+    <a href="#">Analytics</a>
+    <a href="#">Logout</a>
+</div>
+
+<!-- Page Content -->
+<div class="content">
+    <h2>HOD Department</h2>
+
+<form id="filterForm" method="GET">
+    <div class="filter-container">
+        <select id="departmentFilter" name="department">
+            <option value="">Select Department</option>
+            {% for department in departments %}
+                <option value="{{ department.id }}" {% if request.GET.department == department.id|stringformat:"s" %}selected{% endif %}>{{ department.name }}</option>
+            {% endfor %}
+        </select>
+
+        <select id="yearFilter" name="year">
+            <option value="">Select Year</option>
+            {% for year in all_years %}
+                <option value="{{ year.id }}" {% if request.GET.year == year.id|stringformat:"s" %}selected{% endif %}>{{ year.name }}</option>
+            {% endfor %}
+        </select>
+
+        <select id="courseFilter" name="course">
+            <option value="">Select Course</option>
+            {% for course in courses %}
+                <option value="{{ course.id }}" {% if request.GET.course == course.id|stringformat:"s" %}selected{% endif %}>{{ course.name }}</option>
+            {% endfor %}
+        </select>
+        <!-- Add other filters here -->
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="search" name="search" placeholder="Search students..." value="{{ request.GET.search }}">
+        <button type="submit">Search</button>
+    </div>
+</form>
+
+<table id="studentTable">
+    <thead>
+        <tr>
+            <th>S.No</th>
+            <th>Name</th>
+            <th>Semester</th>
+            <th>Status</th>
+            <th>Honors/Minors</th>
+            <th>Attendance</th>
+            <th>CGPA</th>
+            <th>Total CGPA</th>
+            <th>Courses</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ student.name }}</td>
+            <td>
+                {% if student.even_sem %}
+                    Even Semester {{ student.even_sem.semester_number }}<br>
+                {% endif %}
+                {% if student.odd_sem %}
+                    Odd Semester {{ student.odd_sem.semester_number }}<br>
+                {% endif %}
+            </td>
+            <td>{{ student.status }}</td>
+            <td>{{ student.honors_minors.name }}</td>
+            <td>{{ student.attendance_percentage }}%</td>
+            <td>{{ student.latest_cgpa }}</td>
+            <td>{{ student.cgpa_total }}</td>
+            <td>
+                {% if student.year %}
+                    {% for course in courses %}
+                        {% if course.year == student.year %}
+                            {{ course.name }}<br>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</div>
+
+<script>
+    document.getElementById('filterForm').addEventListener('change', function() {
+        fetchFilteredData();
+    });
+
+    document.getElementById('search').addEventListener('keyup', function() {
+        fetchFilteredData();
+    });
+
+    function fetchFilteredData() {
+        const form = document.getElementById('filterForm');
+        const formData = new FormData(form);
+
+        fetch(window.location.href, {
+            method: 'GET',
+            body: new URLSearchParams(formData).toString()
+        })  
+        .then(response => response.text())
+        .then(html => {
+            // Update table with new HTML content
+            document.getElementById('studentTable').innerHTML = html;
+        });
+    }
+</script>
+
+</body>
+</html>

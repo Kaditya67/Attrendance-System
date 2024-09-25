@@ -1,0 +1,5 @@
+username,first_name,last_name,email,roll_number,semester,mobile_no,address,student_id
+johndoe,John,Doe,johndoe@dbit.in,12345,1,9876543210,123 Main St,STU001
+janedoe,Jane,Doe,janedoe@dbit.in,12346,1,9876543211,124 Main St,STU002
+alicealice,Alice,Smith,alicealice@dbit.in,12347,2,9876543212,125 Main St,STU003
+bobbob,Bob,Brown,bobbob@dbit.in,12348,2,9876543213,126 Main St,STU004
