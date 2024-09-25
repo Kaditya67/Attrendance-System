@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Information Table</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #F9F7EF; /* Light Cream */
+            color: #333333;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .navbar {
+            background-color: #4B5D40; /* Dark Greenish-Gray */
+            overflow: hidden;
+        }
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 15px 18px;
+            text-decoration: none;
+            font-size: 15px;
+        }
+        .navbar a:hover {
+            background-color: #AABD8C;
+        }
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #D3C99E;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 20px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+        .sidebar .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+        .openbtn {
+            font-size: 15px;
+            cursor: pointer;
+            background-color: #4B5D40;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+        }
+        .openbtn:hover {
+            background-color: #0056b3;
+        }
+        .content {
+            transition: margin-left .5s;
+            padding: 20px;
+        }
+        h2 {
+            margin-top: 20px;
+            font-size: 24px;
+            color: #333333;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 40px;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 90%;
+            margin: 25px auto;
+            border-collapse: collapse;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #AABD8C;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        td {
+            font-size: 16px;
+            background-color: #f9f9f9;
+        }
+        tr:nth-child(even) td {
+            background-color: #F9F7EF;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        table caption {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .form-check-input {
+            margin-right: 10px;
+        }
+        .form-check-label {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <a class="openbtn" onclick="openNav()">&#9776;</a>
+    <a href="#">Home</a>
+    <a href="#">Analytics</a>
+    <a href="{% url 'logout' %}">Logout</a>
+</div>
+
+<!-- Sidebar -->
+<div id="mySidebar" class="sidebar">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    <a href="#">Menu</a>
+    <a href="#">My Subjects</a> 
+    <a href="#">Settings</a>
+    <a href="#">Help</a>
+</div>
+
+<!-- Page Content -->
+<div class="content" id="mainContent">
+    <h2>Student Attendance Form</h2>
+
+    <form method="POST" action="">
+        {% csrf_token %}
+        
+        <br><br>
+
+        <!-- Master Checkbox -->
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="masterCheckbox">
+            <label class="form-check-label" for="masterCheckbox">
+                Mark All Present
+            </label>
+        </div>
+
+        <!-- Student Attendance Table -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Roll Number</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>{{ student.user.first_name }} {{ student.user.last_name }}</td>
+                    <td>{{ student.roll_number }}</td>
+                    <td>
+                        <input class="form-check-input student-checkbox" type="checkbox" name="attendance_{{ student.id }}" value="Present">
+                        <label class="form-check-label">Present</label>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            
+        </table>
+
+        <button type="submit">Submit Attendance</button>
+    </form>
+</div>
+
+
+<script>
+    function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+        document.getElementById("mainContent").style.marginLeft = "250px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+        document.getElementById("mainContent").style.marginLeft = "0";
+    }
+
+    // JavaScript for handling master checkbox to check/uncheck all students
+    const masterCheckbox = document.getElementById('masterCheckbox');
+    const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+
+    masterCheckbox.addEventListener('change', function() {
+        studentCheckboxes.forEach(checkbox => {
+            checkbox.checked = masterCheckbox.checked;
+        });
+    });
+
+    function toggleAll() {
+        const masterCheckbox = document.getElementById('masterCheckbox');
+        const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+        studentCheckboxes.forEach(checkbox => checkbox.checked = masterCheckbox.checked);
+    }
+</script>
+
+</body>
+</html>

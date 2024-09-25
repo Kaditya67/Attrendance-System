@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Information Table</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9; /* Soft White */
+    color: #333333; /* Dark Gray */
+    margin: 0;
+    overflow-x: hidden;
+}
+
+.navbar {
+    background-color: #007BFF; /* Bright Blue */
+    overflow: hidden;
+}
+
+.navbar a {
+    float: left;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 15px 18px;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+.navbar a:hover {
+    background-color: #0056b3; /* Dark Blue */
+}
+
+/* Sidebar CSS */
+.sidebar {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #333333; /* Dark Gray */
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+}
+
+.sidebar a {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 20px;
+    color: white;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidebar a:hover {
+    background-color: #575757;
+}
+
+.sidebar .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+.openbtn {
+    font-size: 15px;
+    cursor: pointer;
+    background-color: #007BFF; /* Bright Blue */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+}
+
+.openbtn:hover {
+    background-color: #0056b3; /* Dark Blue */
+}
+
+/* Main content */
+.content {
+    transition: margin-left .5s;
+    padding: 20px;
+}
+
+/* Page styling */
+h2 {
+    margin-top: 20px;
+    font-size: 24px;
+    color: #007BFF; /* Bright Blue */
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 40px; 
+    padding-bottom: 10px;
+}
+
+.filter-container, .search-container {
+    margin: 20px 0;
+    text-align: center;
+}
+
+select, input[type="text"], button {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    margin: 5px;
+}
+
+select {
+    width: 200px;
+    background-color: #ffffff; /* White */
+}
+
+input[type="text"] {
+    width: 300px;
+}
+
+button {
+    background-color: #007BFF; /* Bright Blue */
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3; /* Dark Blue */
+}
+
+table {
+    width: 90%; /* Adjusted width */
+    margin: 25px auto;
+    border-collapse: collapse;
+    background-color: #ffffff; /* White */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px; /* Rounded Corners */
+    overflow: hidden; /* Ensures border-radius effect */
+}
+
+th, td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+th {
+    background-color: #007BFF; /* Bright Blue */
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+td {
+    font-size: 16px;
+    background-color: #f9f9f9; /* Light Gray */
+}
+
+tr:nth-child(even) td {
+    background-color: #f2f2f2;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+table caption {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    table {
+        width: 100%;
+    }
+
+    th, td {
+        font-size: 14px;
+    }
+}
+
+/* Metrics Container */
+.metrics-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Space between boxes */
+    margin: 20px 0;
+}
+
+/* Metric Containers */
+.metric-box {
+    width: 45%; /* Adjusted to fit within container */
+    background-color: #ffffff; /* White Background */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Light Shadow for Depth */
+    padding: 20px; /* Increased Padding for Better Spacing */
+    border-radius: 8px; /* Rounded Corners */
+    border: 1px solid #e0e0e0; /* Light Gray Border for Definition */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth Transition Effects */
+}
+
+.metric-box:hover {
+    background-color: #f1f9ff; /* Very Light Blue Background on Hover */
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2); /* Enhanced Shadow on Hover */
+}
+
+.metric-box h3 {
+    color: #007BFF; /* Bright Blue */
+    font-size: 20px;
+    margin-bottom: 10px;
+    font-weight: bold; /* Emphasize Title */
+}
+
+.metric-visualization {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.metric-visualization img {
+    width: 100%;
+    max-width: 250px; /* Adjusted for better fit */
+    height: auto;
+    border-radius: 6px; /* Slightly Rounded Corners */
+}
+
+.metric-box p {
+    font-size: 16px;
+    color: #555555; /* Medium Gray for Text */
+}
+
+
+
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <a class="openbtn" onclick="openNav()">&#9776;</a>
+    <a href="#">Home</a>
+    <a href="#">Analytics</a>
+    <a href="{% url "logout" %}">Logout</a>
+</div>
+
+<!-- Sidebar -->
+<div id="mySidebar" class="sidebar">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    <a href="#">Menu</a>
+    <a href="#">My Subjects</a>
+    <a href="#">Settings</a>
+    <a href="#">Help</a>
+</div>
+
+<!-- Open sidebar button -->
+{% comment %} <button class="openbtn" onclick="openNav()">&#9776; Open Sidebar</button> {% endcomment %}
+
+<!-- Page Content -->
+<div class="content" id="mainContent">
+    <h2>HOD Department</h2>
+
+    <div class="metrics-container">
+        <div class="metric-box">
+            <h3>Attendance Trend</h3>
+            <canvas id="attendanceTrendChart"></canvas>
+        </div>
+        <div class="metric-box">
+            <h3>Average Attendance</h3>
+            <canvas id="averageAttendanceChart"></canvas>
+        </div>
+    </div>
+
+
+
+
+    <form id="filterForm" method="GET">
+        <div class="filter-container">
+
+            <select id="yearFilter" name="year">
+                <option value="">Select Year</option>
+                {% for year in all_years %}
+                    <option value="{{ year.id }}" {% if request.GET.year == year.id|stringformat:"s" %}selected{% endif %}>{{ year.name }}</option>
+                {% endfor %}
+            </select>
+
+            <select id="courseFilter" name="course">
+                <option value="">Select Course</option>
+                {% for course in courses %}
+                    <option value="{{ course.id }}" {% if request.GET.course == course.id|stringformat:"s" %}selected{% endif %}>{{ course.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="search" name="search" placeholder="Search students..." value="{{ request.GET.search }}">
+            <button type="submit">Search</button>
+        </div>
+    </form>
+
+    <table id="studentTable">
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Name</th>
+                <th>Semester</th>
+                <th>Status</th>
+                <th>Honors/Minors</th>
+                <th>Attendance</th>
+                <th>Courses</th>
+            </tr>
+        </thead>
+        <tr>
+            <td>1</td>
+            <td>John Doe</td>
+            <td>Even Semester 4</td>
+            <td>Active</td>
+            <td>Cybersecurity</td>
+            <td>85%</td>
+
+            <td>
+                <ul>
+                    <li>Data Structures</li>
+                    <li>Operating Systems</li>
+                    <li>Cybersecurity Basics</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Jane Smith</td>
+            <td>Odd Semester 3</td>
+            <td>Inactive</td>
+            <td>Data Science</td>
+            <td>78%</td>
+          
+            <td>
+                <ul>
+                    <li>Algorithms</li>
+                    <li>Database Management</li>
+                    <li>Machine Learning</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Emily Johnson</td>
+            <td>Even Semester 2</td>
+            <td>Active</td>
+            <td>AIML</td>x  
+            <td>90%</td>
+           
+            <td>
+                <ul>
+                    <li>Introduction to AI</li>
+                    <li>Python Programming</li>
+                    <li>Artificial Intelligence</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>Michael Brown</td>
+            <td>Odd Semester 5</td>
+            <td>Active</td>
+            <td>IOT</td>
+            <td>82%</td>
+         
+            <td>
+                <ul>
+                    <li>IoT Devices</li>
+                    <li>Embedded Systems</li>
+                    <li>Networking</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>Alice Davis</td>
+            <td>Even Semester 6</td>
+            <td>Active</td>
+            <td>Cybersecurity</td>
+            <td>88%</td>
+           
+            <td>
+                <ul>
+                    <li>Cryptography</li>
+                    <li>Network Security</li>
+                    <li>Ethical Hacking</li>
+                </ul>
+            </td>
+        </tr>
+        
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ student.name }}</td>
+                <td>
+                    {% if student.even_sem %}
+                        Even Semester {{ student.even_sem.semester_number }}<br>
+                    {% endif %}
+                    {% if student.odd_sem %}
+                        Odd Semester {{ student.odd_sem.semester_number }}<br>
+                    {% endif %}
+                </td>
+                <td>{{ student.status }}</td>
+                <td>{{ student.honors_minors.name }}</td>
+                <td>{{ student.attendance_percentage }}%</td>
+                <td>{{ student.latest_cgpa }}</td>
+                <td>{{ student.cgpa_total }}</td>
+                <td>
+                    {% if student.year %}
+                        {% for course in courses %}
+                            {% if course.year == student.year %}
+                                {{ course.name }}<br>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<script>
+    function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+        document.getElementById("mainContent").style.marginLeft = "250px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+        document.getElementById("mainContent").style.marginLeft = "0";
+    }
+
+    document.getElementById('filterForm').addEventListener('change', function() {
+        fetchFilteredData();
+    });
+
+    document.getElementById('search').addEventListener('keyup', function() {
+        fetchFilteredData();
+    });
+
+    function fetchFilteredData() {
+        const form = document.getElementById('filterForm');
+        const formData = new FormData(form);
+
+        fetch(window.location.href, {
+            method: 'GET',
+            body: new URLSearchParams(formData).toString()
+        })  
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('studentTable').innerHTML = html;
+        });
+    }
+</script>
+<script>
+      // Dummy data for attendance trends and average attendance
+      const attendanceTrendData = {
+        labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+        datasets: [{
+            label: 'Attendance %',
+            data: [85, 90, 80, 95, 87, 92],
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            fill: true,
+        }]
+    };
+
+    const averageAttendanceData = {
+        labels: ['Course 1', 'Course 2', 'Course 3', 'Course 4'],
+        datasets: [{
+            label: 'Average Attendance %',
+            data: [85, 78, 90, 82],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)'
+            ],
+            borderWidth: 1
+        }]
+    };
+
+    // Attendance Trend Line Chart
+    const ctx1 = document.getElementById('attendanceTrendChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'line',
+        data: attendanceTrendData,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Attendance %'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Months'
+                    }
+                }
+            }
+        }
+    });
+
+    // Average Attendance Bar Chart
+    const ctx2 = document.getElementById('averageAttendanceChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: averageAttendanceData,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Average Attendance %'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Courses'
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

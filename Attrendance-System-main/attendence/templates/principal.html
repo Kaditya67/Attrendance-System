@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Principal Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9; /* Soft White */
+            color: #333333; /* Dark Gray */
+            margin: 0;
+            overflow-x: hidden;
+        }
+        
+        .navbar {
+            background-color: #007BFF; /* Bright Blue */
+            overflow: hidden;
+        }
+        
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 15px 18px;
+            text-decoration: none;
+            font-size: 15px;
+        }
+        
+        .navbar a:hover {
+            background-color: #0056b3; /* Dark Blue */
+        }
+        
+        /* Sidebar CSS */
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333333; /* Dark Gray */
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+        
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 20px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+        }
+        
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+        
+        .sidebar .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+        
+        .openbtn {
+            font-size: 15px;
+            cursor: pointer;
+            background-color: #007BFF; /* Bright Blue */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+        }
+        
+        .openbtn:hover {
+            background-color: #0056b3; /* Dark Blue */
+        }
+        
+        /* Main content */
+        .content {
+            transition: margin-left .5s;
+            padding: 20px;
+        }
+        
+        /* Page styling */
+        h2 {
+            margin-top: 20px;
+            font-size: 24px;
+            color: #007BFF; /* Bright Blue */
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 40px; 
+            padding-bottom: 10px;
+        }
+        
+        .filter-container, .search-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        select, input[type="text"], button {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            margin: 5px;
+        }
+        
+        select {
+            width: 200px;
+            background-color: #ffffff; /* White */
+        }
+        
+        input[type="text"] {
+            width: 300px;
+        }
+        
+        button {
+            background-color: #007BFF; /* Bright Blue */
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #0056b3; /* Dark Blue */
+        }
+        
+        table {
+            width: 90%; /* Adjusted width */
+            margin: 25px auto;
+            border-collapse: collapse;
+            background-color: #ffffff; /* White */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px; /* Rounded Corners */
+            overflow: hidden; /* Ensures border-radius effect */
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        
+        th {
+            background-color: #007BFF; /* Bright Blue */
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        td {
+            font-size: 16px;
+            background-color: #f9f9f9; /* Light Gray */
+        }
+        
+        tr:nth-child(even) td {
+            background-color: #f2f2f2;
+        }
+        
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        table caption {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            table {
+                width: 100%;
+            }
+        
+            th, td {
+                font-size: 14px;
+            }
+        }
+        
+        /* Metrics Container */
+        .metrics-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px; /* Space between boxes */
+            margin: 20px 0;
+        }
+        
+        /* Metric Containers */
+        .metric-box {
+            width: 70%; /* Adjusted to fit within container */
+            background-color: #ffffff; /* White Background */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Light Shadow for Depth */
+            padding: 20px; /* Increased Padding for Better Spacing */
+            border-radius: 8px; /* Rounded Corners */
+            border: 1px solid #e0e0e0; /* Light Gray Border for Definition */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth Transition Effects */
+            margin-bottom:20px;
+        }
+        
+        .metric-box:hover {
+            background-color: #f1f9ff; /* Very Light Blue Background on Hover */
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2); /* Enhanced Shadow on Hover */
+        }
+        
+        .metric-box h3 {
+            color: #007BFF; /* Bright Blue */
+            font-size: 20px;
+            margin-bottom: 10px;
+            font-weight: bold; /* Emphasize Title */
+        }
+        
+        .metric-visualization {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .metric-visualization img {
+            width: 100%;
+            max-width: 250px; /* Adjusted for better fit */
+            height: auto;
+            border-radius: 6px; /* Slightly Rounded Corners */
+        }
+        
+        .metric-box p {
+            font-size: 16px;
+            color: #555555; /* Medium Gray for Text */
+        }
+
+        .chart-container {
+            width: 70%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            color:white;
+            margin-top:10px;
+        }
+        
+        
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <a class="openbtn" onclick="openNav()">&#9776;</a>
+    <a href="#">Home</a>
+    <a href="#">Analytics</a>
+    <a href="#">Logout</a>
+</div>
+
+<!-- Sidebar -->
+<div id="mySidebar" class="sidebar">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    <a href="#">Menu</a>
+    <a href="#">Departments</a>
+    <a href="#">Settings</a>
+    <a href="#">Help</a>
+</div>
+
+<!-- Page Content -->
+<div class="content" id="mainContent">
+    <h2>Principal Dashboard</h2>
+
+    <!-- Chart for department-wise attendance comparison -->
+       <!-- Chart Type Selection -->
+       <form id="chartTypeForm" method="GET">
+        <label for="chartType">Choose Chart Type:</label>
+        <select id="chartType" name="chart_type" onchange="this.form.submit()">
+            <option value="year" {% if chart_type == 'year' %}selected{% endif %}>Year</option>
+            <option value="month" {% if chart_type == 'month' %}selected{% endif %}>Month</option>
+        </select>
+    </form>
+
+
+    <!-- Chart for department-wise attendance comparison -->
+    <div class="chart-container">
+        <canvas id="departmentAttendanceChart" style="height: 400px;"></canvas>
+    </div>
+
+    
+    
+
+
+</div>
+
+ <!-- Filters and Search -->
+ <form id="filterForm" method="GET">
+    <div class="filter-container">
+        <select id="departmentFilter" name="department">
+            <option value="">Select Department</option>
+            <!-- Add department options here -->
+        </select>
+        <select id="semesterFilter" name="semester">
+            <option value="">Select Semester</option>
+            <!-- Add semester options here -->
+        </select>
+        <select id="statusFilter" name="status">
+            <option value="">Select Status</option>
+            <!-- Add status options here -->
+        </select>
+        <select id="honorsMinorsFilter" name="honors_minors">
+            <option value="">Select Honors/Minors</option>
+            <!-- Add honors/minors options here -->
+        </select>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="search" name="search" placeholder="Search students..." value="">
+        <button type="submit">Search</button>
+    </div>
+</form>
+
+<!-- Student Information Table -->
+<table id="studentTable">
+    <thead>
+        <tr>
+            <th>S.No</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Semester</th>
+            <th>Status</th>
+            <th>Honors/Minors</th>
+            <th>Attendance</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Sample Data Rows -->
+        <tr>
+            <td>1</td>
+            <td>John Doe</td>
+            <td>Computer Science</td>
+            <td>Semester 4</td>
+            <td>Active</td>
+            <td>Data Science</td>
+            <td>85%</td>
+
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Jane Smith</td>
+            <td>Electronics</td>
+            <td>Semester 3</td>
+            <td>Inactive</td>
+            <td>Embedded Systems</td>
+            <td>78%</td>
+
+        </tr>
+        <!-- Add more rows as needed -->
+        
+          
+        
+    </tbody>
+</table>
+</div>
+
+<!-- JavaScript for Sidebar -->
+<script>
+function openNav() {
+    document.getElementById("mySidebar").style.width = "250px";
+    document.getElementById("mainContent").style.marginLeft = "250px";
+}
+
+function closeNav() {
+    document.getElementById("mySidebar").style.width = "0";
+    document.getElementById("mainContent").style.marginLeft = "0";
+}
+
+document.getElementById('filterForm').addEventListener('change', function() {
+    fetchFilteredData();
+});
+
+document.getElementById('search').addEventListener('keyup', function() {
+    fetchFilteredData();
+});
+
+function fetchFilteredData() {
+    const form = document.getElementById('filterForm');
+    const formData = new FormData(form);
+
+    fetch(window.location.href, {
+        method: 'GET',
+        body: new URLSearchParams(formData).toString()
+    })  
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById('studentTable').innerHTML = html;
+    });
+}   
+</script>
+
+<!-- Include Chart.js from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Dummy data for department attendance
+    const departmentNames = ['Computer Science', 'IT', 'EXTC', 'Mechanical'];
+    const departmentAttendance = [85, 78, 92, 88]; // Percentage attendance for each department
+
+    // Function to generate gradient based on color
+    function createGradient(ctx, colorStart, colorEnd) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, colorStart);
+        gradient.addColorStop(1, colorEnd);
+        return gradient;
+    }
+
+    // Setup canvas context
+    const ctx = document.getElementById('departmentAttendanceChart').getContext('2d');
+
+    // Create gradients dynamically
+    const gradients = [
+        createGradient(ctx, 'rgba(75, 192, 192, 1)', 'rgba(75, 192, 192, 0.1)'),
+        createGradient(ctx, 'rgba(255, 159, 64, 1)', 'rgba(255, 159, 64, 0.1)'),
+        createGradient(ctx, 'rgba(153, 102, 255, 1)', 'rgba(153, 102, 255, 0.1)'),
+        createGradient(ctx, 'rgba(54, 162, 235, 1)', 'rgba(54, 162, 235, 0.1)')
+    ];
+
+    // Chart.js setup with improved interactivity and styling
+    const attendanceChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: departmentNames,
+            datasets: [{
+                label: 'Average Attendance (%)',
+                data: departmentAttendance,
+                backgroundColor: gradients,
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(54, 162, 235, 1)'
+                ],
+                borderWidth: 2,
+                hoverBackgroundColor: gradients.map(gradient => gradient),
+                hoverBorderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(54, 162, 235, 1)'
+                ]
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        font: {
+                            size: 14
+                        },
+                        color: '#333'
+                    },
+                    grid: {
+                        color: 'rgba(200, 200, 200, 0.2)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        font: {
+                            size: 14
+                        },
+                        color: '#333'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        color: '#333',
+                        font: {
+                            size: 16,
+                            family: "'Arial', sans-serif"
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleFont: { size: 16, weight: 'bold' },
+                    bodyFont: { size: 14 },
+                    bodySpacing: 6,
+                    padding: 12,
+                    cornerRadius: 8,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.raw !== null) {
+                                label += context.raw + '%';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            layout: {
+                padding: {
+                    left: 20,
+                    right: 20,
+                    top: 20,
+                    bottom: 20
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false, // Ensure the height is customized
+            animation: {
+                duration: 1500,
+                easing: 'easeInOutBounce'
+            },
+            hover: {
+                mode: 'index',
+                intersect: false,
+                animationDuration: 500
+            },
+            onClick: function(evt, elements) {
+                if (elements.length > 0) {
+                    const index = elements[0].index;
+                    const department = departmentNames[index];
+                    const attendance = departmentAttendance[index];
+                    alert(`${department} Department has an average attendance of ${attendance}%`);
+                }
+            }
+        }
+    });
+</script>
+
+
+<!-- JavaScript for Sidebar -->
+<script>
+    function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+        document.getElementById("mainContent").style.marginLeft = "250px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+        document.getElementById("mainContent").style.marginLeft = "0";
+    }
+</script>
+
+</body>
+</html>
