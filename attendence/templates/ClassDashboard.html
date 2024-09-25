@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HoD Attendance Dashboard</title>
+    <title>Class Attendance Dashboard</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -47,6 +47,10 @@
             background-color: #b3ffb3;
         }
 
+        .blue {
+            background-color: #cce5ff;
+        }
+
         .button {
             background-color: #3498db;
             color: white;
@@ -80,49 +84,20 @@
             width: 50%;
             margin: 20px auto;
         }
+
+        .highlight {
+            font-weight: bold;
+            color: green;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Head of the Department Attendance Dashboard</h1>
+    <h1>Class Attendance Dashboard - Class A</h1>
 
-    <!-- Overall Attendance Summary for Classes -->
-    <h2>Overall Class Attendance</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>Class</th>
-            <th>Number of Students</th>
-            <th>Overall Attendance (%)</th>
-            <th>Details</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- Sample Data for Overall Class Attendance -->
-        <tr>
-            <td>Class A</td>
-            <td>40</td>
-            <td>85%</td>
-            <td><a href="class_details.html?class=A">View Details</a></td>
-        </tr>
-        <tr>
-            <td>Class B</td>
-            <td>35</td>
-            <td>78%</td>
-            <td><a href="class_details.html?class=B">View Details</a></td>
-        </tr>
-        <tr>
-            <td>Class C</td>
-            <td>45</td>
-            <td>90%</td>
-            <td><a href="class_details.html?class=C">View Details</a></td>
-        </tr>
-        </tbody>
-    </table>
-
-    <!-- Subject-wise Attendance for Selected Class -->
-    <h2>Subject-wise Attendance for Class A</h2>
+    <!-- Subject-wise Attendance for Class A -->
+    <h2>Subject-wise Attendance</h2>
     <table>
         <thead>
         <tr>
@@ -130,7 +105,6 @@
             <th>Classes Attended</th>
             <th>Total Classes</th>
             <th>Attendance Percentage</th>
-            <th>Details</th>
         </tr>
         </thead>
         <tbody>
@@ -140,54 +114,64 @@
             <td>35</td>
             <td>40</td>
             <td>87.5%</td>
-            <td><a href="subject_details.html?class=A&subject=Math">View Details</a></td>
         </tr>
         <tr class="red">
             <td>Science</td>
             <td>20</td>
             <td>40</td>
             <td>50%</td>
-            <td><a href="subject_details.html?class=A&subject=Science">View Details</a></td>
         </tr>
-        <tr>
+        <tr class="green">
             <td>History</td>
             <td>36</td>
             <td>40</td>
             <td>90%</td>
-            <td><a href="subject_details.html?class=A&subject=History">View Details</a></td>
         </tr>
         </tbody>
     </table>
 
-    <!-- Student-wise Attendance -->
-    <h2>Student-wise Attendance for Class A - Math</h2>
+    <!-- Student-wise Attendance and Ranking for Class A -->
+    <h2>Student-wise Attendance & Ranking</h2>
     <table>
         <thead>
         <tr>
+            <th>Rank</th>
             <th>Student Name</th>
-            <th>Attendance Status</th>
-            <th>Details</th>
+            <th>Attendance Percentage (Overall)</th>
+            <th>Attendance (Present/Total)</th>
         </tr>
         </thead>
         <tbody>
-        <!-- Sample Student-wise Attendance for Class A - Math -->
-        <tr>
-            <td>John Doe</td>
-            <td>Present (35/40)</td>
-            <td><a href="student_details.html?class=A&subject=Math&student=JohnDoe">View Details</a></td>
-        </tr>
-        <tr>
-            <td>Jane Smith</td>
-            <td>Absent (20/40)</td>
-            <td><a href="student_details.html?class=A&subject=Math&student=JaneSmith">View Details</a></td>
-        </tr>
-        <tr>
+        <!-- Sample Student-wise Data for Class A -->
+        <tr class="green">
+            <td>1</td>
             <td>Michael Brown</td>
-            <td>Present (40/40)</td>
-            <td><a href="student_details.html?class=A&subject=Math&student=MichaelBrown">View Details</a></td>
+            <td>95%</td>
+            <td>38/40</td>
+        </tr>
+        <tr class="blue">
+            <td>2</td>
+            <td>John Doe</td>
+            <td>92.5%</td>
+            <td>37/40</td>
+        </tr>
+        <tr class="blue">
+            <td>3</td>
+            <td>Jane Smith</td>
+            <td>85%</td>
+            <td>34/40</td>
+        </tr>
+        <tr class="red">
+            <td>4</td>
+            <td>Emily Johnson</td>
+            <td>60%</td>
+            <td>24/40</td>
         </tr>
         </tbody>
     </table>
+
+    <!-- Highest Attending Student -->
+    <h3>Highest Attending Student: <span class="highlight">Michael Brown (95%)</span></h3>
 
     <!-- Back Link -->
     <div class="back-link">

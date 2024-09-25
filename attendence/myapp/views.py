@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
@@ -22,6 +23,79 @@ from .models import (
 import plotly.graph_objects as go
 import plotly.io as pio
 from .models import TIME_SLOT_CHOICES  # Only if used in attendance
+
+# View for updating attendance
+def update_Attendance(request):
+    if request.method == 'POST':
+        # Logic for updating attendance
+        return HttpResponse("Attendance updated successfully.")
+    else:
+        return render(request, 'update_attendance.html')
+
+# View for adding attendance
+def Add_Attendance(request):
+    if request.method == 'POST':
+        # Logic for adding attendance
+        return HttpResponse("Attendance added successfully.")
+    else:
+        return render(request, 'add_attendance.html')
+
+# View for subject details
+def SubjectDetails(request):
+    # Logic for displaying subject details
+    return render(request, 'subject_details.html')
+
+# View for subject attendance details
+def Subject_Attendance_Details(request):
+    # Logic for displaying subject attendance details
+    return render(request, 'subject_attendance_details.html')
+
+# View for student dashboard
+def StudentDashBoard(request):
+    # Logic for displaying student dashboard
+    return render(request, 'student_dashboard.html')
+
+# View for principal dashboard
+def PrincipalDashboard(request):
+    # Logic for displaying principal dashboard
+    return render(request, 'principal_dashboard.html')
+
+# View for HOD dashboard
+def HOD_Dashboard(request):
+    # Logic for displaying HOD dashboard
+    return render(request, 'hod_dashboard.html')
+
+# View for forget password
+def forget_password(request):
+    if request.method == 'POST':
+        # Logic for processing password reset
+        return HttpResponse("Password reset link sent.")
+    else:
+        return render(request, 'forget_password.html')
+
+# View for deleting attendance
+def Delete_Attendance(request):
+    if request.method == 'POST':
+        # Logic for deleting attendance
+        return HttpResponse("Attendance deleted successfully.")
+    else:
+        return render(request, 'delete_attendance.html')
+
+# View for class dashboard
+def ClassDashboard(request):
+    # Logic for displaying class dashboard
+    return render(request, 'class_dashboard.html')
+
+# View for class report
+def Class_Report(request):
+    # Logic for generating class report
+    return render(request, 'class_report.html')
+
+
+
+
+
+
 
 @login_required
 def attendance(request):
