@@ -294,6 +294,11 @@ class Attendance(models.Model):
     time_slot = models.CharField(max_length=20, choices=TIME_SLOT_CHOICES, verbose_name="Time Slot", null=True, blank=True)
     present = models.BooleanField(default=False, verbose_name="Present")
 
+    # Optional: Additional fields
+    notes = models.TextField(blank=True, null=True, verbose_name="Notes")  # Optional notes field
+    created_at = models.DateTimeField(auto_now_add=True,blank=True,null=True)  # Timestamp when the record is created
+    updated_at = models.DateTimeField(auto_now=True,blank=True,null=True)  # Timestamp when the record is updated
+
     def __str__(self):
         return f"Attendance: {self.student.user.username} - {self.course.name} - {self.date} - {'Present' if self.present else 'Absent'}"
 
@@ -301,8 +306,10 @@ class Attendance(models.Model):
         indexes = [
             models.Index(fields=['date']),
             models.Index(fields=['present']),
-            models.Index(fields=['date', 'time_slot']),  # Compound index for faster querying
+            models.Index(fields=['date', 'time_slot']),
         ]
+        unique_together = ('student', 'course', 'date', 'lab_batch')  # Unique constraint
+
 
 
 class SemesterCGPA(models.Model):

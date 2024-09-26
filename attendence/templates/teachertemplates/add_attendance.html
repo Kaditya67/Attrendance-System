@@ -36,20 +36,15 @@
             border: 1px solid #ddd;
             padding: 12px;
             text-align: center;
+            cursor: pointer; /* Change cursor to pointer */
         }
 
         table th {
             background-color: #f2f2f2;
         }
 
-        .radio-group {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .radio-group input {
-            margin-right: 10px;
+        .present {
+            background-color: #d4edda; /* Light green background */
         }
 
         .button {
@@ -80,94 +75,140 @@
         a:hover {
             text-decoration: underline;
         }
+
+        .notes {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .messages {
+    list-style: none;
+    padding: 0;
+}
+
+.messages li {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.messages li.success {
+    background-color: #d4edda; /* Light green background */
+    color: #155724; /* Dark green text */
+}
+
+.messages li.warning {
+    background-color: #fff3cd; /* Light yellow background */
+    color: #856404; /* Dark yellow text */
+}
+
     </style>
+    <script>
+        function toggleAttendance(checkbox, cell) {
+            // Toggle the checkbox state
+            checkbox.checked = !checkbox.checked;
+
+            // Toggle the highlight
+            if (checkbox.checked) {
+                cell.classList.add('present');
+            } else {
+                cell.classList.remove('present');
+            }
+        }
+    </script>
 </head>
 <body>
     <!-- Navbar -->
     {% include 'teachertemplates/navbar.html' %}
-<div class="container">
-    <h1>Add Attendance</h1>
 
-    <form id="attendanceForm" action="submit_attendance.html" method="post">
-        <!-- Subject Name -->
-        <label for="subject">Subject:</label>
-        <select id="subject" name="subject" required>
-            <option value="Math">Math</option>
-            <option value="Science">Science</option>
-            <option value="English">English</option>
-            <option value="History">History</option>
-        </select>
+    <div class="container">
+        <h1>Add Attendance</h1>
 
-        <!-- Date -->
-        <label for="date">Date:</label>
-        <input type="date" id="date" name="date" required>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
-        <!-- Table of Students -->
-        <table>
-            <thead>
-            <tr>
-                <th>Student Name</th>
-                <th>Attendance Status</th>
-            </tr>
-            </thead>
-            <tbody>
-            <!-- Sample Students List -->
-            <tr>
-                <td>John Doe</td>
-                <td>
-                    <div class="radio-group">
-                        <input type="radio" id="john_present" name="john_attendance" value="Present" required>
-                        <label for="john_present">Present</label>
-                        <input type="radio" id="john_absent" name="john_attendance" value="Absent" required>
-                        <label for="john_absent">Absent</label>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>Jane Smith</td>
-                <td>
-                    <div class="radio-group">
-                        <input type="radio" id="jane_present" name="jane_attendance" value="Present" required>
-                        <label for="jane_present">Present</label>
-                        <input type="radio" id="jane_absent" name="jane_attendance" value="Absent" required>
-                        <label for="jane_absent">Absent</label>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>Michael Brown</td>
-                <td>
-                    <div class="radio-group">
-                        <input type="radio" id="michael_present" name="michael_attendance" value="Present" required>
-                        <label for="michael_present">Present</label>
-                        <input type="radio" id="michael_absent" name="michael_attendance" value="Absent" required>
-                        <label for="michael_absent">Absent</label>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>Emily Johnson</td>
-                <td>
-                    <div class="radio-group">
-                        <input type="radio" id="emily_present" name="emily_attendance" value="Present" required>
-                        <label for="emily_present">Present</label>
-                        <input type="radio" id="emily_absent" name="emily_attendance" value="Absent" required>
-                        <label for="emily_absent">Absent</label>
-                    </div>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <form id="attendanceForm" action="{% url 'submit_attendance' %}" method="post">
+            {% csrf_token %}
+            
+            <!-- Subject Name Dropdown -->
+            <label for="subject">Subject:</label>
+            <select id="subject" name="subject" required>
+                {% for data in course_data %}
+                    <option value="{{ data.course.id }}">{{ data.course.name }} ({{ data.semester }})</option>
+                {% endfor %}
+            </select>
 
-        <!-- Submit Button -->
-        <button type="submit" class="button">Submit Attendance</button>
-    </form>
+            <!-- Date -->
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required>
 
-    <!-- Back Link to Dashboard -->
-    <div class="back-link">
-        <a href="dashboard.html">Back to Dashboard</a>
+            <!-- Lab Batch Dropdown -->
+            <label for="lab_batch">Lab Batch:</label>
+            <select id="lab_batch" name="lab_batch">
+                <option value="">Select Lab Batch</option>
+                {% for batch in lab_batches %}
+                    <option value="{{ batch.id }}">{{ batch.name }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Common Notes Section -->
+            <div class="notes">
+                <label for="common_notes">Common Notes (optional):</label>
+                <input type="text" id="common_notes" name="common_notes" placeholder="Enter common notes" style="width: 100%;">
+            </div>
+
+            <!-- Table of Students -->
+            {% for data in course_data %}
+                <h2>{{ data.course.name }} - Semester {{ data.semester }}</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Roll No</th>
+                            <th>Student Name</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in data.students %}
+                        <tr>
+                            <td>{{ student.student_id }}</td>
+                            <td>{{ student.user.first_name }} {{ student.user.last_name }}</td>
+                            <td onclick="toggleAttendance(document.getElementById('attendance_{{ student.id }}'), this);">
+                                <input type="checkbox" id="attendance_{{ student.id }}" name="attendance_{{ student.id }}" value="Present" style="display:none;">
+                                Present
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endfor %}
+
+            <!-- Hidden input to send absent status -->
+            <input type="hidden" name="absent_students" id="absent_students">
+
+            <!-- Submit Button -->
+            <button type="submit" class="button" onclick="markAbsentStudents();">Submit Attendance</button>
+        </form>
     </div>
-</div>
+
+    <script>
+        function markAbsentStudents() {
+            const absentStudents = [];
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                const studentId = checkbox.id.split('_')[1]; // Extracting student ID
+                if (!checkbox.checked) {
+                    absentStudents.push(studentId); // Add to absent list if not checked
+                }
+            });
+            document.getElementById('absent_students').value = absentStudents.join(','); // Set hidden input with absent student IDs
+        }
+    </script>
 
 </body>
 </html>
