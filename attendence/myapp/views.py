@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
@@ -22,6 +23,163 @@ from .models import (
 import plotly.graph_objects as go
 import plotly.io as pio
 from .models import TIME_SLOT_CHOICES  # Only if used in attendance
+
+# View for updating attendance
+def update_Attendance(request):
+    if request.method == 'POST':
+        # Logic for updating attendance
+        return HttpResponse("Attendance updated successfully.")
+    else:
+        return render(request, 'update_attendance.html')
+
+# View for adding attendance
+def Add_Attendance(request):
+    if request.method == 'POST':
+        # Logic for adding attendance
+        return HttpResponse("Attendance added successfully.")
+    else:
+        return render(request, 'add_attendance.html')
+
+# View for subject details
+def SubjectDetails(request):
+    # Logic for displaying subject details
+    return render(request, 'subject_details.html')
+
+# View for subject attendance details
+def Subject_Attendance_Details(request):
+    # Logic for displaying subject attendance details
+    return render(request, 'subject_attendance_details.html')
+
+# View for student dashboard
+def StudentDashBoard(request):
+    # Logic for displaying student dashboard
+    return render(request, 'student_dashboard.html')
+
+# View for principal dashboard
+def PrincipalDashboard(request):
+    # Logic for displaying principal dashboard
+    return render(request, 'principal_dashboard.html')
+
+# View for HOD dashboard
+def HOD_Dashboard(request):
+    # Logic for displaying HOD dashboard
+    return render(request, 'hod_dashboard.html')
+
+# View for forget password
+def forget_password(request):
+    if request.method == 'POST':
+        # Logic for processing password reset
+        return HttpResponse("Password reset link sent.")
+    else:
+        return render(request, 'forget_password.html')
+
+# View for deleting attendance
+def Delete_Attendance(request):
+    if request.method == 'POST':
+        # Logic for deleting attendance
+        return HttpResponse("Attendance deleted successfully.")
+    else:
+        return render(request, 'delete_attendance.html')
+
+# View for class dashboard
+def ClassDashboard(request):
+    # Logic for displaying class dashboard
+    return render(request, 'class_dashboard.html')
+
+# View for class report
+def Class_Report(request):
+    # Logic for generating class report
+    return render(request, 'class_report.html')
+
+
+
+
+
+
+
+@login_required
+def attendance(request):
+    # Get the logged-in teacher
+    teacher = get_object_or_404(Teacher, user=request.user)
+    print(f"Logged in teacher: {teacher}")
+
+    # Get all courses taught by the teacher
+    courses = teacher.assigned_courses.all()
+    print(f"Courses taught by the teacher: {courses}")
+
+    # Check if the teacher has any courses
+    if courses.count() == 0:
+        return render(request, 'mark_attendance.html', {'error': 'No courses available for this teacher.'})
+
+    # Dictionary to hold courses, their semesters, and students of those semesters
+    course_data = []
+
+    # Iterate through each course
+    for course in courses:
+        semester = course.semester  # Get the semester of the current course
+        print(f"Course: {course}, Semester: {semester}")
+
+        # Fetch students from this semester
+        students_in_semester = Student.objects.filter(semester=semester).distinct()
+        print(f"Students in Semester {semester}: {students_in_semester.count()}")
+
+        # Append the course, semester, and its students to the course_data list
+        course_data.append({
+            'course': course,
+            'semester': semester,
+            'students': students_in_semester,
+        })
+
+    # Handle POST request (process attendance)
+    if request.method == 'POST':
+        print("Received POST request, processing attendance...")
+        
+        # Common fields
+        lab_batch_id = request.POST.get('lab_batch')  # Get the selected lab batch
+        time_slot = request.POST.get('time_slot')  # Get the selected time slot
+        present_all = request.POST.get('present_all')  # Checkbox for marking all present
+
+        for course_info in course_data:
+            for student in course_info['students']:
+                # Determine attendance status based on checkbox
+                attendance_status = 'Present' if present_all else request.POST.get(f'student_{student.id}')
+
+                # Create an Attendance entry
+                Attendance.objects.create(
+                    student=student,
+                    course=course_info['course'],
+                    lab_batch=LabsBatches.objects.get(id=lab_batch_id) if lab_batch_id else None,
+                    date=timezone.now().date(),  # Current date
+                    time_slot=time_slot,  # Time slot from the form
+                    present=(attendance_status == 'Present'),  # Convert to boolean
+                )
+        
+        return redirect('success')  # Redirect to attendance list after processing
+
+    # Render the attendance creation template with the course, semester, and students data
+    return render(request, 'mark_attendance.html', {
+        'teacher': teacher,
+        'course_data': course_data,  # Send the course data (with semester and students) to the template
+        'time_slots': TIME_SLOT_CHOICES,  # Pass time slots to the template
+        'lab_batches': LabsBatches.objects.all(),  # Pass all lab batches to the template
+    })
+
+
+
+# Update attendance
+def update_attendance(request, pk):
+    attendance = Attendance.objects.get(pk=pk)
+    
+    if request.method == 'POST':
+        form = AttendanceForm(request.POST, instance=attendance)
+        if form.is_valid():
+            form.save()
+            return redirect('attendance_list')  # Redirect after updating
+    else:
+        form = AttendanceForm(instance=attendance)
+    
+    return render(request, 'update_attendance.html', {'form': form})
+
 
 
 # User Management Views
