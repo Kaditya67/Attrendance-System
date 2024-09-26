@@ -48,7 +48,4 @@ urlpatterns = [
     # Miscellaneous
     path('success/', views.success, name='success'),
     path('no_permission/', views.no_permission, name='no_permission'),
-    # path('demo/', views.demo_dash, name='demo_dash'),
-    path('view_grades/', views.view_grades, name='view_grades'),
-    path('manage_teachers/', views.manage_teachers, name='manage_teachers'),
 ]

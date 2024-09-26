@@ -59,7 +59,7 @@ class StudentRegistrationForm(forms.ModelForm):
     last_name = forms.CharField(max_length=30)
     email = forms.EmailField(validators=[EmailValidator(message="Enter a valid email address ending with @dbit.in")])
     mobile_no = forms.CharField(max_length=15, required=False)
-    department = forms.ModelChoiceField(queryset=Department.objects.all(), widget=forms.Select(attrs={'onchange': 'updateSemesters()'}))
+    # department = forms.ModelChoiceField(queryset=Department.objects.all(), widget=forms.Select(attrs={'onchange': 'updateSemesters()'}))
     roll_number = forms.CharField(max_length=10)
     student_id = forms.CharField(max_length=20, required=True, label="Student ID")  # Added student_id
     address = forms.CharField(widget=forms.Textarea, required=False, label="Address")  # Added address
@@ -72,7 +72,8 @@ class StudentRegistrationForm(forms.ModelForm):
         model = Student
         fields = [
             'username', 'first_name', 'last_name', 'email', 'mobile_no',
-            'department', 'roll_number', 'student_id', 'address', 
+            # 'department', 
+            'roll_number', 'student_id', 'address', 
             'password', 'confirm_password', 'semester'
         ]
         help_texts = {

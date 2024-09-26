@@ -110,7 +110,7 @@ class Semester(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.get_semester_type_display()} Semester {self.semester_number} - {self.session_year.academic_year} {self.get_year_display()} - {self.session_year.department.name}"
+        return f"{self.get_semester_type_display()} Sem {self.semester_number} - {self.session_year.department.name}"
 
 
 
