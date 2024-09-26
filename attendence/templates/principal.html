@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Principal Dashboard</title>
+<<<<<<< HEAD
+=======
+    <!-- Include Bootstrap CSS (optional for additional styling) -->
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -229,6 +234,7 @@
             font-size: 16px;
             color: #555555; /* Medium Gray for Text */
         }
+<<<<<<< HEAD
 
         .chart-container {
             width: 70%;
@@ -240,6 +246,8 @@
             color:white;
             margin-top:10px;
         }
+=======
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
         
         
     </style>
@@ -267,6 +275,7 @@
 <div class="content" id="mainContent">
     <h2>Principal Dashboard</h2>
 
+<<<<<<< HEAD
     <!-- Chart for department-wise attendance comparison -->
        <!-- Chart Type Selection -->
        <form id="chartTypeForm" method="GET">
@@ -536,6 +545,124 @@ function fetchFilteredData() {
 </script>
 
 
+=======
+    <!-- Metrics Section -->
+<!-- New Section for Metrics -->
+<div class="metrics-container">
+    <div class="metric-box" id="attendanceMetric">
+        <h3>Total Attendance</h3>
+        <div class="metric-visualization">
+            <!-- Placeholder for attendance visualization -->
+            <div class="placeholder">
+                <p>No Data Available</p>
+                <!-- You can use CSS to create a visual placeholder here -->
+            </div>
+        </div>
+        <p>Total Attendance: <span id="totalAttendance">75%</span></p>
+    </div>
+   
+</div>
+
+
+    <!-- Filters and Search -->
+    <form id="filterForm" method="GET">
+        <div class="filter-container">
+            <select id="departmentFilter" name="department">
+                <option value="">Select Department</option>
+                <!-- Add department options here -->
+            </select>
+            <select id="semesterFilter" name="semester">
+                <option value="">Select Semester</option>
+                <!-- Add semester options here -->
+            </select>
+            <select id="statusFilter" name="status">
+                <option value="">Select Status</option>
+                <!-- Add status options here -->
+            </select>
+            <select id="honorsMinorsFilter" name="honors_minors">
+                <option value="">Select Honors/Minors</option>
+                <!-- Add honors/minors options here -->
+            </select>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="search" name="search" placeholder="Search students..." value="">
+            <button type="submit">Search</button>
+        </div>
+    </form>
+
+    <!-- Student Information Table -->
+    <table id="studentTable">
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Semester</th>
+                <th>Status</th>
+                <th>Honors/Minors</th>
+                <th>Attendance</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Sample Data Rows -->
+            <tr>
+                <td>1</td>
+                <td>John Doe</td>
+                <td>Computer Science</td>
+                <td>Semester 4</td>
+                <td>Active</td>
+                <td>Data Science</td>
+                <td>85%</td>
+
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Jane Smith</td>
+                <td>Electronics</td>
+                <td>Semester 3</td>
+                <td>Inactive</td>
+                <td>Embedded Systems</td>
+                <td>78%</td>
+
+            </tr>
+            <!-- Add more rows as needed -->
+            
+                {% for student in students %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ student.name }}</td>
+                    <td>
+                        {% if student.even_sem %}
+                            Even Semester {{ student.even_sem.semester_number }}<br>
+                        {% endif %}
+                        {% if student.odd_sem %}
+                            Odd Semester {{ student.odd_sem.semester_number }}<br>
+                        {% endif %}
+                    </td>
+                    <td>{{ student.status }}</td>
+                    <td>{{ student.honors_minors.name }}</td>
+                    <td>{{ student.attendance_percentage }}%</td>
+                    <td>{{ student.latest_cgpa }}</td>
+                    <td>{{ student.cgpa_total }}</td>
+                    <td>
+                        {% if student.year %}
+                            {% for course in courses %}
+                                {% if course.year == student.year %}
+                                    {{ course.name }}<br>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            
+        </tbody>
+    </table>
+</div>
+
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
 <!-- JavaScript for Sidebar -->
 <script>
     function openNav() {
@@ -547,6 +674,31 @@ function fetchFilteredData() {
         document.getElementById("mySidebar").style.width = "0";
         document.getElementById("mainContent").style.marginLeft = "0";
     }
+<<<<<<< HEAD
+=======
+
+    document.getElementById('filterForm').addEventListener('change', function() {
+        fetchFilteredData();
+    });
+
+    document.getElementById('search').addEventListener('keyup', function() {
+        fetchFilteredData();
+    });
+
+    function fetchFilteredData() {
+        const form = document.getElementById('filterForm');
+        const formData = new FormData(form);
+
+        fetch(window.location.href, {
+            method: 'GET',
+            body: new URLSearchParams(formData).toString()
+        })  
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('studentTable').innerHTML = html;
+        });
+    }   
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
 </script>
 
 </body>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Attendance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        table th {
+            background-color: #f2f2f2;
+        }
+
+        .radio-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .radio-group input {
+            margin-right: 10px;
+        }
+
+        .button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .button:hover {
+            background-color: #2980b9;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #3498db;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Add Attendance</h1>
+
+    <form id="attendanceForm" action="submit_attendance.html" method="post">
+        <!-- Subject Name -->
+        <label for="subject">Subject:</label>
+        <select id="subject" name="subject" required>
+            <option value="Math">Math</option>
+            <option value="Science">Science</option>
+            <option value="English">English</option>
+            <option value="History">History</option>
+        </select>
+
+        <!-- Date -->
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" required>
+
+        <!-- Table of Students -->
+        <table>
+            <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Attendance Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Sample Students List -->
+            <tr>
+                <td>John Doe</td>
+                <td>
+                    <div class="radio-group">
+                        <input type="radio" id="john_present" name="john_attendance" value="Present" required>
+                        <label for="john_present">Present</label>
+                        <input type="radio" id="john_absent" name="john_attendance" value="Absent" required>
+                        <label for="john_absent">Absent</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Jane Smith</td>
+                <td>
+                    <div class="radio-group">
+                        <input type="radio" id="jane_present" name="jane_attendance" value="Present" required>
+                        <label for="jane_present">Present</label>
+                        <input type="radio" id="jane_absent" name="jane_attendance" value="Absent" required>
+                        <label for="jane_absent">Absent</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Michael Brown</td>
+                <td>
+                    <div class="radio-group">
+                        <input type="radio" id="michael_present" name="michael_attendance" value="Present" required>
+                        <label for="michael_present">Present</label>
+                        <input type="radio" id="michael_absent" name="michael_attendance" value="Absent" required>
+                        <label for="michael_absent">Absent</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Emily Johnson</td>
+                <td>
+                    <div class="radio-group">
+                        <input type="radio" id="emily_present" name="emily_attendance" value="Present" required>
+                        <label for="emily_present">Present</label>
+                        <input type="radio" id="emily_absent" name="emily_attendance" value="Absent" required>
+                        <label for="emily_absent">Absent</label>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Submit Button -->
+        <button type="submit" class="button">Submit Attendance</button>
+    </form>
+
+    <!-- Back Link to Dashboard -->
+    <div class="back-link">
+        <a href="dashboard.html">Back to Dashboard</a>
+    </div>
+</div>
+
+</body>
+</html>

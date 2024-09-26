@@ -6,6 +6,20 @@ from django.db import transaction
 from .models import Student, Department, Teacher, HOD, Staff, Principal, Course, Attendance, Semester
 from django.contrib.auth import authenticate
 
+<<<<<<< HEAD
+=======
+from django import forms
+from .models import Attendance
+
+class AttendanceForm(forms.ModelForm):
+    class Meta:
+        model = Attendance
+        fields = ['student', 'course', 'lab_batch', 'date', 'time_slot', 'present']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
 
 class UserLoginForm(forms.Form):
     username = forms.CharField(
@@ -48,7 +62,11 @@ class StudentRegistrationForm(forms.ModelForm):
     last_name = forms.CharField(max_length=30)
     email = forms.EmailField(validators=[EmailValidator(message="Enter a valid email address ending with @dbit.in")])
     mobile_no = forms.CharField(max_length=15, required=False)
+<<<<<<< HEAD
     department = forms.ModelChoiceField(queryset=Department.objects.all(), widget=forms.Select(attrs={'onchange': 'updateSemesters()'}))
+=======
+    # department = forms.ModelChoiceField(queryset=Department.objects.all(), widget=forms.Select(attrs={'onchange': 'updateSemesters()'}))
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
     roll_number = forms.CharField(max_length=10)
     student_id = forms.CharField(max_length=20, required=True, label="Student ID")  # Added student_id
     address = forms.CharField(widget=forms.Textarea, required=False, label="Address")  # Added address
@@ -61,7 +79,12 @@ class StudentRegistrationForm(forms.ModelForm):
         model = Student
         fields = [
             'username', 'first_name', 'last_name', 'email', 'mobile_no',
+<<<<<<< HEAD
             'department', 'roll_number', 'student_id', 'address', 
+=======
+            # 'department', 
+            'roll_number', 'student_id', 'address', 
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
             'password', 'confirm_password', 'semester'
         ]
         help_texts = {
@@ -355,6 +378,7 @@ class CourseManagementForm(forms.ModelForm):
         fields = ['code', 'name', 'department', 'year']
 
 
+<<<<<<< HEAD
 from django import forms
 from .models import Lecture, Course, Semester, Program
 
@@ -368,6 +392,21 @@ class LectureSchedulingForm(forms.ModelForm):
     class Meta:
         model = Lecture
         fields = ['course', 'semester', 'program', 'date', 'time_slot']
+=======
+# from django import forms
+# from .models import Lecture, Course, Semester, Program
+
+# class LectureSchedulingForm(forms.ModelForm):
+#     course = forms.ModelChoiceField(queryset=Course.objects.all(), label='Select Course')
+#     semester = forms.ModelChoiceField(queryset=Semester.objects.all(), label='Select Semester')
+#     program = forms.ModelChoiceField(queryset=Program.objects.all(), label='Select Program')
+#     date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), label='Date')
+#     time_slot = forms.ChoiceField(choices=Lecture.TIME_SLOT_CHOICES, label='Time Slot')
+
+#     class Meta:
+#         model = Lecture
+#         fields = ['course', 'semester', 'program', 'date', 'time_slot']
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
 
 
 from django import forms

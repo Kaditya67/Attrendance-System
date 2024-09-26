@@ -100,7 +100,11 @@ class Command(BaseCommand):
 
             # Information Technology
             # First Year
+<<<<<<< HEAD
             ('IT101', 'Web Technologies'),
+=======
+            ('IT101', 'Web Technologies',True),
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
             ('IT102', 'Network Fundamentals'),
             ('IT103', 'System Analysis'),
             ('IT104', 'Programming Fundamentals'),
@@ -190,10 +194,23 @@ class Command(BaseCommand):
             ('ME804', 'Elective Course 5'),
             ('ME805', 'Elective Course 6'),
         ]
+<<<<<<< HEAD
 
         for code, name in courses_data:
             try:
                 course = Course(code=code, name=name)
+=======
+        for course_data in courses_data:
+            try:
+                # Unpack with a default value for `is_lab`
+                if len(course_data) == 3:
+                    code, name, is_lab = course_data
+                else:
+                    code, name = course_data
+                    is_lab = False  # Default value if not provided
+                
+                course = Course(code=code, name=name, is_lab=is_lab)
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
                 course.save()
                 self.stdout.write(self.style.SUCCESS(f'Successfully added course: {course}'))
             except Exception as e:

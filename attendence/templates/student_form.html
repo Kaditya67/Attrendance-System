@@ -6,14 +6,23 @@
     <title>Student Information Table</title>
     <style>
         body {
+<<<<<<< HEAD
             font-family: 'Poppins', sans-serif;
             background-color: #F9F7EF; /* Light Cream */
+=======
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
             color: #333333;
             margin: 0;
             overflow-x: hidden;
         }
         .navbar {
+<<<<<<< HEAD
             background-color: #4B5D40; /* Dark Greenish-Gray */
+=======
+            background-color: #007BFF;
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
             overflow: hidden;
         }
         .navbar a {
@@ -26,7 +35,11 @@
             font-size: 15px;
         }
         .navbar a:hover {
+<<<<<<< HEAD
             background-color: #AABD8C;
+=======
+            background-color: #0056b3;
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
         }
         .sidebar {
             height: 100%;
@@ -34,7 +47,11 @@
             position: fixed;
             top: 0;
             left: 0;
+<<<<<<< HEAD
             background-color: #D3C99E;
+=======
+            background-color: #333333;
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
             overflow-x: hidden;
             transition: 0.5s;
             padding-top: 60px;
@@ -60,7 +77,11 @@
         .openbtn {
             font-size: 15px;
             cursor: pointer;
+<<<<<<< HEAD
             background-color: #4B5D40;
+=======
+            background-color: #007BFF;
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
             color: white;
             border: none;
             padding: 10px 15px;
@@ -75,7 +96,11 @@
         h2 {
             margin-top: 20px;
             font-size: 24px;
+<<<<<<< HEAD
             color: #333333;
+=======
+            color: #007BFF;
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -97,7 +122,11 @@
             text-align: center;
         }
         th {
+<<<<<<< HEAD
             background-color: #AABD8C;
+=======
+            background-color: #007BFF;
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
             color: white;
             font-weight: bold;
             text-transform: uppercase;
@@ -108,7 +137,11 @@
             background-color: #f9f9f9;
         }
         tr:nth-child(even) td {
+<<<<<<< HEAD
             background-color: #F9F7EF;
+=======
+            background-color: #f2f2f2;
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
         }
         tr:hover {
             background-color: #f1f1f1;
@@ -173,7 +206,11 @@
             <tbody>
                 {% for student in students %}
                 <tr>
+<<<<<<< HEAD
                     <td>{{ student.user.first_name }} {{ student.user.last_name }}</td>
+=======
+                    <td>{{ student.name }}</td>
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
                     <td>{{ student.roll_number }}</td>
                     <td>
                         <input class="form-check-input student-checkbox" type="checkbox" name="attendance_{{ student.id }}" value="Present">
@@ -182,7 +219,10 @@
                 </tr>
                 {% endfor %}
             </tbody>
+<<<<<<< HEAD
             
+=======
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
         </table>
 
         <button type="submit">Submit Attendance</button>

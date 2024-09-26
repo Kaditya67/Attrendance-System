@@ -1,1 +1,66 @@
+<<<<<<< HEAD
 Teacher Dashboard
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5; /* Softer background */
+            color: #333333;
+            margin: 0;
+        }
+        .navbar {
+            background-color: #0062cc;
+            padding: 15px;
+            color: white;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        h2 {
+            margin-top: 20px;
+            font-size: 24px;
+            color: #004ba0; 
+            font-weight: bold;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <a href="{% url 'mark_attendance' %}">Attendance</a>
+    <a href="{% url 'logout' %}">Logout</a>
+</div>
+
+<!-- Page Content -->
+<div class="content">
+    <h2>Welcome, {{ teacher.user.username }}</h2>
+    <h3>Your Courses:</h3>
+    <ul>
+        {% for course in courses %}
+            <li>
+                <a href="{% url 'attendence' course.id %}">{{ course.name }}</a>
+            </li>
+        {% empty %}
+            <li>No courses found.</li>
+        {% endfor %}
+    </ul>
+</div>
+</body>
+</html>
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d

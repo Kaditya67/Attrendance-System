@@ -2,6 +2,22 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+<<<<<<< HEAD
+=======
+    #to do
+    path('update_Attendance',views.update_Attendance,name='update_Attendance'), 
+    path('Add_Attendance',views.Add_Attendance,name='Add_Attendance'),
+    path('SubjectDetails',views.SubjectDetails,name='SubjectDetails'),
+    path('Subject_Attendance_Details',views.Subject_Attendance_Details,name='Subject_Attendance_Details'),
+    path('StudentDashBoard',views.StudentDashBoard,name='StudentDashBoard'),
+    path('PrincipalDashboard',views.PrincipalDashboard,name='PrincipalDashboard'),
+    path('HOD_Dashboard',views.HOD_Dashboard,name='HOD_Dashboard'),
+    path('forget_password',views.forget_password,name='forget_password'),
+    path('Delete_Attendance',views.Delete_Attendance,name='Delete_Attendance'),
+    path('ClassDashboard',views.ClassDashboard,name='ClassDashboard'),
+    path('Class_Report',views.Class_Report,name='Class_Report'),
+    
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
     # Authentication
     path('', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
@@ -13,17 +29,27 @@ urlpatterns = [
     path('register/staff/', views.register_staff, name='register_staff'),
     path('register/principal/', views.register_principal, name='register_principal'),
     
+<<<<<<< HEAD
     path('update/student', views.update_student, name='update_student'),
 
     # Dashboards
     path('student_form/',views.student_form,name='student_form'),
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('teacher/dashboard/', views.dash_teacher, name='dash_teacher'),
+=======
+    # Student Update
+    path('update/student/', views.update_student, name='update_student'),
+
+    # Dashboards
+    path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
+    path('teacher/dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
     path('hod/dashboard/', views.hod_dashboard, name='hod_dashboard'),
     path('principal/dashboard/', views.principal_dashboard, name='principal_dashboard'),
     path('staff/dashboard/', views.staff_dashboard, name='staff_dashboard'),
     
     # Attendance
+<<<<<<< HEAD
     path('mark_attendance/', views.mark_attendance, name='mark_attendance'),
     
     # Course Management
@@ -41,6 +67,24 @@ urlpatterns = [
     
     # Password Reset
     path('password/reset/', views.password_reset, name='password_reset'),
+=======
+    path('mark_attendance/', views.attendance, name='mark_attendance'),
+    
+    # Course Management
+    path('course/enrollment/', views.course_enrollment, name='course_enrollment'),
+    # path('course/management/', views.course_management, name='course_management'),
+    
+    # Lecture Scheduling
+    # path('lecture/schedule/', views.lecture_scheduling, name='schedule_lecture'),
+    
+    # Attendance Reporting
+    # path('attendance/report/', views.attendance_reporting, name='attendance_reporting'),
+    # path('attendance/create/', views.create_attendance, name='create_attendance'),
+    path('attendance/update/<int:pk>/', views.update_attendance, name='update_attendance'),
+    
+    # Password Reset
+    # path('password/reset/', views.password_reset, name='password_reset'),
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
     
     # View Details
     path('view/student/details/', views.view_student_details, name='view_student_details'),
@@ -49,6 +93,7 @@ urlpatterns = [
     # Miscellaneous
     path('success/', views.success, name='success'),
     path('no_permission/', views.no_permission, name='no_permission'),
+<<<<<<< HEAD
     path('index/', views.index, name='index'),
     path('demo/', views.demo_dash, name='demo_dash'),
     path('view_grades/', views.view_grades, name='view_grades'),
@@ -176,3 +221,6 @@ urlpatterns = [
 # #     # Principal
 # #     # path('principal/', principal, name='principal'),
 # # ]
+=======
+]
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
