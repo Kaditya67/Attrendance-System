@@ -1,88 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Subject-wise Date-wise Attendance</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
 
-        .container {
-            width: 90%;
-            margin: auto;
-            padding: 20px;
-        }
+      .container {
+        width: 90%;
+        margin: auto;
+        padding: 20px;
+      }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+      h1 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-        }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+      }
 
-        table th, table td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: center;
-        }
+      table th,
+      table td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: center;
+      }
 
-        table th {
-            background-color: #f2f2f2;
-        }
+      table th {
+        background-color: #f2f2f2;
+      }
 
-        .green {
-            background-color: #b3ffb3;
-        }
+      .green {
+        background-color: #b3ffb3;
+      }
 
-        .red {
-            background-color: #ff9999;
-        }
+      .red {
+        background-color: #ff9999;
+      }
 
-        .blue {
-            background-color: #cce5ff;
-        }
+      .blue {
+        background-color: #cce5ff;
+      }
 
-        .highlight {
-            font-weight: bold;
-            color: green;
-        }
+      .highlight {
+        font-weight: bold;
+        color: green;
+      }
 
-        .low-attendance {
-            color: red;
-            font-weight: bold;
-        }
+      .low-attendance {
+        color: red;
+        font-weight: bold;
+      }
 
-        .overall {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
+      .overall {
+        background-color: #f2f2f2;
+        font-weight: bold;
+      }
 
-        .present {
-            background-color: #b3ffb3;
-        }
+      .present {
+        background-color: #b3ffb3;
+      }
 
-        .absent {
-            background-color: #ff9999;
-        }
+      .absent {
+        background-color: #ff9999;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <!-- Navbar -->
+    {% include 'teachertemplates/navbar.html' %}
+    <div class="container">
+      <h1>Date-wise Attendance for Subject: Math</h1>
 
-<div class="container">
-    <h1>Date-wise Attendance for Subject: Math</h1>
-
-    <table>
+      <table>
         <thead>
-        <tr>
+          <tr>
             <th>Student Name</th>
             <th>2024-09-01</th>
             <th>2024-09-02</th>
@@ -91,11 +93,11 @@
             <th>2024-09-05</th>
             <th>Total Attended</th>
             <th>Percentage (%)</th>
-        </tr>
+          </tr>
         </thead>
         <tbody>
-        <!-- Sample Data for Date-wise Attendance -->
-        <tr>
+          <!-- Sample Data for Date-wise Attendance -->
+          <tr>
             <td>John Doe</td>
             <td class="present">Present</td>
             <td class="present">Present</td>
@@ -104,8 +106,8 @@
             <td class="absent">Absent</td>
             <td>4/5</td>
             <td>80%</td>
-        </tr>
-        <tr>
+          </tr>
+          <tr>
             <td>Jane Smith</td>
             <td class="absent">Absent</td>
             <td class="present">Present</td>
@@ -114,8 +116,8 @@
             <td class="present">Present</td>
             <td>3/5</td>
             <td>60%</td>
-        </tr>
-        <tr>
+          </tr>
+          <tr>
             <td>Michael Brown</td>
             <td class="present">Present</td>
             <td class="present">Present</td>
@@ -124,8 +126,8 @@
             <td class="present">Present</td>
             <td>5/5</td>
             <td>100%</td>
-        </tr>
-        <tr>
+          </tr>
+          <tr>
             <td>Emily Johnson</td>
             <td class="absent">Absent</td>
             <td class="absent">Absent</td>
@@ -134,8 +136,8 @@
             <td class="absent">Absent</td>
             <td>2/5</td>
             <td>40%</td>
-        </tr>
-        <tr>
+          </tr>
+          <tr>
             <td>David Miller</td>
             <td class="present">Present</td>
             <td class="absent">Absent</td>
@@ -144,8 +146,8 @@
             <td class="present">Present</td>
             <td>4/5</td>
             <td>80%</td>
-        </tr>
-        <tr>
+          </tr>
+          <tr>
             <td>Sarah Wilson</td>
             <td class="absent">Absent</td>
             <td class="absent">Absent</td>
@@ -154,8 +156,8 @@
             <td class="absent">Absent</td>
             <td>2/5</td>
             <td>40%</td>
-        </tr>
-        <tr>
+          </tr>
+          <tr>
             <td>James Lee</td>
             <td class="present">Present</td>
             <td class="present">Present</td>
@@ -164,8 +166,8 @@
             <td class="absent">Absent</td>
             <td>4/5</td>
             <td>80%</td>
-        </tr>
-        <tr>
+          </tr>
+          <tr>
             <td>Olivia Clark</td>
             <td class="present">Present</td>
             <td class="present">Present</td>
@@ -174,8 +176,8 @@
             <td class="present">Present</td>
             <td>5/5</td>
             <td>100%</td>
-        </tr>
-        <tr>
+          </tr>
+          <tr>
             <td>Benjamin Harris</td>
             <td class="absent">Absent</td>
             <td class="present">Present</td>
@@ -184,8 +186,8 @@
             <td class="present">Present</td>
             <td>3/5</td>
             <td>60%</td>
-        </tr>
-        <tr>
+          </tr>
+          <tr>
             <td>Grace Lewis</td>
             <td class="present">Present</td>
             <td class="absent">Absent</td>
@@ -194,15 +196,20 @@
             <td class="present">Present</td>
             <td>3/5</td>
             <td>60%</td>
-        </tr>
+          </tr>
         </tbody>
-    </table>
+      </table>
 
-    <!-- Legend for Attendance -->
-    <h3>Legend:</h3>
-    <p><span class="present">Present:</span> The student attended the class on this date.</p>
-    <p><span class="absent">Absent:</span> The student was absent on this date.</p>
-</div>
-
-</body>
+      <!-- Legend for Attendance -->
+      <h3>Legend:</h3>
+      <p>
+        <span class="present">Present:</span> The student attended the class on
+        this date.
+      </p>
+      <p>
+        <span class="absent">Absent:</span> The student was absent on this date.
+      </p>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>

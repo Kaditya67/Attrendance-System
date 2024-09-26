@@ -6,7 +6,7 @@ urlpatterns = [
     path('update_Attendance',views.update_Attendance,name='update_Attendance'), 
     path('Add_Attendance',views.Add_Attendance,name='Add_Attendance'),
     path('SubjectDetails',views.SubjectDetails,name='SubjectDetails'),
-    path('Subject_Attendance_Details',views.Subject_Attendance_Details,name='Subject_Attendance_Details'),
+    path('Subject_Attendance_Details',views.Subject_Attendance_Details,name='Teacher_dashboard'),
     path('StudentDashBoard',views.StudentDashBoard,name='StudentDashBoard'),
     path('PrincipalDashboard',views.PrincipalDashboard,name='PrincipalDashboard'),
     path('HOD_Dashboard',views.HOD_Dashboard,name='HOD_Dashboard'),
@@ -37,7 +37,7 @@ urlpatterns = [
     path('staff/dashboard/', views.staff_dashboard, name='staff_dashboard'),
     
     # Attendance
-    path('mark_attendance/', views.attendance, name='mark_attendance'),
+    # path('mark_attendance/', views.attendance, name='mark_attendance'),
     
     # Course Management
     path('course/enrollment/', views.course_enrollment, name='course_enrollment'),

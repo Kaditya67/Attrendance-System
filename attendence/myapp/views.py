@@ -30,7 +30,7 @@ def update_Attendance(request):
         # Logic for updating attendance
         return HttpResponse("Attendance updated successfully.")
     else:
-        return render(request, 'update_attendance.html')
+        return render(request, 'teachertemplates/Update_Attedance.html')
 
 # View for adding attendance
 def Add_Attendance(request):
@@ -38,17 +38,17 @@ def Add_Attendance(request):
         # Logic for adding attendance
         return HttpResponse("Attendance added successfully.")
     else:
-        return render(request, 'add_attendance.html')
+        return render(request, 'teachertemplates/add_attendance.html')
 
 # View for subject details
 def SubjectDetails(request):
     # Logic for displaying subject details
-    return render(request, 'subject_details.html')
+    return render(request, 'SubjectDetails.html')
 
 # View for subject attendance details
 def Subject_Attendance_Details(request):
     # Logic for displaying subject attendance details
-    return render(request, 'subject_attendance_details.html')
+    return render(request, 'teachertemplates/Subject_Attedance_Details.html')
 
 # View for student dashboard
 def StudentDashBoard(request):
@@ -84,12 +84,12 @@ def Delete_Attendance(request):
 # View for class dashboard
 def ClassDashboard(request):
     # Logic for displaying class dashboard
-    return render(request, 'class_dashboard.html')
+    return render(request, 'ClassDashboard.html')
 
 # View for class report
 def Class_Report(request):
     # Logic for generating class report
-    return render(request, 'class_report.html')
+    return render(request, 'teachertemplates/class_report.html')
 
 
 
