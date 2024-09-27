@@ -185,6 +185,51 @@ def get_current_time_slot():
 
     return None  # No matching time slot
 
+def get_teacher_courses(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
+
+    # Get all courses assigned to the teacher
+    courses = teacher.assigned_courses.all()
+
+    course_data = []
+    for course in courses:
+        semester = course.semester  # Assuming course has a semester field
+        students_in_semester = Student.objects.filter(semester=semester).distinct()  # Fetch distinct students for the semester
+
+        # Append course, semester, and students information to course_data
+        course_data.append({
+            'course': course,
+            'semester': semester,
+            'students': students_in_semester,
+        })
+
+    return course_data
+
+@login_required
+def fetch_students(request):
+    if request.method == 'POST':
+        subject_id = request.POST.get('subject')
+        date = request.POST.get('date')
+
+        # Get the selected course
+        course = Course.objects.get(id=subject_id)
+        semester = course.semester
+
+        # Get students for the selected course's semester
+        students = Student.objects.filter(semester=semester)
+
+        context = {
+            'students': students,
+            'selected_course': course,
+            'selected_date': date,
+            'course_data': get_teacher_courses(request),  # Function to fetch teacher's courses
+        }
+
+        return render(request, 'teachertemplates/add_attendance.html', context)
+    
+    return redirect('Add_Attendance')
+
+
 # def Submit_Attendance(request):
 #     if request.method == "POST":
 #         subject_id = request.POST.get('subject')
@@ -253,71 +298,51 @@ def get_current_time_slot():
 
 #     return redirect('Add_Attendance')
 
-def Submit_Attendance(request):
+@login_required
+def submit_attendance(request):
     if request.method == "POST":
         subject_id = request.POST.get('subject')
         date = request.POST.get('date')
-        common_notes = request.POST.get('common_notes', '')  # Default to empty string if not provided
-        absent_students = request.POST.get('absent_students', '').split(',')  # Get absent student IDs
+        common_notes = request.POST.get('common_notes', '')
+        absent_students = request.POST.get('absent_students', '').split(',')
 
         course = Course.objects.get(id=subject_id)
-        attendance_created = 0  # To track how many records were created
 
-        # Retrieve the current count for the given date and course
+        # Retrieve current attendance records
         existing_attendance_records = Attendance.objects.filter(course=course, date=date)
-        print(f'Existing Records: {existing_attendance_records}')
-        if existing_attendance_records.exists():
-            # If records exist for the date, use the same count
-            common_count = existing_attendance_records.last().count
-            common_count += 1
-            print(f'Common Count: {common_count}')
-        else:
-            # If no records exist, initialize the count to 1
-            common_count = 1
-            print(f'Initial Common Count: {common_count}')
+        common_count = existing_attendance_records.last().count + 1 if existing_attendance_records.exists() else 1
 
-        print(f'Course: {course}, Date: {date}, Common Notes: {common_notes}, subject_id: {subject_id}, Count: {common_count}')
+        attendance_created = 0
 
         for key in request.POST:
             if key.startswith('attendance_'):
-                student_id = key.split('_')[1]  # Extract student ID from key
-                attendance_status = request.POST[key]  # Get the attendance status
-
-                print(f'Processing student_id: {student_id}, attendance_status: {attendance_status}')  # Log student ID and status
-
+                student_id = key.split('_')[1]
                 student = Student.objects.get(id=int(student_id))
-                present = (attendance_status == 'Present')  # Check if status is 'Present'
+                present = request.POST[key] == 'Present'
 
-                # Create a new attendance record with the common count
                 Attendance.objects.create(
                     student=student,
                     course=course,
                     date=date,
                     present=present,
-                    count=common_count,  # Use the common count value
-                    notes=common_notes  # Store common notes
+                    count=common_count,
+                    notes=common_notes
                 )
+                attendance_created += 1
 
-                attendance_created += 1  # Count the number of created records
-
-        # Now create records for absent students
         for student_id in absent_students:
-            if student_id:  # Ensure student_id is not empty
+            if student_id:
                 student = Student.objects.get(id=int(student_id))
-
-                # Create absence record with the common count
                 Attendance.objects.create(
                     student=student,
                     course=course,
                     date=date,
-                    present=False,  # Mark as absent
-                    count=common_count,  # Use the common count value
+                    present=False,
+                    count=common_count,
                     notes=common_notes
                 )
+                attendance_created += 1
 
-                attendance_created += 1  # Count the absent record
-
-        # Provide feedback based on the outcome
         if attendance_created > 0:
             messages.success(request, f"{attendance_created} attendance records submitted successfully!")
         else:

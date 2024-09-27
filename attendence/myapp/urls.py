@@ -4,8 +4,9 @@ from . import views
 urlpatterns = [
     #to do
     path('update_Attendance',views.update_Attendance,name='update_Attendance'), 
+    path('fetch_students/', views.fetch_students, name='fetch_students'),
     path('Add_Attendance',views.Add_Attendance,name='Add_Attendance'),
-    path('submit_attendance/', views.Submit_Attendance, name='submit_attendance'),
+    path('submit_attendance/', views.submit_attendance, name='submit_attendance'),
     path('SubjectDetails',views.SubjectDetails,name='SubjectDetails'),
     path('teacher_dashboard',views.Subject_Attendance_Details,name='Teacher_dashboard'),
     path('StudentDashBoard',views.StudentDashBoard,name='StudentDashBoard'),

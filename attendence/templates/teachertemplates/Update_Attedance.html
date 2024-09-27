@@ -162,6 +162,18 @@
         text-decoration: underline;
       }
     </style>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        const today = new Date().toISOString().split('T')[0];
+        const dateInput = document.getElementById('date');
+
+        // Set the current date as the default value
+        dateInput.value = today;
+
+        // Set the current date as the maximum value (no future dates allowed)
+        dateInput.max = today;
+    });
+    </script>
   </head>
   <body>
     {% include 'teachertemplates/navbar.html' %}
@@ -223,9 +235,17 @@
         {% if attendance_records %}
         <form method="POST" action="">
           {% csrf_token %}
+          
+
           <input type="hidden" name="subject" value="{{ selected_course.id }}" />
           <input type="hidden" name="date" value="{{ selected_date }}" />
           <input type="hidden" name="lecture_number" value="{{ lecture_number }}" />
+
+          <div class="info-message" style="margin: 20px; text-align: center;">
+            <p>You're updating attendance for the course: <strong>{{ selected_course.name }}</strong> (ID: {{ selected_course.id }})</p>
+            <p>Date of attendance: <strong>{{ selected_date }}</strong></p>
+            <p>Lecture Number: <strong>{{ lecture_number }}</strong></p>
+        </div>
 
           <table>
             <thead>
