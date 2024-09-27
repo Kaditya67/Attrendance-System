@@ -293,6 +293,7 @@ class Attendance(models.Model):
     date = models.DateField(verbose_name="Date")
     time_slot = models.CharField(max_length=20, choices=TIME_SLOT_CHOICES, verbose_name="Time Slot", null=True, blank=True)
     present = models.BooleanField(default=False, verbose_name="Present")
+    count = models.IntegerField(default=0, verbose_name="Count", null=True, blank=True)
 
     # Optional: Additional fields
     notes = models.TextField(blank=True, null=True, verbose_name="Notes")  # Optional notes field

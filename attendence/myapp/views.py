@@ -92,21 +92,98 @@ def get_current_time_slot():
 
     return None  # No matching time slot
 
+# def Submit_Attendance(request):
+#     if request.method == "POST":
+#         subject_id = request.POST.get('subject')
+#         date = request.POST.get('date')
+#         lab_batch_id = request.POST.get('lab_batch') or None  # Set to None if empty
+#         common_notes = request.POST.get('common_notes', '')  # Default to empty string if not provided
+#         absent_students = request.POST.get('absent_students', '').split(',')  # Get absent student IDs
+
+#         course = Course.objects.get(id=subject_id)
+#         time_slot = get_current_time_slot()  # Automatically determine the time slot
+        
+#         attendance_created = 0  # To track how many records were created
+
+#         print(f'Course: {course}, Date: {date}, Lab Batch ID: {lab_batch_id}, Common Notes: {common_notes}, subject_id: {subject_id}')
+
+
+#         for key in request.POST:
+#             if key.startswith('attendance_'):
+#                 student_id = key.split('_')[1]  # Extract student ID from key
+#                 attendance_status = request.POST[key]  # Get the attendance status
+
+#                 print(f'Processing student_id: {student_id}, attendance_status: {attendance_status}')  # Log student ID and status
+
+#                 student = Student.objects.get(id=int(student_id))
+#                 present = (attendance_status == 'Present')  # Check if status is 'Present'
+
+#                 # Create or update attendance record
+#                 attendance_record, created = Attendance.objects.update_or_create(
+#                     student=student,
+#                     course=course,
+#                     date=date,
+#                     time_slot=time_slot,
+#                     defaults={
+#                         'lab_batch_id': lab_batch_id,
+#                         'present': present,
+#                         'notes': common_notes,  # Store common notes
+#                     }
+#                 )
+                
+#                 attendance_created += 1  # Count the number of created or updated records
+
+#         # Now create records for absent students
+#         for student_id in absent_students:
+#             if student_id:  # Ensure student_id is not empty
+#                 student = Student.objects.get(id=int(student_id))
+#                 # Create absence record
+#                 Attendance.objects.update_or_create(
+#                     student=student,
+#                     course=course,
+#                     date=date,
+#                     defaults={
+#                         'lab_batch_id': lab_batch_id,
+#                         'present': False,  # Mark as absent
+#                         'notes': common_notes,
+#                     }
+#                 )
+#                 attendance_created += 1  # Count the absent record
+
+#         # Provide feedback based on the outcome
+#         if attendance_created > 0:
+#             messages.success(request, f"{attendance_created} attendance records submitted successfully!")
+#         else:
+#             messages.warning(request, "No attendance records were created.")
+
+#         return redirect('Add_Attendance')
+
+#     return redirect('Add_Attendance')
+
 def Submit_Attendance(request):
     if request.method == "POST":
         subject_id = request.POST.get('subject')
         date = request.POST.get('date')
-        lab_batch_id = request.POST.get('lab_batch') or None  # Set to None if empty
         common_notes = request.POST.get('common_notes', '')  # Default to empty string if not provided
         absent_students = request.POST.get('absent_students', '').split(',')  # Get absent student IDs
 
         course = Course.objects.get(id=subject_id)
-        time_slot = get_current_time_slot()  # Automatically determine the time slot
-        
         attendance_created = 0  # To track how many records were created
 
-        print(f'Course: {course}, Date: {date}, Lab Batch ID: {lab_batch_id}, Common Notes: {common_notes}, subject_id: {subject_id}')
+        # Retrieve the current count for the given date and course
+        existing_attendance_records = Attendance.objects.filter(course=course, date=date)
+        print(f'Existing Records: {existing_attendance_records}')
+        if existing_attendance_records.exists():
+            # If records exist for the date, use the same count
+            common_count = existing_attendance_records.last().count
+            common_count += 1
+            print(f'Common Count: {common_count}')
+        else:
+            # If no records exist, initialize the count to 1
+            common_count = 1
+            print(f'Initial Common Count: {common_count}')
 
+        print(f'Course: {course}, Date: {date}, Common Notes: {common_notes}, subject_id: {subject_id}, Count: {common_count}')
 
         for key in request.POST:
             if key.startswith('attendance_'):
@@ -118,36 +195,33 @@ def Submit_Attendance(request):
                 student = Student.objects.get(id=int(student_id))
                 present = (attendance_status == 'Present')  # Check if status is 'Present'
 
-                # Create or update attendance record
-                attendance_record, created = Attendance.objects.update_or_create(
+                # Create a new attendance record with the common count
+                Attendance.objects.create(
                     student=student,
                     course=course,
                     date=date,
-                    time_slot=time_slot,
-                    defaults={
-                        'lab_batch_id': lab_batch_id,
-                        'present': present,
-                        'notes': common_notes,  # Store common notes
-                    }
+                    present=present,
+                    count=common_count,  # Use the common count value
+                    notes=common_notes  # Store common notes
                 )
-                
-                attendance_created += 1  # Count the number of created or updated records
+
+                attendance_created += 1  # Count the number of created records
 
         # Now create records for absent students
         for student_id in absent_students:
             if student_id:  # Ensure student_id is not empty
                 student = Student.objects.get(id=int(student_id))
-                # Create absence record
-                Attendance.objects.update_or_create(
+
+                # Create absence record with the common count
+                Attendance.objects.create(
                     student=student,
                     course=course,
                     date=date,
-                    defaults={
-                        'lab_batch_id': lab_batch_id,
-                        'present': False,  # Mark as absent
-                        'notes': common_notes,
-                    }
+                    present=False,  # Mark as absent
+                    count=common_count,  # Use the common count value
+                    notes=common_notes
                 )
+
                 attendance_created += 1  # Count the absent record
 
         # Provide feedback based on the outcome
