@@ -25,13 +25,106 @@ import plotly.io as pio
 from .models import TIME_SLOT_CHOICES  # Only if used in attendance
 
 # View for updating attendance
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Teacher, Attendance, Course
+from django.db.models import Max
+
 @login_required
 def update_Attendance(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
+    courses = teacher.assigned_courses.all()
+
     if request.method == 'POST':
-        # Logic for updating attendance
-        return HttpResponse("Attendance updated successfully.")
+
+        # Step 1: Fetch attendance records (Subject and Date selection)
+        if 'fetch' in request.POST:
+            subject_id = request.POST.get('subject')
+            date = request.POST.get('date')
+
+            course = get_object_or_404(Course, id=subject_id)
+            attendance_records = Attendance.objects.filter(course=course, date=date)
+
+            if not attendance_records.exists():
+                messages.warning(request, "No attendance records found for the selected date.")
+                return redirect('update_Attendance')
+
+            max_count = attendance_records.aggregate(Max('count'))['count__max']
+            lecture_numbers = list(range(1, max_count + 1))
+
+            context = {
+                'courses': courses,
+                'lecture_numbers': lecture_numbers,
+                'selected_course': course,
+                'selected_date': date,
+            }
+            return render(request, 'teachertemplates/Update_Attedance.html', context)
+
+        # Step 3: Update attendance records
+        elif 'update_attendance' in request.POST and 'lecture_number' in request.POST:
+            subject_id = request.POST.get('subject')
+            date = request.POST.get('date')
+            lecture_number = request.POST.get('lecture_number')
+
+            course = get_object_or_404(Course, id=subject_id)
+            attendance_records = Attendance.objects.filter(course=course, date=date, count=lecture_number)
+
+            attendance_updated = 0
+            for record in attendance_records:
+                student_id = record.student.id
+                attendance_status = request.POST.get(f'attendance_{student_id}', None)
+
+                if attendance_status is not None:
+                    record.present = (attendance_status == 'Present')
+                    record.save()
+                    attendance_updated += 1
+
+            if attendance_updated > 0:
+                messages.success(request, f"{attendance_updated} attendance records updated successfully!")
+            else:
+                messages.warning(request, "No attendance records were updated.")
+
+            context = {
+                'courses': courses,
+                'attendance_records': attendance_records,
+                'selected_course': course,
+                'selected_date': date,
+                'lecture_number': lecture_number,
+            }
+            return render(request, 'teachertemplates/Update_Attedance.html', context)
+        # Step 2: Load attendance for a specific lecture number
+        elif 'lecture_number' in request.POST:
+            subject_id = request.POST.get('subject')
+            date = request.POST.get('date')
+            lecture_number = request.POST.get('lecture_number')
+
+            course = get_object_or_404(Course, id=subject_id)
+            attendance_records = Attendance.objects.filter(course=course, date=date, count=lecture_number)
+
+            context = {
+                'courses': courses,
+                'attendance_records': attendance_records,
+                'selected_course': course,
+                'selected_date': date,
+                'lecture_number': lecture_number,
+            }
+            return render(request, 'teachertemplates/Update_Attedance.html', context)
+
+
     else:
-        return render(request, 'teachertemplates/Update_Attedance.html')
+        context = {'courses': courses}
+        return render(request, 'teachertemplates/Update_Attedance.html', context)
+
+
+
+# @login_required
+# def update_Attendance(request):
+#     if request.method == 'POST':
+#         # Logic for updating attendance
+#         return HttpResponse("Attendance updated successfully.")
+#     else:
+#         return render(request, 'teachertemplates/Update_Attedance.html')
 
 # View for adding attendance
 from .models import LabsBatches  # Import your LabsBatches model

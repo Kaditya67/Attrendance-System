@@ -1,176 +1,274 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Attendance</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Update Attendance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
+      body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
 
-        .container {
-            width: 80%;
-            margin: auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            margin-top: 30px;
-        }
+      .container {
+        width: 80%;
+        margin: auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-top: 50px;
+        border-radius: 10px;
+        animation: fadeIn 0.5s ease-in;
+      }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
         }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
+      h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #2c3e50;
+      }
 
-        table th, table td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: center;
-        }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #34495e;
+      }
 
-        table th {
-            background-color: #f2f2f2;
-        }
+      select,
+      input[type="date"],
+      input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        background-color: #f9f9f9;
+        transition: border-color 0.3s ease;
+      }
 
-        .radio-group {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+      select:focus,
+      input[type="date"]:focus,
+      input[type="text"]:focus {
+        border-color: #3498db;
+        outline: none;
+      }
 
-        .radio-group input {
-            margin-right: 10px;
-        }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        animation: fadeIn 1s ease-in;
+      }
 
-        .button {
-            background-color: #3498db;
-            color: white;
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            text-align: center;
-            margin-bottom: 20px;
-        }
+      table th,
+      table td {
+        border: 1px solid #ddd;
+        padding: 15px;
+        text-align: center;
+      }
 
-        .button:hover {
-            background-color: #2980b9;
-        }
+      table th {
+        background-color: #3498db;
+        color: #fff;
+        font-weight: 500;
+      }
 
-        .back-link {
-            text-align: center;
-            margin-top: 20px;
-        }
+      table tr {
+        transition: background-color 0.3s ease;
+      }
 
-        a {
-            text-decoration: none;
-            color: #3498db;
-        }
+      table tr:hover {
+        background-color: #f1f1f1;
+      }
 
-        a:hover {
-            text-decoration: underline;
-        }
+      table td.present {
+        background-color: #d4edda;
+        color: #155724;
+        font-weight: 600;
+      }
+
+      .button {
+        background-color: #3498db;
+        color: white;
+        padding: 12px 20px;
+        font-size: 18px;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        text-align: center;
+        border-radius: 5px;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .button:hover {
+        background-color: #2980b9;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .messages {
+        list-style: none;
+        padding: 0;
+      }
+
+      .messages li {
+        margin: 10px 0;
+        padding: 15px;
+        border-radius: 5px;
+        font-size: 16px;
+      }
+
+      .messages li.success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .messages li.warning {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+
+      .notes {
+        margin: 20px 0;
+        text-align: center;
+      }
+
+      .back-link {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      a {
+        text-decoration: none;
+        color: #3498db;
+        font-weight: 500;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
     </style>
-</head>
-<body>
-
-    <!-- Navbar -->
+  </head>
+  <body>
     {% include 'teachertemplates/navbar.html' %}
-<div class="content">
-<div class="container">
-    <h1>Add Attendance</h1>
+    <div class="content">
+      <div class="container">
+        <h1>Update Attendance</h1>
 
-    <form id="attendanceForm" action="submit_attendance.html" method="post">
-        <!-- Subject Name -->
-        <label for="subject">Subject:</label>
-        <select id="subject" name="subject" required>
-            <option value="Math">Math</option>
-            <option value="Science">Science</option>
-            <option value="English">English</option>
-            <option value="History">History</option>
-        </select>
+        <!-- Display success/warning messages -->
+        {% if messages %}
+        <div class="messages">
+          {% for message in messages %}
+          <p class="{{ message.tags }}">{{ message }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
 
-        <!-- Date -->
-        <label for="date">Date:</label>
-        <input type="date" id="date" name="date" required>
+        <!-- Step 1: Select Subject and Date -->
+        <form method="POST" action="">
+          {% csrf_token %}
+          <input type="hidden" name="fetch" value="1" />
+          <!-- Subject Name -->
+          <label for="subject">Subject:</label>
+          <select id="subject" name="subject" required>
+            {% for course in courses %}
+            <option value="{{ course.id }}">{{ course.name }}</option>
+            {% endfor %}
+          </select>
 
-        <!-- Table of Students -->
-        <table>
+          <!-- Date -->
+          <label for="date">Date:</label>
+          <input type="date" id="date" name="date" required />
+
+          <!-- Submit Button to Fetch Attendance Records -->
+          <button type="submit" class="button">Fetch Attendance Records</button>
+        </form>
+
+        <!-- Step 2: If records are fetched, show the lecture dropdown -->
+        {% if lecture_numbers %}
+        <form method="POST" action="" style="padding-top:2px ;padding-bottom: 4px;">
+          {% csrf_token %}
+          <!-- Subject and Date -->
+          <input type="hidden" name="subject" value="{{ selected_course.id }}" />
+          <input type="hidden" name="date" value="{{ selected_date }}" />
+
+          <!-- Lecture Number Selection -->
+          <label for="lecture_number">Select Lecture:</label>
+          <select id="lecture_number" name="lecture_number" required>
+            {% for number in lecture_numbers %}
+            <option value="{{ number }}">Lecture {{ number }}</option>
+            {% endfor %}
+          </select>
+
+          <!-- Submit Button to Load Attendance for the Selected Lecture -->
+          <button type="submit" class="button" style="margin-top:5px ;">Load Attendance for Lecture</button>
+        </form>
+        {% endif %}
+
+        <!-- Step 3: Display and Update Attendance -->
+        {% if attendance_records %}
+        <form method="POST" action="">
+          {% csrf_token %}
+          <input type="hidden" name="subject" value="{{ selected_course.id }}" />
+          <input type="hidden" name="date" value="{{ selected_date }}" />
+          <input type="hidden" name="lecture_number" value="{{ lecture_number }}" />
+
+          <table>
             <thead>
-            <tr>
+              <tr>
                 <th>Student Name</th>
                 <th>Attendance Status</th>
-            </tr>
+              </tr>
             </thead>
             <tbody>
-            <!-- Sample Students List -->
-            <tr>
-                <td>John Doe</td>
+              {% for record in attendance_records %}
+              <tr>
                 <td>
-                    <div class="radio-group">
-                        <input type="radio" id="john_present" name="john_attendance" value="Present" required>
-                        <label for="john_present">Present</label>
-                        <input type="radio" id="john_absent" name="john_attendance" value="Absent" required>
-                        <label for="john_absent">Absent</label>
-                    </div>
+                  {{ record.student.user.first_name }}
+                  {{ record.student.user.last_name }}
                 </td>
-            </tr>
-            <tr>
-                <td>Jane Smith</td>
                 <td>
-                    <div class="radio-group">
-                        <input type="radio" id="jane_present" name="jane_attendance" value="Present" required>
-                        <label for="jane_present">Present</label>
-                        <input type="radio" id="jane_absent" name="jane_attendance" value="Absent" required>
-                        <label for="jane_absent">Absent</label>
-                    </div>
+                  <label>
+                    <input
+                      type="radio"
+                      name="attendance_{{ record.student.id }}"
+                      value="Present"
+                      {% if record.present %}checked{% endif %}
+                    /> Present
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="attendance_{{ record.student.id }}"
+                      value="Absent"
+                      {% if not record.present %}checked{% endif %}
+                    /> Absent
+                  </label>
                 </td>
-            </tr>
-            <tr>
-                <td>Michael Brown</td>
-                <td>
-                    <div class="radio-group">
-                        <input type="radio" id="michael_present" name="michael_attendance" value="Present" required>
-                        <label for="michael_present">Present</label>
-                        <input type="radio" id="michael_absent" name="michael_attendance" value="Absent" required>
-                        <label for="michael_absent">Absent</label>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>Emily Johnson</td>
-                <td>
-                    <div class="radio-group">
-                        <input type="radio" id="emily_present" name="emily_attendance" value="Present" required>
-                        <label for="emily_present">Present</label>
-                        <input type="radio" id="emily_absent" name="emily_attendance" value="Absent" required>
-                        <label for="emily_absent">Absent</label>
-                    </div>
-                </td>
-            </tr>
+              </tr>
+              {% endfor %}
             </tbody>
-        </table>
+          </table>
 
-        <!-- Submit Button -->
-        <button type="submit" class="button">Submit Attendance</button>
-    </form>
-
-    <!-- Back Link to Dashboard -->
-    <div class="back-link">
-        <a href="dashboard.html">Back to Dashboard</a>
+          <!-- Submit Button to Update Attendance -->
+          <button type="submit" class="button" name="update_attendance">Update Attendance</button>
+        </form>
+        {% endif %}
+      </div>
     </div>
-</div>
-</div>
-
-</body>
+  </body>
 </html>

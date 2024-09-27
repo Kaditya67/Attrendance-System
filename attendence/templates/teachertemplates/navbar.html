@@ -108,12 +108,6 @@
                 <a class="nav-link {% if request.path == student_list_url %}active{% endif %}" href="{{ student_list_url }}">Student List</a>
             </li>
 
-            <!-- Leave Requests -->
-            {% url 'Leave_Requests' as leave_requests_url %}
-            <li class="nav-item">
-                <a class="nav-link {% if request.path == leave_requests_url %}active{% endif %}" href="{{ leave_requests_url }}">Leave Requests</a>
-            </li>
-
             <!-- Reports -->
             {% url 'Class_Report' as class_report_url %}
             <li class="nav-item">
