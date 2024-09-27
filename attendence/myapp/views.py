@@ -342,12 +342,12 @@ def Subject_Attendance_Details(request):
 # View for student dashboard
 def StudentDashBoard(request):
     # Logic for displaying student dashboard
-    return render(request, 'student_dashboard.html')
+    return render(request, 'StudentDashBoard.html')
 
 # View for principal dashboard
 def PrincipalDashboard(request):
     # Logic for displaying principal dashboard
-    return render(request, 'principal_dashboard.html')
+    return render(request, 'PrincipalDashboard.html')
 
 # View for HOD dashboard
 def HOD_Dashboard(request):
