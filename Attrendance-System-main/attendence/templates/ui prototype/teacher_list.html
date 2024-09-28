@@ -11,7 +11,7 @@
         /* Global Styles */
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f9f9f9; /* Softer background */
+            background-color: #f9f7ef; /* Light Cream background */
             margin: 0;
             padding: 20px;
             color: #333;
@@ -29,7 +29,7 @@
 
         /* Header Styles */
         h2 {
-            color: #2c3e50;
+            color: #4B5D40; /* Dark Greenish-Gray */
             text-align: center; /* Centered header */
             margin-bottom: 20px;
         }
@@ -48,18 +48,18 @@
         }
 
         th {
-            background-color: #3498db; /* Blue background for header */
+            background-color: #4B5D40; /* Dark Greenish-Gray for header */
             color: white; /* White text for header */
         }
 
         tr:hover {
-            background-color: #f1f1f1; /* Highlight row on hover */
+            background-color: #D3C99E; /* Muted Yellow for row hover effect */
         }
 
         /* Action Links Styles */
         a {
             text-decoration: none; /* Remove underline */
-            color: #3498db; /* Blue color for links */
+            color: #4B5D40; /* Dark Greenish-Gray for links */
             padding: 5px 10px;
             border: 1px solid transparent; /* Border for links */
             border-radius: 5px; /* Rounded corners for links */
@@ -67,8 +67,9 @@
         }
 
         a:hover {
-            background-color: #e0f7fa; /* Light blue background on hover */
-            border-color: #3498db; /* Blue border on hover */
+            background-color: #AABD8C; /* Pale Green for link hover effect */
+            border-color: #4B5D40; /* Dark Greenish-Gray border on hover */
+            color: white; /* Change text color to white on hover */
         }
 
         /* Responsive Styles */
@@ -108,12 +109,11 @@
             {% empty %}
             <tr>
                 <td colspan="2">No teachers found.</td>
-                <td colspa="1"><a href="{% url 'add_teacher'%}">Add Teacher</a></td>
+                <td colspan="1"><a href="{% url 'add_teacher' %}">Add Teacher</a></td>
                 <!-- Message when no teachers exist -->
             </tr>
             {% endfor %}
         </tbody>
-        
     </table>
 </div>
 

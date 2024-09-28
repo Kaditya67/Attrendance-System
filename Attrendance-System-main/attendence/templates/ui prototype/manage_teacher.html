@@ -1,39 +1,100 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if pk %}Update{% else %}Add{% endif %} Teacher</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Link to your CSS file -->
-   
-</head>
-<body>
-    <div class="container">
-        <h1>{% if pk %}Update Teacher{% else %}Add Teacher{% endif %}</h1>
-    
-        <form class="course-form" method="POST">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-            
-            {% for field in form %}
-                <div class="form-group">
-                    {{ field.label_tag }}
-                    {{ field }} <!-- Render field directly; consider adding classes in forms.py -->
-                    {% for error in field.errors %}
-                        <div class="error" style="color: red;">{{ error }}</div> <!-- Style errors as needed -->
-                    {% endfor %}
-                </div>
-            {% endfor %}
-            
-            <div class="button-group">
-                <button type="submit" class="btn btn-primary">Submit</button>
-                {% if pk %}
-                <button type="button" class="btn btn-danger" onclick="location.href='{% url 'delete_teacher' pk=pk %}'">Delete</button>
-                {% endif %}
-                <a href="{% url 'teacher_list' %}" class="btn btn-secondary">Cancel</a>
-            </div>
-        </form>
+{% extends "baseregister.html" %}
+{% block title %}Manage Teachers{% endblock title %}
+{% block content %}
+    <div class="background">
+        <div class="shape"></div>
+        <div class="shape"></div>
     </div>
-</body>
-</html>
+    <div class="container">
+        <div class="form-container">
+            <h1 class="text-center mb-4">Manage Teachers</h1>
+
+            <form method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+
+                <!-- Teacher Information Section -->
+                <div class="form-section">
+                    <h2>Teacher Information</h2>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="user" class="form-label">User</label>
+                            {{ form.user }}  <!-- Render user field -->
+                            {% for error in form.user.errors %}
+                                <div class="error" style="color: red;">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="department" class="form-label">Department</label>
+                            {{ form.department }}  <!-- Render department field -->
+                            {% for error in form.department.errors %}
+                                <div class="error" style="color: red;">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="courses_taught" class="form-label">Courses Taught</label>
+                            {{ form.courses_taught }}  <!-- Render courses taught field -->
+                            {% for error in form.courses_taught.errors %}
+                                <div class="error" style="color: red;">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="faculty_id" class="form-label">Faculty ID</label>
+                            {{ form.faculty_id }}  <!-- Render faculty ID field -->
+                            {% for error in form.faculty_id.errors %}
+                                <div class="error" style="color: red;">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Details Section -->
+                <div class="form-section">
+                    <h2>Additional Details</h2>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="mobile_number" class="form-label">Mobile Number</label>
+                            {{ form.mobile_no }}  <!-- Render mobile number field -->
+                            {% for error in form.mobile_number.errors %}
+                                <div class="error" style="color: red;">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            {{ form.email }}  <!-- Render email field -->
+                            {% for error in form.email.errors %}
+                                <div class="error" style="color: red;">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="experience" class="form-label">Experience</label>
+                            {{ form.experience }}  <!-- Render experience field -->
+                            {% for error in form.experience.errors %}
+                                <div class="error" style="color: red;">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions Section -->
+                <div class="form-section">
+                    <h2>Actions</h2>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    {% if pk %}
+                        <button type="button" class="btn btn-danger" id="deleteTeacherButton">Delete Teacher</button>
+                    {% endif %}
+                    <br><br><a href="{% url 'teacher_list' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+
+            <!-- Display Messages -->
+            {% if messages %}
+            <ul class="messages mt-4">
+                {% for message in messages %}
+                    <li class="alert alert-{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}
