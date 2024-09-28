@@ -1,0 +1,22 @@
+<!-- templates/lab_detail.html -->
+<h1>Lab Details for {{ lab.name }}</h1>
+<p>Course Code: {{ lab.code }}</p>
+<p>Index: {{ lab.index }}</p>
+<p>Semester: {{ lab.semester }}</p>
+
+<h2>Batch</h2>
+<ul>
+    {% for batch in batches %}
+        <li>
+            {{ batch.get_batch_options|join:',' }}
+            <!-- Optionally, you can add a delete link or any action you want -->
+            <br><br>
+            <a href="{% url 'delete_batch' batch.id %}">Delete</a>  <!-- Assuming you have a delete_batch view -->
+        </li>
+    {% empty %}
+        <li>No batches added for this lab yet.</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'add_batches' lab.id %}">Update Batch</a>  <!-- Link to add batches -->
+<a href="{% url 'lab_dashboard' %}">Back to Labs List</a>  <!-- Link to return to the labs list -->

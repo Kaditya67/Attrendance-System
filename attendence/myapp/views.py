@@ -31,6 +31,137 @@ from django.contrib import messages
 from .models import Teacher, Attendance, Course
 from django.db.models import Max
 
+
+
+# views.py
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Labs, Batches
+
+def add_batches(request, lab_id):
+    lab = get_object_or_404(Labs, id=lab_id)
+    batch_instance, created = Batches.objects.get_or_create(lab=lab)
+    
+    if request.method == 'POST':
+        batch_input = request.POST.get('batch_options')  # Example: "a,b,c"
+        batch_list = [batch.strip() for batch in batch_input.split(',')]  # Split by commas
+        batch_instance.set_batch_options(batch_list)
+        return redirect('lab_detail', lab_id=lab.id)
+
+    context = {
+        'lab': lab,
+        'batch_options': batch_instance.get_batch_options(),  # Retrieve the current batch options
+    }
+    return render(request, 'add_batches.html', context)
+
+
+# View to delete batches from a lab
+def delete_batch(request, batch_id):
+    batch = get_object_or_404(Batches, id=batch_id)
+    lab_id = batch.lab.id
+    batch.delete()
+    return redirect('lab_detail', lab_id=lab_id)
+
+
+# views.py
+
+from .models import Student, Batches
+
+def assign_batches_to_students(request, lab_id):
+    lab = get_object_or_404(Labs, id=lab_id)
+    students = Student.objects.filter(semester=lab.semester)
+    batches = Batches.objects.filter(lab=lab)
+
+    if request.method == 'POST':
+        batch_assignments = request.POST.getlist('batch_assignments')  # Get batch assignments from form
+
+        # Assign batches to students based on index
+        for i, student_id in enumerate(request.POST.getlist('student_ids')):
+            student = Student.objects.get(id=student_id)
+            batch_name = batch_assignments[i]
+            student.assign_batch(lab.index, batch_name)
+
+        return redirect('lab_detail', lab_id=lab.id)
+
+    return render(request, 'assign_batches.html', {
+        'lab': lab,
+        'students': students,
+        'batches': batches
+    })
+
+import json
+
+def select_batch_and_students(request, lab_id):
+    lab = get_object_or_404(Labs, id=lab_id)
+    batch_obj = lab.batches.first()  # Get the first batch object associated with the lab
+
+    # Parse the batch options into a list
+    if batch_obj:
+        batch_options = json.loads(batch_obj.batch_options)  # Parse JSON string to list
+    else:
+        batch_options = []
+
+    students = Student.objects.filter(semester=lab.semester)  # Filter students based on lab semester
+
+    if request.method == 'POST':
+        selected_batch = request.POST.get('batch')
+        student_ids = request.POST.getlist('students')  # Get the list of selected student IDs
+
+        for student_id in student_ids:
+            student = get_object_or_404(Student, id=student_id)
+            student.assign_batch(lab.index, selected_batch)  # Assign batch based on lab index
+
+        return redirect('some_success_url')  # Redirect after successful assignment
+
+    return render(request, 'select_batch.html', {'lab': lab, 'batch_options': batch_options, 'students': students})
+
+
+
+from django.shortcuts import render
+from .models import Labs, Batches
+
+@login_required
+def lab_dashboard(request):
+        # Get the logged-in teacher
+    teacher = get_object_or_404(Teacher, user=request.user)
+    labs = teacher.assigned_labs.all()
+    print(f"Assigned Labs: {labs}")
+
+    lab_data = []
+
+    for lab in labs:
+        lab_data.append({
+            'lab_id': lab.id,
+            'lab_name': lab.name,
+            'lab_semester': lab.semester,
+            'lab_index': lab.index,
+        })
+    print(f"Lab Data: {lab_data}")
+
+    context = {
+        'lab': lab_data,
+        'labs': labs,  # Include all labs for navbar display
+    }
+    return render(request, 'lab_dashboard.html', context)
+
+
+# views.py
+
+from django.shortcuts import render, get_object_or_404
+from .models import Labs, Batches
+
+def lab_detail(request, lab_id):
+    lab = get_object_or_404(Labs, id=lab_id)
+    batches = lab.batches.all()  # Get all batches for the lab
+
+    context = {
+        'lab': lab,
+        'batches': batches,
+    }
+    return render(request, 'lab_detail.html', context)
+
+
+
 @login_required
 def update_Attendance(request):
     teacher = get_object_or_404(Teacher, user=request.user)
@@ -401,9 +532,13 @@ def ClassDashboard(request):
     return render(request, 'ClassDashboard.html')
 
 # View for class report
+from django.contrib import messages
+from django.shortcuts import render, get_object_or_404
+from .models import Labs, Teacher  # Adjust based on your app's structure
+from django.contrib.auth.decorators import login_required
+
 @login_required
 def Class_Report(request):
-    # Logic for generating class report
     return render(request, 'teachertemplates/class_report.html')
 
 
@@ -569,6 +704,8 @@ def login_view(request):
 
     return render(request, 'admin/login.html', {'form': form})
 
+def forget_password(request):
+    return render(request, 'admin/forgot_password.html')
 def logout_view(request):
     auth_logout(request)
     return redirect('login')

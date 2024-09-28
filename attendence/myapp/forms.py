@@ -9,6 +9,33 @@ from django.contrib.auth import authenticate
 from django import forms
 from .models import Attendance
 
+# forms.py
+# forms.py
+
+from django import forms
+from .models import Student
+
+class AssignBatchForm(forms.Form):
+    student = forms.ModelChoiceField(queryset=Student.objects.all(), label="Select Student")
+    batch = forms.ChoiceField(choices=[('a', 'Batch A'), ('b', 'Batch B'), ('c', 'Batch C'), ('d', 'Batch D')],
+                               label="Select Batch")
+
+
+
+from django import forms
+
+
+class BatchForm(forms.Form):
+    batch_names = forms.CharField(
+        label='Batch Names',
+        help_text='Enter batch names separated by commas (e.g., a,b,c)'
+    )
+
+    def clean_batch_names(self):
+        batch_names = self.cleaned_data['batch_names'].split(',')
+        return [name.strip() for name in batch_names]
+
+
 class AttendanceForm(forms.ModelForm):
     class Meta:
         model = Attendance

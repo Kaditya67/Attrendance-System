@@ -1,0 +1,33 @@
+<!-- templates/lab_dashboard.html -->
+
+<h1>Lab Management Dashboard</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Lab</th>
+            <th>Semester</th>
+            <th>Index</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for lab in labs %}
+        <tr>
+            <td>{{ lab.name }} ({{ lab.code }})</td>
+            <td>{{ lab.semester }}</td>
+            <td>{{ lab.index }}</td>
+            <td>
+                <!-- Link to add batches -->
+                <a href="{% url 'add_batches' lab.id %}">Add/Update Batch</a> |
+
+                <!-- Link to assign batches to students -->
+                <a href="{% url 'assign_batches' lab.id %}">Assign Batches to Students</a> |
+
+                <!-- List and delete existing batches -->
+                <a href="{% url 'lab_detail' lab.id %}">View Batches</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

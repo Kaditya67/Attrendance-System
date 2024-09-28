@@ -1,0 +1,11 @@
+<!-- templates/add_batches.html -->
+<h1>Add Batches for {{ lab.name }}</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    <label for="batch_options">Enter Batches (separate by commas):</label>
+    <input type="text" name="batch_options" id="batch_options" placeholder="e.g., a,b,c" required value="{{ batch_options|join:',' }}">
+    <button type="submit">Save Batches</button>
+</form>
+
+<a href="{% url 'lab_detail' lab.id %}">Back to Lab Details</a>

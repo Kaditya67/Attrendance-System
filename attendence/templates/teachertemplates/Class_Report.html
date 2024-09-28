@@ -71,6 +71,15 @@
         <!-- Navbar -->
     {% include 'teachertemplates/navbar.html' %}
 <div class="content">
+
+    {% if messages %}
+        <div class="alert alert-warning">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
 <div class="container">
     <h1>Common Summary Attendance Dashboard</h1>
 

@@ -1,0 +1,28 @@
+<form method="post">
+    {% csrf_token %}
+    <h2>Assign Batches to Students for {{ lab.name }}</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Batch</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.user.first_name }} {{ student.user.last_name }}</td>
+                <td>
+                    <select name="batch_{{ student.id }}" required>
+                        <option value="">Select Batch</option>
+                        {% for batch in batch_options %}
+                        <option value="{{ batch }}">{{ batch }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit">Assign Batches</button>
+</form>

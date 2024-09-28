@@ -2,6 +2,13 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+
+    path('labs/', views.lab_dashboard, name='lab_dashboard'),
+    path('labs/<int:lab_id>/add_batches/', views.add_batches, name='add_batches'),
+    path('labs/<int:lab_id>/assign_batches/', views.assign_batches_to_students, name='assign_batches'),
+    path('labs/<int:lab_id>/select_batches/', views.select_batch_and_students, name='select_batches'),
+    path('labs/<int:lab_id>/', views.lab_detail, name='lab_detail'),
+    path('batches/<int:batch_id>/delete/', views.delete_batch, name='delete_batch'),
     #to do
     path('update_Attendance',views.update_Attendance,name='update_Attendance'), 
     path('fetch_students/', views.fetch_students, name='fetch_students'),
@@ -20,6 +27,7 @@ urlpatterns = [
     # Authentication
     path('', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('forget_password/', views.forget_password, name='forget_password'),
     
     # User Registration
     path('register/student/', views.register_student, name='register_student'),
