@@ -65,29 +65,32 @@ def delete_batch(request, batch_id):
 
 # views.py
 
-from .models import Student, Batches
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Labs, Batches, Student
+import json
 
 def assign_batches_to_students(request, lab_id):
     lab = get_object_or_404(Labs, id=lab_id)
-    students = Student.objects.filter(semester=lab.semester)
-    batches = Batches.objects.filter(lab=lab)
+    batch_obj = lab.batches.first()  # Get the first batch object associated with the lab
+
+    # Parse the batch options into a list
+    if batch_obj:
+        batch_options = json.loads(batch_obj.batch_options)  # Parse JSON string to list
+    else:
+        batch_options = []
+
+    students = Student.objects.filter(semester=lab.semester)  # Filter students based on lab semester
 
     if request.method == 'POST':
-        batch_assignments = request.POST.getlist('batch_assignments')  # Get batch assignments from form
+        for student in students:
+            selected_batch = request.POST.get(f'batch_{student.id}')  # Get batch for each student
+            student.assign_batch(lab.index, selected_batch)  # Assign batch based on lab index
 
-        # Assign batches to students based on index
-        for i, student_id in enumerate(request.POST.getlist('student_ids')):
-            student = Student.objects.get(id=student_id)
-            batch_name = batch_assignments[i]
-            student.assign_batch(lab.index, batch_name)
+        return redirect('labs')  # Redirect after successful assignment
 
-        return redirect('lab_detail', lab_id=lab.id)
+    return render(request, 'assign_batches.html', {'lab': lab, 'batch_options': batch_options, 'students': students})
 
-    return render(request, 'assign_batches.html', {
-        'lab': lab,
-        'students': students,
-        'batches': batches
-    })
+
 
 import json
 

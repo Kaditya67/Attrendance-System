@@ -1,11 +1,55 @@
-<!-- templates/add_batches.html -->
-<h1>Add Batches for {{ lab.name }}</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Batches for {{ lab.name }}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
 
-<form method="POST">
-    {% csrf_token %}
-    <label for="batch_options">Enter Batches (separate by commas):</label>
-    <input type="text" name="batch_options" id="batch_options" placeholder="e.g., a,b,c" required value="{{ batch_options|join:',' }}">
-    <button type="submit">Save Batches</button>
-</form>
+        h1 {
+            margin-bottom: 20px;
+        }
 
-<a href="{% url 'lab_detail' lab.id %}">Back to Lab Details</a>
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            margin-top: 10px;
+        }
+
+        .back-link {
+            margin-top: 20px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Add/Update Batches for {{ lab.name }}</h1>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="batch_options">Enter Batches (separate by commas):</label>
+                <input type="text" name="batch_options" id="batch_options" class="form-control" placeholder="e.g., a,b,c" required value="{{ batch_options|join:',' }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Save Batches</button>
+        </form>
+
+        <a href="{% url 'lab_detail' lab.id %}" class="btn btn-secondary back-link">Back to Lab Details</a>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

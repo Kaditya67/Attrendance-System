@@ -1,22 +1,65 @@
-<!-- templates/lab_detail.html -->
-<h1>Lab Details for {{ lab.name }}</h1>
-<p>Course Code: {{ lab.code }}</p>
-<p>Index: {{ lab.index }}</p>
-<p>Semester: {{ lab.semester }}</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Details for {{ lab.name }}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
 
-<h2>Batch</h2>
-<ul>
-    {% for batch in batches %}
-        <li>
-            {{ batch.get_batch_options|join:',' }}
-            <!-- Optionally, you can add a delete link or any action you want -->
-            <br><br>
-            <a href="{% url 'delete_batch' batch.id %}">Delete</a>  <!-- Assuming you have a delete_batch view -->
-        </li>
-    {% empty %}
-        <li>No batches added for this lab yet.</li>
-    {% endfor %}
-</ul>
+        h1 {
+            margin-bottom: 20px;
+        }
 
-<a href="{% url 'add_batches' lab.id %}">Update Batch</a>  <!-- Link to add batches -->
-<a href="{% url 'lab_dashboard' %}">Back to Labs List</a>  <!-- Link to return to the labs list -->
+        .batch-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .batch-item {
+            background-color: #e9ecef;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .btn {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lab Details for {{ lab.name }}</h1>
+        <p><strong>Course Code:</strong> {{ lab.code }}</p>
+        <p><strong>Semester:</strong> {{ lab.semester }}</p>
+
+        <h2>Batches</h2>
+        <ul class="batch-list">
+            {% for batch in batches %}
+                <li class="batch-item">
+                    {{ batch.get_batch_options|join:',' }}
+                    <br>
+                    <a href="{% url 'delete_batch' batch.id %}" class="btn btn-danger btn-sm">Delete</a>
+                </li>
+            {% empty %}
+                <li>No batches added for this lab yet.</li>
+            {% endfor %}
+        </ul>
+
+        <a href="{% url 'add_batches' lab.id %}" class="btn btn-primary">Update Batch</a>  <!-- Link to add batches -->
+        <a href="{% url 'lab_dashboard' %}" class="btn btn-secondary">Back to Labs List</a>  <!-- Link to return to the labs list -->
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
