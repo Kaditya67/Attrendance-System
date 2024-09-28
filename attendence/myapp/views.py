@@ -365,10 +365,28 @@ def Subject_Attendance_Details(request):
     return render(request, 'teachertemplates/Subject_Attedance_Details.html')
 
 # View for student dashboard
-def StudentDashBoard(request):
-    # Logic for displaying student dashboard
-    return render(request, 'StudentDashBoard.html')
+from django.db.models import Count
+def StudentDashBoard(request,student_id):
+    
+    student = get_object_or_404(Student, student_id=student_id)
 
+    attendance_summary = Attendance.objects.filter(student=student).values('course__name').annotate(
+        total_classes=Count('id'),
+        attended_classes=Count('id', filter=Q(present=True))
+    )
+    # Fetch other necessary data for the attendance records if needed
+    attendance_data = []
+    for record in attendance_summary:
+        total_classes = record['total_classes']
+        attended_classes = record['attended_classes']
+        attendance_percentage = (attended_classes / total_classes * 100) if total_classes > 0 else 0
+        record['attendance_percentage'] = attendance_percentage
+        attendance_data.append(record)
+
+    return render(request, 'StudentDashBoard.html', {
+        'student': student,
+        'attendance_summary': attendance_summary,
+    })
 # View for principal dashboard
 def PrincipalDashboard(request):
     # Logic for displaying principal dashboard

@@ -13,10 +13,12 @@
         }
 
         .container {
-            width: 80%;
+            width: 90%;
             margin: auto;
-            overflow: hidden;
+            padding: 20px;
+            margin-left: 250px; /* Leave space for sidebar */
         }
+
 
         h1 {
             text-align: center;
@@ -54,111 +56,43 @@
         }
 
         .chart-container {
-            width: 50%;
+            width: 30%;
             margin: 20px auto;
+            margin-bottom:50pxpx;
         }
     </style>
 </head>
 <body>
+    {%include 'sidebar.html' %}
 
-<div class="container">
-    <h1>Student Attendance Dashboard</h1>
-
-    <div class="chart-container">
-        <canvas id="attendanceChart"></canvas>
+    <div class="container">
+        <h1>{{ student.user.username }}'s Attendance Dashboard</h1>
+    
+        <div class="chart-container">
+            <canvas id="attendanceChart"></canvas>
+        </div>
+    
+        <table>
+            <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Classes Attended</th>
+                <th>Total Classes</th>
+                <th>Attendance Percentage</th>
+                <th>Details</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for record in attendance_summary %}
+            <tr class="{% if record.attendance_percentage < 50 %}red{% endif %}">
+                <td>{{ record.course__name }}</td>
+                <td>{{ record.attended_classes }}</td>
+                <td>{{ record.total_classes }}</td>
+                <td>{{ record.attendance_percentage|floatformat:2 }}%</td>
+                <td><a href="">View Details</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
-
-    <table>
-        <thead>
-        <tr>
-            <th>Subject</th>
-            <th>Classes Attended</th>
-            <th>Total Classes</th>
-            <th>Attendance Percentage</th>
-            <th>Details</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- Sample Data, Replace with Dynamic Data -->
-        <tr class="red">
-            <td><a href="SubjectDetails">Math</a></td>
-            <td>15</td>
-            <td>40</td>
-            <td>37.5%</td>
-            <td><a href="SubjectDetails">View Details</a></td>
-        </tr>
-        <tr>
-            <td><a href="SubjectDetails">Science</a></td>
-            <td>35</td>
-            <td>40</td>
-            <td>87.5%</td>
-            <td><a href="SubjectDetails">View Details</a></td>
-        </tr>
-        <tr>
-            <td><a href="SubjectDetails">English</a></td>
-            <td>18</td>
-            <td>40</td>
-            <td>45%</td>
-            <td><a href="SubjectDetails">View Details</a></td>
-        </tr>
-        <tr>
-            <td><a href="SubjectDetails">History</a></td>
-            <td>30</td>
-            <td>40</td>
-            <td>75%</td>
-            <td><a href="SubjectDetails">View Details</a></td>
-        </tr>
-        </tbody>
-    </table>
-</div>
-
-<!-- Chart.js Library -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-    // Function to calculate overall attendance
-    const totalClasses = 160; // Sum of total classes for all subjects
-    const attendedClasses = 98; // Sum of attended classes for all subjects
-    const missedClasses = totalClasses - attendedClasses;
-
-    // Data for the pie chart
-    const attendanceData = {
-        labels: ['Attended', 'Missed'],
-        datasets: [{
-            label: 'Attendance',
-            data: [attendedClasses, missedClasses],
-            backgroundColor: ['#76c7c0', '#ff9999'], // Colors for attended and missed
-            borderColor: ['#fff', '#fff'],
-            borderWidth: 1
-        }]
-    };
-
-    // Config for the pie chart
-    const config = {
-        type: 'pie',
-        data: attendanceData,
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            let percentage = tooltipItem.raw / totalClasses * 100;
-                            return `${tooltipItem.label}: ${percentage.toFixed(2)}%`;
-                        }
-                    }
-                }
-            }
-        }
-    };
-
-    // Render the pie chart
-    const ctx = document.getElementById('attendanceChart').getContext('2d');
-    const attendanceChart = new Chart(ctx, config);
-</script>
-
-</body>
-</html>
+    
