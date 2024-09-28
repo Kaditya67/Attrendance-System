@@ -9,7 +9,15 @@ from django.contrib.auth import authenticate
 from django import forms
 from .models import Attendance
 
-# forms.py
+
+from django import forms
+from .models import Teacher
+
+class TeacherUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Teacher
+        fields = ['courses_taught', 'mobile_no', 'email', 'experience']  # Excluded faculty_id and department
+
 # forms.py
 
 from django import forms

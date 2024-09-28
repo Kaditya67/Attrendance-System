@@ -247,6 +247,29 @@ from django.contrib.auth.decorators import login_required
 from collections import defaultdict
 from .models import Teacher, Course, Attendance
 
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Teacher
+from .forms import TeacherUpdateForm
+
+def update_teacher(request, teacher_id):
+    teacher = get_object_or_404(Teacher, id=teacher_id)
+    
+    if request.method == 'POST':
+        form = TeacherUpdateForm(request.POST, instance=teacher)
+        if form.is_valid():
+            form.save()
+            return redirect('Teacher_dashboard')  # Change this to your success URL
+    else:
+        form = TeacherUpdateForm(instance=teacher)
+
+    context = {
+        'form': form,
+        'teacher': teacher
+    }
+    return render(request, 'teachertemplates/update_teacher.html', context)
+
+
+
 @login_required
 def view_attendance(request):
     teacher = get_object_or_404(Teacher, user=request.user)
@@ -284,6 +307,7 @@ def view_attendance(request):
         'courses': courses,
         'attendance_summary': attendance_summary,
         'selected_course': selected_course,
+        'teacher': teacher
     }
     return render(request, 'teachertemplates/view_attendance.html', context)
 
@@ -433,6 +457,7 @@ def select_course_lecture(request):
             'lecture_numbers': lecture_numbers,
             'selected_course': course,
             'selected_date': date,
+            'teacher': teacher
         }
 
         # Redirect to edit attendance page after selecting the course and lecture
@@ -442,7 +467,7 @@ def select_course_lecture(request):
         
         return render(request, 'teachertemplates/select_lecture.html', context)
 
-    context = {'courses': courses}
+    context = {'courses': courses, 'teacher': teacher}
     return render(request, 'teachertemplates/select_lecture.html', context)
 
 
@@ -484,6 +509,7 @@ def edit_attendance(request, subject_id, date, lecture_number):
         'selected_course': course,
         'selected_date': date,
         'lecture_number': lecture_number,
+        'teacher': teacher
     }
 
     return render(request, 'teachertemplates/edit_attendance.html', context)
@@ -523,6 +549,7 @@ def Add_Attendance(request):
     context = {
         'course_data': course_data,
         'lab_batches': lab_batches,
+        'teacher': teacher
     }
 
     return render(request, 'teachertemplates/add_attendance.html', context)
@@ -665,7 +692,9 @@ def SubjectDetails(request):
 # View for subject attendance details
 @login_required
 def Subject_Attendance_Details(request):
-    return render(request, 'teachertemplates/Subject_Attedance_Details.html')
+    teacher = get_object_or_404(Teacher, user=request.user)
+
+    return render(request, 'teachertemplates/Subject_Attedance_Details.html', {'teacher': teacher})
 
 # View for student dashboard
 def StudentDashBoard(request):
@@ -711,7 +740,9 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def Class_Report(request):
-    return render(request, 'teachertemplates/class_report.html')
+    teacher = get_object_or_404(Teacher, user=request.user)
+
+    return render(request, 'teachertemplates/class_report.html', {'teacher': teacher})
 
 
 

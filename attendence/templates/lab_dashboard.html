@@ -10,7 +10,6 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f8f9fa;
-            padding: 20px;
         }
         .table th, .table td {
             vertical-align: middle;
@@ -29,9 +28,15 @@
         .dashboard-header h1 {
             margin: 0;
         }
+
+        .navbar-nav .nav-link{
+            padding-left: 20px;
+        }
     </style>
 </head>
 <body>
+        {% include 'teachertemplates/navbar.html' %}
+    <div class="content">
     <div class="container">
         <div class="dashboard-header">
             <h1>Lab Management Dashboard</h1>
@@ -72,6 +77,8 @@
     <div class="container">
         <a href="{% url 'Teacher_dashboard' %}" class="btn btn-primary btn-lg">Back to Teacher Dashboard</a>    
     </div>
+    </div>
+
 
     <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
