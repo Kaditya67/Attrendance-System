@@ -1,0 +1,253 @@
+<div class="sidebar" id="sidebar">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            background-color: #EAEAEA; /* Light Gray Background */
+        }
+    
+        .sidebar {
+            min-width: 250px;
+            max-width: 250px;
+            background-color: #2B2B2B; /* Dark Charcoal Sidebar */
+            padding-top: 20px;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            transition: transform 0.3s ease; /* Smooth transition */
+            transform: translateX(0); /* Sidebar visible by default */
+        }
+    
+        .sidebar.hidden {
+            transform: translateX(-100%); /* Hide sidebar */
+        }
+    
+        .sidebar a {
+            font-weight: bold;
+            color: #B3B3B3; /* Medium Gray Text */
+            display: block;
+            padding: 10px 20px;
+            text-decoration: none;
+            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease; /* Added box-shadow transition */
+            border-radius: 5px; /* Rounded corners */
+        }
+    
+        .sidebar a.active,
+        .sidebar a:hover {
+            background-color: #0fd7e0; /* Cyan for Active/Hover */
+            color: #ffffff; /* White Text on Hover */
+            box-shadow: 0 0 15px rgba(15, 215, 224, 0.8); /* Glow effect */
+        }
+    
+        .content {
+            margin-left: 250px; /* Same width as sidebar */
+            padding: 20px;
+            width: 100%;
+            transition: margin-left 0.3s ease; /* Smooth transition for content */
+        }
+    
+        .content.shifted {
+            margin-left: 0; /* Shift content to full width when sidebar is hidden */
+        }
+    
+        .sidebar .navbar-brand {
+            color: #ffffff; /* White for branding */
+            font-size: 1.2rem; /* Increased font size */
+            margin-bottom: 30px;
+            display: block;
+            padding-left: 20px;
+            font-weight: bold; /* Bold branding */
+        }
+    
+        .dropdown-container {
+            display: none;
+            padding-left: 30px;
+        }
+    
+        .dropdown-container a {
+            font-weight: normal;
+            color: #B3B3B3; /* Same gray for dropdown items */
+            padding: 8px 20px; /* Consistent padding */
+            border-radius: 5px; /* Rounded corners */
+            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease; /* Added box-shadow transition */
+        }
+    
+        .dropdown-container a.active,
+        .dropdown-container a:hover {
+            background-color: #0fd7e0; /* Cyan for Active/Hover in dropdown */
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(15, 215, 224, 0.6); /* Glow effect for dropdown */
+        }
+    
+        .sidebar ul.navbar-nav {
+            padding-left: 0;
+            list-style: none;
+        }
+    
+        .sidebar ul.navbar-nav .nav-item {
+            padding-bottom: 5px;
+        }
+    
+        /* Button to toggle sidebar */
+        .toggle-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #0fd7e0; /* Cyan Button */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            z-index: 1000; /* Above sidebar */
+            font-weight: bold; /* Bold button text */
+            transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease; /* Transition effects */
+        }
+    
+        .toggle-button:hover {
+            background-color: #0c9ba2; /* Darker Cyan on Hover */
+            box-shadow: 0 0 15px rgba(15, 215, 224, 0.8); /* Glow effect on hover */
+        }
+    </style>
+    
+
+    <a class="navbar-brand" href="#">Attendance System</a>
+    <ul class="navbar-nav">
+
+        <!-- Dashboard -->
+        {% url 'Teacher_dashboard' as dashboard_url %}
+        <li class="nav-item">
+            <a class="nav-link {% if request.path == dashboard_url %}active{% endif %}" href="{{ dashboard_url }}">Dashboard</a>
+        </li>
+
+        <!-- Attendance Dropdown Trigger -->
+        <li class="nav-item">
+            <a class="nav-link" href="#" id="attendanceToggle">Attendance</a>
+            <div class="dropdown-container" id="attendanceDropdown">
+                {% url 'Add_Attendance' as add_attendance_url %}
+                {% url 'update_Attendance' as update_attendance_url %}
+                <a class="nav-link {% if request.path == add_attendance_url %}active{% endif %}" href="{{ add_attendance_url }}">Add Attendance</a>
+                <a class="nav-link {% if request.path == update_attendance_url %}active{% endif %}" href="{{ update_attendance_url }}">Update Attendance</a>
+            </div>
+        </li>
+
+        <!-- Subject Dropdown Trigger -->
+        <li class="nav-item">
+            <a class="nav-link" href="#" id="subjectToggle">Subject</a>
+            <div class="dropdown-container" id="subjectDropdown">
+                {% url 'Add_Subject' as add_subject_url %}
+                {% url 'Update_Subject' as update_subject_url %}
+                <a class="nav-link {% if request.path == add_subject_url %}active{% endif %}" href="{{ add_subject_url }}">Add Subject</a>
+                <a class="nav-link {% if request.path == update_subject_url %}active{% endif %}" href="{{ update_subject_url }}">Update Subject</a>
+            </div>
+        </li>
+
+        <!-- Staff Dropdown Trigger -->
+        <li class="nav-item">
+            <a class="nav-link" href="#" id="staffToggle">Staff</a>
+            <div class="dropdown-container" id="staffDropdown">
+                {% url 'Add_Staff' as add_staff_url %}
+                {% url 'Update_Staff' as update_staff_url %}
+                <a class="nav-link {% if request.path == add_staff_url %}active{% endif %}" href="{{ add_staff_url }}">Add Staff</a>
+                <a class="nav-link {% if request.path == update_staff_url %}active{% endif %}" href="{{ update_staff_url }}">Update Staff</a>
+            </div>
+        </li>
+
+        <!-- Course Dropdown Trigger -->
+        <li class="nav-item">
+            <a class="nav-link" href="#" id="courseToggle">Course</a>
+            <div class="dropdown-container" id="courseDropdown">
+                {% url 'Add_Course' as add_course_url %}
+                {% url 'Update_Course' as update_course_url %}
+                <a class="nav-link {% if request.path == add_course_url %}active{% endif %}" href="{{ add_course_url }}">Add Course</a>
+                <a class="nav-link {% if request.path == update_course_url %}active{% endif %}" href="{{ update_course_url }}">Update Course</a>
+            </div>
+        </li>
+
+
+        <!-- Leave Requests Dropdown Trigger -->
+        <li class="nav-item">
+            <a class="nav-link" href="#" id="leaveRequestsToggle">Leave Requests</a>
+            <div class="dropdown-container" id="leaveRequestsDropdown">
+                {% url 'View_Leave_Requests' as view_leave_requests_url %}
+                {% url 'Approve_Leave_Request' as approve_leave_request_url %}
+                <a class="nav-link {% if request.path == view_leave_requests_url %}active{% endif %}" href="{{ view_leave_requests_url }}">View Leave Requests</a>
+                <a class="nav-link {% if request.path == approve_leave_request_url %}active{% endif %}" href="{{ approve_leave_request_url }}">Approve Leave Request</a>
+            </div>
+        </li>
+
+        <!-- Reports Dropdown Trigger -->
+        <li class="nav-item">
+            <a class="nav-link" href="#" id="reportsToggle">Reports</a>
+            <div class="dropdown-container" id="reportsDropdown">
+                {% url 'Generate_Report' as generate_report_url %}
+                <a class="nav-link {% if request.path == generate_report_url %}active{% endif %}" href="{{ generate_report_url }}">Generate Report</a>
+            </div>
+        </li>
+
+        <!-- Profile -->
+        {% url 'Teacher_Profile' as profile_url %}
+        <li class="nav-item">
+            <a class="nav-link {% if request.path == profile_url %}active{% endif %}" href="{{ profile_url }}">Profile</a>
+        </li>
+
+        <!-- Logout -->
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+        </li>
+
+    </ul>
+</div>
+
+<script>
+    // JavaScript for sidebar toggle functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const attendanceToggle = document.getElementById('attendanceToggle');
+        const attendanceDropdown = document.getElementById('attendanceDropdown');
+        const subjectToggle = document.getElementById('subjectToggle');
+        const subjectDropdown = document.getElementById('subjectDropdown');
+        const staffToggle = document.getElementById('staffToggle');
+        const staffDropdown = document.getElementById('staffDropdown');
+        const courseToggle = document.getElementById('courseToggle');
+        const courseDropdown = document.getElementById('courseDropdown');
+        const leaveRequestsToggle = document.getElementById('leaveRequestsToggle');
+        const leaveRequestsDropdown = document.getElementById('leaveRequestsDropdown');
+        const reportsToggle = document.getElementById('reportsToggle');
+        const reportsDropdown = document.getElementById('reportsDropdown');
+        const sidebar = document.getElementById('sidebar');
+        const toggleButton = document.getElementById('toggleButton');
+        const content = document.querySelector('.content');
+
+        attendanceToggle.addEventListener('click', function() {
+            attendanceDropdown.style.display = attendanceDropdown.style.display === 'none' ? 'block' : 'none';
+        });
+
+        subjectToggle.addEventListener('click', function() {
+            subjectDropdown.style.display = subjectDropdown.style.display === 'none' ? 'block' : 'none';
+        });
+
+        staffToggle.addEventListener('click', function() {
+            staffDropdown.style.display = staffDropdown.style.display === 'none' ? 'block' : 'none';
+        });
+
+        courseToggle.addEventListener('click', function() {
+            courseDropdown.style.display = courseDropdown.style.display === 'none' ? 'block' : 'none';
+        });
+
+        leaveRequestsToggle.addEventListener('click', function() {
+            leaveRequestsDropdown.style.display = leaveRequestsDropdown.style.display === 'none' ? 'block' : 'none';
+        });
+
+        reportsToggle.addEventListener('click', function() {
+            reportsDropdown.style.display = reportsDropdown.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Toggle sidebar on button click
+        toggleButton.addEventListener('click', function() {
+            sidebar.classList.toggle('hidden');
+            content.classList.toggle('shifted');
+        });
+    });
+</script>

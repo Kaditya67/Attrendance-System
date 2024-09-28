@@ -27,15 +27,12 @@ SECRET_KEY = 'django-insecure-tkaxid4da5@lv!nqee55vo+amr3d6=iwy-w0ak4*w(vxtay4rg
 DEBUG = True
 
 ALLOWED_HOSTS = []
-<<<<<<< HEAD
 
 LOGIN_URL = '/login/'
 # LOGIN_REDIRECT_URL = '/logout' 
-=======
 LOGIN_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
->>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
 
 # Application definition
 
@@ -117,11 +114,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'  # Change to your local time zone
+USE_TZ = True 
 
 USE_I18N = True
-
-USE_TZ = True
 
 AUTH_USER_MODEL = 'auth.User'
 

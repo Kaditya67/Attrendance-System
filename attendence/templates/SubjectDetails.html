@@ -13,9 +13,10 @@
         }
 
         .container {
-            width: 80%;
+            width: 90%;
             margin: auto;
-            overflow: hidden;
+            padding: 20px;
+            margin-left: 250px; /* Leave space for sidebar */
         }
 
         h1 {
@@ -64,6 +65,8 @@
     </style>
 </head>
 <body>
+
+    {%include 'sidebar.html' %}
 
 <div class="container">
     <h1 id="subject-title">Subject Name</h1>

@@ -106,3 +106,112 @@
 
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #F9F7EF; /* Light Cream */
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .container {
+            margin-top: 30px;
+        }
+
+        h1, h2 {
+            color: #333333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            margin: 25px 0;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        table th {
+            background-color: #AABD8C;
+            color: white;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #F9F7EF;
+        }
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Subject Details</h1>
+    <div id="subject-name">
+        <!-- Subject name will be dynamically inserted here -->
+    </div>
+
+    <!-- Detailed Attendance Table -->
+    <h2>Detailed Attendance</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody id="attendance-details">
+            <!-- Details will be dynamically inserted here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Get query parameter for subject name
+    const urlParams = new URLSearchParams(window.location.search);
+    const subject = urlParams.get('subject');
+
+    // Display subject name
+    document.getElementById('subject-name').innerHTML = `<h2>Details for ${subject}</h2>`;
+
+    // Sample data, replace with dynamic data
+    const attendanceDetails = [
+        { date: '2024-09-01', status: 'Present' },
+        { date: '2024-09-02', status: 'Absent' },
+        { date: '2024-09-03', status: 'Present' },
+        // Add more records as needed
+    ];
+
+    // Populate table with data
+    const tableBody = document.getElementById('attendance-details');
+    attendanceDetails.forEach(detail => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${detail.date}</td><td>${detail.status}</td>`;
+        tableBody.appendChild(row);
+    });
+</script>
+
+</body>
+</html>
