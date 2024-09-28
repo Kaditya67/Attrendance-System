@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Attendance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .error-message {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Create Attendance for {{ teacher.user.username }}</h1>
+
+    {% if course_data %}
+    <h2>Attendance for {{ teacher.user.username }}</h2>
+    
+    {% for course_info in course_data %}
+        <h3>Course: {{ course_info.course.name }}</h3>
+        <p>Semester: {{ course_info.semester }}</p>
+        
+        {% if course_info.students %}
+            <h4>Students in this Semester:</h4>
+            <ul>
+                {% for student in course_info.students %}
+                    <li>{{ student.user.username }} - {{ student.roll_number }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No students found for this semester.</p>
+        {% endif %}
+    {% endfor %}
+    
+    <!-- Add form here for marking attendance -->
+{% else %}
+    <p>No courses or students found for this teacher.</p>
+{% endif %}
+
+    
+</body>
+</html>

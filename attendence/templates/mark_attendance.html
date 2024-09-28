@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+        }
+        .card {
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .form-check-label {
+            margin-left: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+    </style>
+<<<<<<< HEAD
+=======
+    <script>
+        function toggleCheckboxes(source, className) {
+            const checkboxes = document.querySelectorAll(`.${className}`);
+            checkboxes.forEach((checkbox) => {
+                checkbox.checked = source.checked;
+            });
+        }
+    </script>
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h2 class="text-center mb-4">Mark Attendance</h2>
+            <form method="post">
+                {% csrf_token %}
+                
+<<<<<<< HEAD
+                <!-- Course Selection -->
+                <div class="form-group">
+                    {{ form.course.label_tag }}
+                    {{ form.course }}
+                </div>
+
+                <!-- Date Selection -->
+                <div class="form-group">
+                    {{ form.date.label_tag }}
+                    {{ form.date }}
+=======
+                <!-- Time Slot and Lab Batch -->
+                <div class="form-group">
+                    <label for="time_slot">Select Time Slot:</label>
+                    <select name="time_slot" id="time_slot" class="form-control">
+                        {% for value, display in time_slots %}
+                            <option value="{{ value }}">{{ display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="lab_batch">Select Lab Batch:</label>
+                    <select name="lab_batch" id="lab_batch" class="form-control">
+                        {% for batch in lab_batches %}
+                            <option value="{{ batch.id }}">{{ batch.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Checkboxes for All Present and All Absent -->
+                <div class="form-check">
+                    <input type="checkbox" id="all-present" class="form-check-input" onclick="toggleCheckboxes(this, 'attendance-checkbox')">
+                    <label class="form-check-label" for="all-present">All Present</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="all-absent" class="form-check-input" onclick="toggleCheckboxes(this, 'attendance-checkbox')">
+                    <label class="form-check-label" for="all-absent">All Absent</label>
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
+                </div>
+
+                <!-- Table of Students -->
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student Name</th>
+                            <th>Roll Number</th>
+                            <th>Attendance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+<<<<<<< HEAD
+                        {% for student in students %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ student.user.username }}</td>
+                                <td>{{ student.roll_number }}</td>
+                                <td>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" id="student-{{ student.id }}-present" name="student_{{ student.id }}" value="Present">
+                                        <label class="form-check-label" for="student-{{ student.id }}-present">Present</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" id="student-{{ student.id }}-absent" name="student_{{ student.id }}" value="Absent">
+                                        <label class="form-check-label" for="student-{{ student.id }}-absent">Absent</label>
+                                    </div>
+                                </td>
+                            </tr>
+=======
+                        {% for data in course_data %}
+                            {% for student in data.students %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ student.user.get_full_name }}</td>
+                                    <td>{{ student.roll_number }}</td>
+                                    <td>
+                                        <input type="checkbox" name="student_{{ student.id }}" value="Present" class="attendance-checkbox" style="width: 20px; height: 20px;">
+                                    </td>
+                                </tr>
+                            {% endfor %}
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!-- Submit button -->
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Submit Attendance</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

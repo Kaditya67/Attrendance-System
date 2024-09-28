@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Student Dashboard{% endblock title %}</title>
+    <style>
+        body {
+<<<<<<< HEAD
+            font-family: 'Poppins', sans-serif;
+            background-color: #F9F7EF; /* Softer background */
+=======
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5; /* Softer background */
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
+            color: #333333;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+<<<<<<< HEAD
+            background-color: #4B5D40; /* Darker blue */
+=======
+            background-color: #0062cc; /* Darker blue */
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
+            overflow: hidden;
+        }
+
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 15px 18px;
+            text-decoration: none;
+            font-size: 15px;
+        }
+
+        .navbar a:hover {
+            background-color: #004ba0; /* More distinct hover color */
+        }
+
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333333;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 20px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+
+        .openbtn {
+            font-size: 15px;
+            cursor: pointer;
+<<<<<<< HEAD
+            background-color: #4B5D40;
+=======
+            background-color: #0062cc;
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
+            color: white;
+            border: none;
+            padding: 10px 15px;
+        }
+
+        .openbtn:hover {
+            background-color: #004ba0;
+        }
+
+        .content {
+            transition: margin-left .5s;
+            padding: 20px;
+        }
+
+        h2 {
+            margin-top: 20px;
+            font-size: 24px;
+<<<<<<< HEAD
+            color: #333333; /* Darker blue for consistency */
+=======
+            color: #004ba0; /* Darker blue for consistency */
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 40px; 
+            padding-bottom: 10px;
+        }
+
+        select, input[type="text"], button {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            margin: 5px;
+        }
+
+        button {
+            background-color: #0062cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #004ba0;
+        }
+
+        table {
+            width: 90%;
+            margin: 25px auto;
+            border-collapse: collapse;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+<<<<<<< HEAD
+            background-color: #AABD8C; /* Consistent blue for header */
+=======
+            background-color: #004ba0; /* Consistent blue for header */
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        td {
+            font-size: 16px;
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        table caption {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            table {
+                width: 100%;
+            }
+
+            th, td {
+                font-size: 14px;
+            }
+        }
+
+        /* Metrics Container */
+        .metrics-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+<<<<<<< HEAD
+        /* Metrics Container */
+        .metrics-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        /* Metric Containers */
+        .metric-box {
+            width: 50%;
+            background-color: #F9F7EF; /* Light Cream */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #D3C99E; /* Muted Yellow */
+=======
+        /* Metric Containers */
+        .metric-box {
+            width: 50%;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 40px;
+        }
+
+        .metric-box:hover {
+<<<<<<< HEAD
+            background-color: #AABD8C; /* Pale Green */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .metric-box h3 {
+            color: #4B5D40; /* Dark Greenish-Gray */
+=======
+            background-color: #f1f9ff;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        .metric-box h3 {
+            color: #0062cc;
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
+            font-size: 20px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .metric-visualization {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .metric-box p {
+            font-size: 16px;
+<<<<<<< HEAD
+            color: #333333; /* Soft Black */
+        }
+=======
+            color: #555555;
+        }
+
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
+        .present {
+            background-color: #28a745; /* Bootstrap success green */
+            color: white;
+        }
+
+        .absent {
+            background-color: #dc3545; /* Bootstrap danger red */
+            color: white;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <a class="openbtn" onclick="openNav()">&#9776;</a>
+    <a href="{% url 'student_dashboard' %}">Home</a>
+<<<<<<< HEAD
+    <a href="#">Analytics</a>
+=======
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
+    <a href="{% url 'update_student' %}">Update Profile</a>
+    <a href="{% url 'logout' %}">Logout</a>
+</div>
+
+<!-- Sidebar -->
+<div id="mySidebar" class="sidebar">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    <a href="#">Menu</a>
+    <a href="#">Departments</a>
+    <a href="#">Settings</a>
+    <a href="#">Help</a>
+</div>
+
+<!-- Page Content -->
+<div class="content" id="mainContent">
+    {% block content %}
+    {% endblock %}
+</div>
+</body>
+</html>

@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">Welcome to your Dashboard</h1>
+
+    {% if department %}
+        <h2>Department: {{ department.name }}</h2>
+    {% endif %}
+
+    {% if teachers %}
+        <div class="section">
+            <h3>Teachers in Your Department</h3>
+            <ul class="list-group">
+                {% for teacher in teachers %}
+                    <li class="list-group-item">{{ teacher.first_name }} {{ teacher.last_name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if students %}
+        <div class="section">
+            <h3>Students in Your Department</h3>
+            <ul class="list-group">
+                {% for student in students %}
+                    <li class="list-group-item">{{ student.first_name }} {{ student.last_name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if courses %}
+        <div class="section">
+            <h3>Your Courses</h3>
+            <ul class="list-group">
+                {% for course in courses %}
+                    <li class="list-group-item">{{ course.name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <!-- Additional sections for different roles -->
+    {% if is_teacher %}
+        <div class="section">
+            <h3>Teacher Specific Section</h3>
+            <!-- Add content specific to teachers -->
+        </div>
+    {% elif is_hod %}
+        <div class="section">
+            <h3>HOD Specific Section</h3>
+            <!-- Add content specific to HODs -->
+        </div>
+    {% elif is_staff %}
+        <div class="section">
+            <h3>Staff Specific Section</h3>
+            <!-- Add content specific to staff -->
+        </div>
+    {% elif is_student %}
+        <div class="section">
+            <h3>Student Specific Section</h3>
+            <!-- Add content specific to students -->
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+
+{% comment %} {% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">Welcome to your Dashboard</h1>
+
+    {% if department %}
+        <h2>Department: {{ department.name }}</h2>
+    {% endif %}
+
+    {% if teachers %}
+        <div class="section">
+            <h3>Teachers in Your Department</h3>
+            <ul class="list-group">
+                {% for teacher in teachers %}
+                    <li class="list-group-item">{{ teacher.first_name }} {{ teacher.last_name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if students %}
+        <div class="section">
+            <h3>Students in Your Department</h3>
+            <ul class="list-group">
+                {% for student in students %}
+                    <li class="list-group-item">{{ student.first_name }} {{ student.last_name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if courses %}
+        <div class="section">
+            <h3>Your Courses</h3>
+            <ul class="list-group">
+                {% for course in courses %}
+                    <li class="list-group-item">{{ course.name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <!-- Additional sections for different roles -->
+    {% if request.user.groups.filter(name="Teacher").exists %}
+        <div class="section">
+            <h3>Teacher Specific Section</h3>
+            <!-- Add content specific to teachers -->
+        </div>
+    {% elif request.user.groups.filter(name="HOD").exists %}
+        <div class="section">
+            <h3>HOD Specific Section</h3>
+            <!-- Add content specific to HODs -->
+        </div>
+    {% elif request.user.groups.filter(name="Staff").exists %}
+        <div class="section">
+            <h3>Staff Specific Section</h3>
+            <!-- Add content specific to staff -->
+        </div>
+    {% elif request.user.groups.filter(name="Student").exists %}
+        <div class="section">
+            <h3>Student Specific Section</h3>
+            <!-- Add content specific to students -->
+        </div>
+    {% endif %}
+</div>
+{% endblock %} {% endcomment %}
+
+
+
+{% comment %} <!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #080710; /* Dark background */
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .dashboard-container {
+            text-align: center;
+        }
+        h2 {
+            color: #AABD8C; /* Pale green */
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .card {
+            background-color: #4B5D40; /* Dark greenish-gray */
+            border-radius: 10px;
+            padding: 20px;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        .card:hover {
+            background-color: #AABD8C; /* Pale green on hover */
+            color: #080710; /* Dark text on hover */
+            transform: translateY(-10px);
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px; /* Space between logo and text */
+            margin-bottom: 30px;
+            margin-top: 20px; /* Adjust this value to move it closer to the top */
+        }
+    
+        .logo {
+            width: 80px; /* Adjust width as needed */
+            height: 80px; /* Adjust height as needed */
+        }
+    
+        .header-text {
+            text-align: center;
+        }
+    
+        .header-text h1 {
+            margin: 0;
+            font-size: 28px; /* Adjust font size as needed */
+            color: #F9F7EF; /* Light cream */
+        }
+    
+        .header-text h3 {
+            margin: 5px 0 0; /* Adjust margin for spacing */
+            font-size: 18px; /* Adjust font size as needed */
+            color: #AABD8C; /* Pale green */
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="dashboard-container">
+        <div>
+            <div class="header-container">
+                <img src="{% static 'images/dbit_logo.png' %}" alt="dbit logo" class="logo">
+                <div class="header-text">
+                    <h1>Don Bosco Institute of Technology</h1>
+                    <h3>Attendance System</h3>
+                </div>
+            </div>
+        </div>
+
+        <h2>Register as:</h2>
+    
+        <div class="card-container">
+            <a href="{% url 'register_principal' %}" class="card">Principal</a>
+            <a href="{% url 'register_hod' %}" class="card">HOD</a>
+            <a href="{% url 'register_teacher' %}" class="card">Teacher</a>
+            <a href="{% url 'register_staff' %}" class="card">Staff</a>
+            <a href="{% url 'register_student' %}" class="card">Student</a>
+        </div>
+    </div>
+</body>
+</html> {% endcomment %}
