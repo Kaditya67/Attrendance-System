@@ -164,13 +164,22 @@
                 <b>-</b> Add Attendance
               </a>
             </li>
-            {% url 'update_Attendance' as update_attendance_url %}
+            {% url 'select_course_lecture' as update_attendance_url %}
             <li>
               <a
                 class="dropdown-item {% if request.path == update_attendance_url %}active{% endif %}"
                 href="{{ update_attendance_url }}"
               >
                 <b>-</b> Update Attendance
+              </a>
+            </li>
+            {% url 'view_Attendance' as view_attendance_url %}
+            <li>
+              <a
+                class="dropdown-item {% if request.path == view_attendance_url %}active{% endif %}"
+                href="{{ view_attendance_url }}"
+              >
+                <b>-</b> View Attendance
               </a>
             </li>
           </ul>

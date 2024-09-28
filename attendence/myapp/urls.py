@@ -10,9 +10,13 @@ urlpatterns = [
     path('labs/<int:lab_id>/', views.lab_detail, name='lab_detail'),
     path('batches/<int:batch_id>/delete/', views.delete_batch, name='delete_batch'),
     #to do
+    path('attendance/select/', views.select_course_lecture, name='select_course_lecture'),
+    path('attendance/edit/<int:subject_id>/<str:date>/<int:lecture_number>/', views.edit_attendance, name='edit_attendance'),
+
     path('update_Attendance',views.update_Attendance,name='update_Attendance'), 
     path('fetch_students/', views.fetch_students, name='fetch_students'),
     path('Add_Attendance',views.Add_Attendance,name='Add_Attendance'),
+    path('view_Attendance',views.view_attendance,name='view_Attendance'),
     path('submit_attendance/', views.submit_attendance, name='submit_attendance'),
     path('SubjectDetails',views.SubjectDetails,name='SubjectDetails'),
     path('teacher_dashboard',views.Subject_Attendance_Details,name='Teacher_dashboard'),

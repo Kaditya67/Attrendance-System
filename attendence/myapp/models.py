@@ -231,7 +231,19 @@ class Student(models.Model):
     email = models.EmailField(blank=True, null=True, verbose_name="Email")
     address = models.TextField(blank=True, null=True, verbose_name="Address")
     lab_batch = models.ForeignKey(LabsBatches, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Lab Batch")
-    batches = models.JSONField(verbose_name="Batches for Labs", blank=True, null=True)
+    batches = models.JSONField(verbose_name="Batches for Labs", blank=True, null=True, default=dict)  # Default to empty dict
+
+    def assign_batch(self, index, batch_value):
+        if self.batches is None:
+            self.batches = {}  # Initialize as an empty dictionary if it's None
+        
+        # Convert index to string because JSONField keys are stored as strings
+        index_str = str(index)
+        
+        # Assign the batch value at the given index (overwrite if exists)
+        self.batches[index_str] = batch_value
+        self.save()
+
     def calculate_attendance_percentage(self):
         total_classes = self.attendances.count()
         attended_classes = self.attendances.filter(present=True).count()
@@ -253,14 +265,6 @@ class Student(models.Model):
     #     student_batches.append(assigned_batch)
     #     self.batches = json.dumps(student_batches)
     #     self.save()
-
-    def assign_batch(self, lab_index, batch_name):
-        """Assign a batch to the student based on the lab index."""
-        if not self.batches:
-            self.batches = {}
-        # Assign the batch to the respective index
-        self.batches[lab_index] = batch_name
-        self.save()
 
     def get_batch_for_lab(self, lab_index):
         """Get batch assignment for a particular lab index."""

@@ -46,7 +46,7 @@ def add_batches(request, lab_id):
         batch_input = request.POST.get('batch_options')  # Example: "a,b,c"
         batch_list = [batch.strip() for batch in batch_input.split(',')]  # Split by commas
         batch_instance.set_batch_options(batch_list)
-        return redirect('lab_detail', lab_id=lab.id)
+        return redirect('assign_batches', lab_id=lab.id)
 
     context = {
         'lab': lab,
@@ -56,11 +56,23 @@ def add_batches(request, lab_id):
 
 
 # View to delete batches from a lab
+from django.shortcuts import get_object_or_404, redirect
+from .models import Batches  # Make sure to import your Batches model
+
 def delete_batch(request, batch_id):
-    batch = get_object_or_404(Batches, id=batch_id)
-    lab_id = batch.lab.id
-    batch.delete()
-    return redirect('lab_detail', lab_id=lab_id)
+    if batch_id == 0:
+        # Handle the logic for deleting the created batch
+        # You may want to find the appropriate batch to delete based on some criteria
+        # For example, if you have only one "default" batch to delete, fetch it
+        batch = Batches.objects.first()  # Or implement your own logic to find the right batch
+    else:
+        # Otherwise, retrieve the batch as normal
+        batch = get_object_or_404(Batches, id=batch_id)
+    
+    lab_id = batch.lab.id  # Get the associated lab ID
+    batch.delete()  # Delete the batch
+    return redirect('lab_detail', lab_id=lab_id)  # Redirect to lab detail page
+
 
 
 # views.py
@@ -69,27 +81,49 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Labs, Batches, Student
 import json
 
+# def assign_batches_to_students(request, lab_id):
+#     lab = get_object_or_404(Labs, id=lab_id)
+#     batch_obj = lab.batches.first()  # Get the first batch object associated with the lab
+
+#     # Parse the batch options into a list
+#     if batch_obj:
+#         batch_options = json.loads(batch_obj.batch_options)  # Parse JSON string to list
+#     else:
+#         batch_options = []
+
+#     students = Student.objects.filter(semester=lab.semester)  # Filter students based on lab semester
+
+#     if request.method == 'POST':
+#         for student in students:
+#             selected_batch = request.POST.get(f'batch_{student.id}')  # Get batch for each student
+#             student.assign_batch(lab.index, selected_batch)  # Assign batch based on lab index
+
+#         return redirect('labs')  # Redirect after successful assignment
+
+#     return render(request, 'assign_batches.html', {'lab': lab, 'batch_options': batch_options, 'students': students})
+
+
 def assign_batches_to_students(request, lab_id):
     lab = get_object_or_404(Labs, id=lab_id)
-    batch_obj = lab.batches.first()  # Get the first batch object associated with the lab
+    batch_obj = lab.batches.first()
 
-    # Parse the batch options into a list
     if batch_obj:
-        batch_options = json.loads(batch_obj.batch_options)  # Parse JSON string to list
+        batch_options = json.loads(batch_obj.batch_options)
     else:
         batch_options = []
 
-    students = Student.objects.filter(semester=lab.semester)  # Filter students based on lab semester
+    students = Student.objects.filter(semester=lab.semester)
 
     if request.method == 'POST':
         for student in students:
-            selected_batch = request.POST.get(f'batch_{student.id}')  # Get batch for each student
-            student.assign_batch(lab.index, selected_batch)  # Assign batch based on lab index
+            selected_batch = request.POST.get(f'batch_{student.id}')
+            if selected_batch:
+                student.assign_batch(lab.index, selected_batch)
 
-        return redirect('labs')  # Redirect after successful assignment
+        # Redirect to the lab dashboard after assignment
+        return redirect('lab_detail', lab_id=lab.id)
 
     return render(request, 'assign_batches.html', {'lab': lab, 'batch_options': batch_options, 'students': students})
-
 
 
 import json
@@ -153,17 +187,141 @@ def lab_dashboard(request):
 from django.shortcuts import render, get_object_or_404
 from .models import Labs, Batches
 
+import json
+
 def lab_detail(request, lab_id):
     lab = get_object_or_404(Labs, id=lab_id)
     batches = lab.batches.all()  # Get all batches for the lab
+    students = Student.objects.filter(semester=lab.semester) 
+    print(students)
+
+    index = lab.index
+
+    for batch in batches:
+        batch.batch_options = json.loads(batch.batch_options)  # Ensure it's a list
+
+    batch_student_data = []
+    # Iterate over each batch
+    for batch in batches[0].batch_options:
+        match_students = []
+        for student in students:
+            if(student.batches[str(index)] == batch):
+                print(f'Batch: {batch}, Student: {student}')
+                match_students.append({
+                    'batch': batch,
+                    'student': student
+                })
+
+        batch_student_data.append({
+            'batch': batch,
+            'match_students':match_students
+        })
+    
+    print(f"Students and Batches {batch_student_data}")
+        
 
     context = {
         'lab': lab,
-        'batches': batches,
+        'batches': batches,  # Pass all batches
+        'batch_student_data': batch_student_data
     }
     return render(request, 'lab_detail.html', context)
 
+from django.shortcuts import render
+from .models import Attendance  # Adjust the import based on your project structure
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Teacher, Course, Attendance
+from collections import defaultdict
+
+from collections import defaultdict
+from django.contrib import messages
+from django.shortcuts import render, get_object_or_404
+from .models import Teacher, Course, Attendance
+
+from django.contrib import messages
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from collections import defaultdict
+from .models import Teacher, Course, Attendance
+
+@login_required
+def view_attendance(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
+    courses = teacher.assigned_courses.all()
+
+    selected_course = None
+    attendance_summary = []
+
+    if request.method == 'POST':
+        subject_id = request.POST.get('subject')
+        selected_course = get_object_or_404(Course, id=subject_id)
+
+        # Fetch all attendance records for the selected course
+        attendance_records = Attendance.objects.filter(course=selected_course)
+
+        if not attendance_records.exists():
+            messages.warning(request, "No attendance records found for the selected course.")
+            return redirect('view_attendance')
+
+        # Summarize attendance records by date and count
+        summary = defaultdict(lambda: [0, '', 0])  # [total present, common notes, count]
+        for record in attendance_records:
+            # Only aggregate if the current count is greater than the previously saved count for that date
+            summary[(record.date, record.count)][0] += record.present  # Total present
+            summary[(record.date, record.count)][1] = record.notes  # Get notes
+            summary[(record.date, record.count)][2] = record.count  # Use the last count found
+
+        # Convert the summary to a list for rendering
+        attendance_summary = [
+            (date, total_present, notes, count) 
+            for (date, count), (total_present, notes, _) in summary.items()
+        ]
+
+    context = {
+        'courses': courses,
+        'attendance_summary': attendance_summary,
+        'selected_course': selected_course,
+    }
+    return render(request, 'teachertemplates/view_attendance.html', context)
+
+
+# @login_required
+# def view_attendance(request):
+#     teacher = get_object_or_404(Teacher, user=request.user)
+#     courses = teacher.assigned_courses.all()
+
+#     selected_course = None
+#     attendance_summary = []
+
+#     if request.method == 'POST':
+#         subject_id = request.POST.get('subject')
+#         selected_course = get_object_or_404(Course, id=subject_id)
+
+#         # Fetch all attendance records for the selected course
+#         attendance_records = Attendance.objects.filter(course=selected_course)
+
+#         if not attendance_records.exists():
+#             messages.warning(request, "No attendance records found for the selected course.")
+#             return redirect('view_attendance')
+
+#         # Summarize attendance records by date
+#         summary = defaultdict(lambda: [0, ''])  # [total present, common notes]
+#         for record in attendance_records:
+#             summary[record.date][0] += 1 if record.present else 0
+#             summary[record.date][1] = record.notes  # You can modify how to aggregate notes
+
+#         # Convert the summary to a list for rendering
+#         attendance_summary = [(date, total_present, notes) for date, (total_present, notes) in summary.items()]
+
+#     context = {
+#         'courses': courses,
+#         'attendance_summary': attendance_summary,
+#         'selected_course': selected_course,
+#     }
+#     return render(request, 'teachertemplates/view_attendance.html', context)
 
 @login_required
 def update_Attendance(request):
@@ -250,6 +408,85 @@ def update_Attendance(request):
         context = {'courses': courses}
         return render(request, 'teachertemplates/Update_Attedance.html', context)
 
+from django.urls import reverse  
+@login_required
+def select_course_lecture(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
+    courses = teacher.assigned_courses.all()
+
+    if request.method == 'POST':
+        subject_id = request.POST.get('subject')
+        date = request.POST.get('date')
+
+        course = get_object_or_404(Course, id=subject_id)
+        attendance_records = Attendance.objects.filter(course=course, date=date)
+
+        if not attendance_records.exists():
+            messages.warning(request, "No attendance records found for the selected date.")
+            return redirect('select_course_lecture')
+
+        max_count = attendance_records.aggregate(Max('count'))['count__max']
+        lecture_numbers = list(range(1, max_count + 1))
+
+        context = {
+            'courses': courses,
+            'lecture_numbers': lecture_numbers,
+            'selected_course': course,
+            'selected_date': date,
+        }
+
+        # Redirect to edit attendance page after selecting the course and lecture
+        lecture_number = request.POST.get('lecture_number')
+        if lecture_number:
+            return redirect(reverse('edit_attendance', args=[subject_id, date, lecture_number]))
+        
+        return render(request, 'teachertemplates/select_lecture.html', context)
+
+    context = {'courses': courses}
+    return render(request, 'teachertemplates/select_lecture.html', context)
+
+
+@login_required
+def edit_attendance(request, subject_id, date, lecture_number):
+    teacher = get_object_or_404(Teacher, user=request.user)
+    courses = teacher.assigned_courses.all()
+
+    # Fetch the selected course
+    course = get_object_or_404(Course, id=subject_id)
+
+    # Fetch attendance records for the selected course, date, and lecture number
+    attendance_records = Attendance.objects.filter(course=course, date=date, count=lecture_number)
+
+    if not attendance_records.exists():
+        messages.warning(request, "No attendance records found for the selected lecture.")
+        return redirect('select_course_lecture')  # Redirect to course selection page if no records found
+
+    if request.method == 'POST':
+        attendance_updated = 0
+        for record in attendance_records:
+            student_id = record.student.id
+            attendance_status = request.POST.get(f'attendance_{student_id}', None)
+
+            if attendance_status is not None:
+                record.present = (attendance_status == 'Present')
+                record.save()
+                attendance_updated += 1
+
+        if attendance_updated > 0:
+            messages.success(request, f"{attendance_updated} attendance records updated successfully!")
+            return redirect('select_course_lecture')  # Redirect to selection page after update
+        else:
+            messages.warning(request, "No attendance records were updated.")
+
+    context = {
+        'courses': courses,
+        'attendance_records': attendance_records,
+        'selected_course': course,
+        'selected_date': date,
+        'lecture_number': lecture_number,
+    }
+
+    return render(request, 'teachertemplates/edit_attendance.html', context)
 
 
 # @login_required
@@ -363,85 +600,18 @@ def fetch_students(request):
     
     return redirect('Add_Attendance')
 
-
-# def Submit_Attendance(request):
-#     if request.method == "POST":
-#         subject_id = request.POST.get('subject')
-#         date = request.POST.get('date')
-#         lab_batch_id = request.POST.get('lab_batch') or None  # Set to None if empty
-#         common_notes = request.POST.get('common_notes', '')  # Default to empty string if not provided
-#         absent_students = request.POST.get('absent_students', '').split(',')  # Get absent student IDs
-
-#         course = Course.objects.get(id=subject_id)
-#         time_slot = get_current_time_slot()  # Automatically determine the time slot
-        
-#         attendance_created = 0  # To track how many records were created
-
-#         print(f'Course: {course}, Date: {date}, Lab Batch ID: {lab_batch_id}, Common Notes: {common_notes}, subject_id: {subject_id}')
-
-
-#         for key in request.POST:
-#             if key.startswith('attendance_'):
-#                 student_id = key.split('_')[1]  # Extract student ID from key
-#                 attendance_status = request.POST[key]  # Get the attendance status
-
-#                 print(f'Processing student_id: {student_id}, attendance_status: {attendance_status}')  # Log student ID and status
-
-#                 student = Student.objects.get(id=int(student_id))
-#                 present = (attendance_status == 'Present')  # Check if status is 'Present'
-
-#                 # Create or update attendance record
-#                 attendance_record, created = Attendance.objects.update_or_create(
-#                     student=student,
-#                     course=course,
-#                     date=date,
-#                     time_slot=time_slot,
-#                     defaults={
-#                         'lab_batch_id': lab_batch_id,
-#                         'present': present,
-#                         'notes': common_notes,  # Store common notes
-#                     }
-#                 )
-                
-#                 attendance_created += 1  # Count the number of created or updated records
-
-#         # Now create records for absent students
-#         for student_id in absent_students:
-#             if student_id:  # Ensure student_id is not empty
-#                 student = Student.objects.get(id=int(student_id))
-#                 # Create absence record
-#                 Attendance.objects.update_or_create(
-#                     student=student,
-#                     course=course,
-#                     date=date,
-#                     defaults={
-#                         'lab_batch_id': lab_batch_id,
-#                         'present': False,  # Mark as absent
-#                         'notes': common_notes,
-#                     }
-#                 )
-#                 attendance_created += 1  # Count the absent record
-
-#         # Provide feedback based on the outcome
-#         if attendance_created > 0:
-#             messages.success(request, f"{attendance_created} attendance records submitted successfully!")
-#         else:
-#             messages.warning(request, "No attendance records were created.")
-
-#         return redirect('Add_Attendance')
-
-#     return redirect('Add_Attendance')
-
 @login_required
 def submit_attendance(request):
     if request.method == "POST":
+        print("Received POST request for submit_attendance")
         subject_id = request.POST.get('subject')
         date = request.POST.get('date')
         common_notes = request.POST.get('common_notes', '')
         absent_students = request.POST.get('absent_students', '').split(',')
-
+        
+        print(f"Subject ID: {subject_id}, Date: {date}, Common Notes: {common_notes}, Absent Students: {absent_students}")
         course = Course.objects.get(id=subject_id)
-
+        print(f"Course: {course}")
         # Retrieve current attendance records
         existing_attendance_records = Attendance.objects.filter(course=course, date=date)
         common_count = existing_attendance_records.last().count + 1 if existing_attendance_records.exists() else 1
@@ -485,7 +655,6 @@ def submit_attendance(request):
         return redirect('Add_Attendance')
 
     return redirect('Add_Attendance')
-
 
 
 # View for subject details

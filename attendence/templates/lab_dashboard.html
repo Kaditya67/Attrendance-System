@@ -35,37 +35,42 @@
     <div class="container">
         <div class="dashboard-header">
             <h1>Lab Management Dashboard</h1>
-            
         </div>
-        
-        <table class="table table-bordered table-striped mt-4">
-            <thead class="thead-light">
-                <tr>
-                    <th>Lab</th>
-                    <th>Semester</th>
-                    <th>Index</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for lab in labs %}
-                <tr>
-                    <td>{{ lab.name }} ({{ lab.code }})</td>
-                    <td>{{ lab.semester }}</td>
-                    <td>{{ lab.index }}</td>
-                    <td>
-                        <a href="{% url 'add_batches' lab.id %}" class="btn btn-info btn-sm">Add/Update Batch</a>
-                        <a href="{% url 'assign_batches' lab.id %}" class="btn btn-warning btn-sm">Assign Batches</a>
-                        <a href="{% url 'lab_detail' lab.id %}" class="btn btn-secondary btn-sm">View Batches</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+        {% if labs %}
+            <table class="table table-bordered table-striped mt-4">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Lab</th>
+                        <th>Semester</th>
+                        <th>Index</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lab in labs %}
+                    <tr>
+                        <td>{{ lab.name }} ({{ lab.code }})</td>
+                        <td>{{ lab.semester }}</td>
+                        <td>{{ lab.index }}</td>
+                        <td>
+                            <a href="{% url 'add_batches' lab.id %}" class="btn btn-info btn-sm">Add/Update Batch</a>
+                            <a href="{% url 'assign_batches' lab.id %}" class="btn btn-warning btn-sm">Assign Batches</a>
+                            <a href="{% url 'lab_detail' lab.id %}" class="btn btn-secondary btn-sm">View Batches</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="alert alert-warning mt-4" role="alert">
+                No labs available at the moment. Please create a lab to view batches.
+            </div>
+        {% endif %}
     </div>
 
     <div class="container">
-        <a href="{% url 'Teacher_dashboard' %}" class="btn btn-primary btn-lg">Back to Dashboard</a>    
+        <a href="{% url 'Teacher_dashboard' %}" class="btn btn-primary btn-lg">Back to Teacher Dashboard</a>    
     </div>
 
     <!-- Bootstrap JS and dependencies -->

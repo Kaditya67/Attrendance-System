@@ -15,22 +15,42 @@
 
         h1 {
             margin-bottom: 20px;
+            color: #333;
         }
 
-        .batch-list {
-            list-style-type: none;
-            padding: 0;
+        h2 {
+            margin-top: 30px;
+            color: #007bff;
         }
 
         .batch-item {
-            background-color: #e9ecef;
-            padding: 10px;
-            margin-bottom: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
             border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .btn {
-            margin-top: 20px;
+        .no-data {
+            color: #888;
+            font-style: italic;
+        }
+
+        .table {
+            margin-top: 15px;
+        }
+
+        .nav-tabs .nav-link {
+            border: 1px solid transparent;
+            border-radius: 0;
+        }
+
+        .nav-tabs .nav-link.active {
+            border-color: #007bff;
+            background-color: #fff;
+        }
+
+        .nav-tabs .nav-link:hover {
+            border-color: #007bff;
         }
     </style>
 </head>
@@ -44,17 +64,57 @@
         <ul class="batch-list">
             {% for batch in batches %}
                 <li class="batch-item">
-                    {{ batch.get_batch_options|join:',' }}
-                    <br>
-                    <a href="{% url 'delete_batch' batch.id %}" class="btn btn-danger btn-sm">Delete</a>
+                    <strong>Batch Options:</strong> {{ batch.batch_options|join:', ' }}
+
                 </li>
             {% empty %}
-                <li>No batches added for this lab yet.</li>
+                <li class="no-data">No batches added for this lab yet.</li>
             {% endfor %}
         </ul>
 
-        <a href="{% url 'add_batches' lab.id %}" class="btn btn-primary">Update Batch</a>  <!-- Link to add batches -->
-        <a href="{% url 'lab_dashboard' %}" class="btn btn-secondary">Back to Labs List</a>  <!-- Link to return to the labs list -->
+        <h2>Students and Batches</h2>
+        <ul class="nav nav-tabs" id="batchTab" role="tablist">
+            {% for batch_data in batch_student_data %}
+                <li class="nav-item">
+                    <a class="nav-link {% if forloop.first %}active{% endif %}" id="batch-{{ forloop.counter0 }}-tab" data-toggle="tab" href="#batch-{{ forloop.counter0 }}" role="tab" aria-controls="batch-{{ forloop.counter0 }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                        Batch {{ batch_data.batch|join:', ' }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <div class="tab-content" id="batchTabContent">
+            {% for batch_data in batch_student_data %}
+                <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="batch-{{ forloop.counter0 }}" role="tabpanel" aria-labelledby="batch-{{ forloop.counter0 }}-tab">
+                    <div class="batch-item">
+                        <strong>Students:</strong>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Roll Number</th>
+                                    <th>Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student_data in batch_data.match_students %}
+                                    <tr>
+                                        <td>{{ student_data.student.roll_number }}</td>
+                                        <td>{{ student_data.student.user.get_full_name }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="2" class="no-data">No students assigned to this batch.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <a href="{% url 'add_batches' lab.id %}" class="btn btn-primary">Update Batch</a>
+        <a href="{% url 'lab_dashboard' %}" class="btn btn-secondary">Back to Lab Dashboard</a>
     </div>
 
     <!-- Bootstrap JS and dependencies -->

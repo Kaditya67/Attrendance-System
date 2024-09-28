@@ -6,6 +6,7 @@
     <title>Add Attendance</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* Your existing styles remain unchanged */
         body {
             font-family: 'Roboto', sans-serif;
             margin: 0;
@@ -48,7 +49,7 @@
             color: #34495e;
         }
 
-        select, input[type="date"], input[type="text"] {
+        select, input[type="date"], input[type="text"], textarea {
             width: 100%;
             padding: 10px;
             margin-bottom: 20px;
@@ -59,7 +60,7 @@
             transition: border-color 0.3s ease;
         }
 
-        select:focus, input[type="date"]:focus, input[type="text"]:focus {
+        select:focus, input[type="date"]:focus, input[type="text"]:focus, textarea:focus {
             border-color: #3498db;
             outline: none;
         }
@@ -75,7 +76,7 @@
             border: 1px solid #ddd;
             padding: 15px;
             text-align: center;
-            cursor: pointer; /* Change cursor to pointer */
+            cursor: pointer;
         }
 
         table th {
@@ -157,113 +158,122 @@
             background-color: #fff3cd; /* Light yellow background */
             color: #856404; /* Dark yellow text */
         }
-            /* Same styles as before */
-        </style>
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-        const today = new Date().toISOString().split('T')[0];
-        const dateInput = document.getElementById('date');
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const today = new Date();
+        const localDate = today.toLocaleDateString("en-CA"); // 'en-CA' format gives YYYY-MM-DD
+        const dateInput = document.getElementById("date");
 
-        // Set the current date as the default value
-        dateInput.value = today;
+            // Set the current date as the default value
+            dateInput.value = localDate;
 
-        // Set the current date as the maximum value (no future dates allowed)
-        dateInput.max = today;
-    });
-            function toggleAttendance(checkbox, cell) {
-                checkbox.checked = !checkbox.checked;
-                if (checkbox.checked) {
-                    cell.classList.add('present');
-                } else {
-                    cell.classList.remove('present');
+            // Set the current date as the maximum value (no future dates allowed)
+            dateInput.max = today;
+        });
+
+        function toggleAttendance(checkbox, cell) {
+            checkbox.checked = !checkbox.checked;
+            if (checkbox.checked) {
+                cell.classList.add('present');
+            } else {
+                cell.classList.remove('present');
+            }
+        }
+
+        function markAbsentStudents() {
+            const absentStudents = [];
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                const studentId = checkbox.id.split('_')[1];
+                if (!checkbox.checked) {
+                    absentStudents.push(studentId);
                 }
-            }
-    
-            function markAbsentStudents() {
-                const absentStudents = [];
-                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach(checkbox => {
-                    const studentId = checkbox.id.split('_')[1];
-                    if (!checkbox.checked) {
-                        absentStudents.push(studentId);
-                    }
-                });
-                document.getElementById('absent_students').value = absentStudents.join(',');
-            }
-        </script>
-    </head>
-    <body>
-        {% include 'teachertemplates/navbar.html' %}
-    
-        <div class="content">
-            <div class="container">
-                <h1>Add Attendance</h1>
-    
-                {% if messages %}
-                <ul class="messages">
-                    {% for message in messages %}
-                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            });
+            document.getElementById('absent_students').value = absentStudents.join(',');
+        }
+    </script>
+</head>
+<body>
+    {% include 'teachertemplates/navbar.html' %}
+
+    <div class="content">
+        <div class="container">
+            <h1>Add Attendance</h1>
+
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <!-- First Part: Course and Date Selection -->
+            <form id="fetchStudentsForm" action="{% url 'fetch_students' %}" method="post">
+                {% csrf_token %}
+
+                <!-- Subject Name Dropdown -->
+                <label for="subject">Subject:</label>
+                <select id="subject" name="subject" required>
+                    {% for data in course_data %}
+                    <option value="{{ data.course.id }}">{{ data.course.name }} ({{ data.semester }})</option>
                     {% endfor %}
-                </ul>
-                {% endif %}
-    
-                <!-- First Part: Course and Date Selection -->
-                <form id="fetchStudentsForm" action="{% url 'fetch_students' %}" method="post">
-                    {% csrf_token %}
-    
-                    <!-- Subject Name Dropdown -->
-                    <label for="subject">Subject:</label>
-                    <select id="subject" name="subject" required>
-                        {% for data in course_data %}
-                        <option value="{{ data.course.id }}">{{ data.course.name }} ({{ data.semester }})</option>
+                </select>
+
+                <!-- Date -->
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required>
+
+                <!-- Fetch Students Button -->
+                <button type="submit" class="button">Fetch Students</button>
+            </form>
+
+            <!-- Second Part: Displaying Students and Marking Attendance -->
+            {% if students %}
+            <form id="attendanceForm" action="{% url 'submit_attendance' %}" method="post">
+                {% csrf_token %}
+                
+                <!-- Hidden inputs for subject and date -->
+                <input type="hidden" name="subject" value="{{ selected_course.id }}"> <!-- Pass selected course id -->
+                <input type="hidden" name="date" value="{{ selected_date }}"> <!-- Pass selected date -->
+
+                <h4 style="text-align: center;margin-top: 20px;">Marking Attendance for Course:</h4>
+                <h2 style="text-align: center;padding: 10px;"> {{ selected_course }} on {{ selected_date }}</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Roll No</th>
+                            <th>Student Name</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>{{ student.student_id }}</td>
+                            <td>{{ student.user.first_name }} {{ student.user.last_name }}</td>
+                            <td onclick="toggleAttendance(document.getElementById('attendance_{{ student.id }}'), this);">
+                                <input type="checkbox" id="attendance_{{ student.id }}" name="attendance_{{ student.id }}" value="Present" style="display:none;">
+                                Present
+                            </td>
+                        </tr>
                         {% endfor %}
-                    </select>
-    
-                    <!-- Date -->
-                    <label for="date">Date:</label>
-                    <input type="date" id="date" name="date" required>
-    
-                    <!-- Fetch Students Button -->
-                    <button type="submit" class="button">Fetch Students</button>
-                </form>
-    
-                <!-- Second Part: Displaying Students and Marking Attendance -->
-                {% if students %}
-                <form id="attendanceForm" action="{% url 'submit_attendance' %}" method="post">
-                    {% csrf_token %}
-                    <h4 style="text-align: center;margin-top: 20px;">Marking Attendance for Course:</h4>
-                    <h2 style="text-align: center;padding: 10px;"> {{ selected_course }} on {{ selected_date }}</h2>
-    
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Roll No</th>
-                                <th>Student Name</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for student in students %}
-                            <tr>
-                                <td>{{ student.student_id }}</td>
-                                <td>{{ student.user.first_name }} {{ student.user.last_name }}</td>
-                                <td onclick="toggleAttendance(document.getElementById('attendance_{{ student.id }}'), this);">
-                                    <input type="checkbox" id="attendance_{{ student.id }}" name="attendance_{{ student.id }}" value="Present" style="display:none;">
-                                    Present
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-    
-                    <input type="hidden" name="absent_students" id="absent_students">
-    
-                    <!-- Submit Button -->
-                    <button type="submit" class="button" onclick="markAbsentStudents();">Submit Attendance</button>
-                </form>
-                {% endif %}
-            </div>
+                    </tbody>
+                </table>
+
+                <!-- Submit Button -->
+<input type="hidden" name="absent_students" id="absent_students">
+<!-- Notes Text Field -->
+<label for="common_notes">Common Notes:</label>
+<input type="text" id="common_notes" name="common_notes" placeholder="Enter any notes here..." required>
+
+<button type="submit" class="button" onclick="markAbsentStudents();">Submit Attendance</button>
+
+            </form>
+            {% endif %}
         </div>
-    </body>
-    </html>
-    
+    </div>
+</body>
+</html>
