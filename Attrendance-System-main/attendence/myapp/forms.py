@@ -489,7 +489,7 @@ class LectureForm(forms.ModelForm):
 class Courses(forms.ModelForm):
     class Meta:
         model = Course
-        fields = ['code', 'name', 'semester', 'is_lab']
+        fields = ['code', 'name', 'semester']
 
 
 from django import forms

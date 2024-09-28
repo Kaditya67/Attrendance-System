@@ -6,41 +6,130 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher List</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Link to your CSS file -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            background-color: #fafafa;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .product-table {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th,
+        table td {
+            text-align: left;
+            padding: 12px;
+        }
+
+        table th {
+            background-color: #f4f4f4;
+        }
+
+        table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px; /* Space between buttons */
+        }
     
+        .edit-button,
+        .delete-button {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            text-decoration: none; /* Remove underline for links */
+        }
+    
+        .edit-button {
+            background-color: #4CAF50; /* Green */
+        }
+    
+        .edit-button:hover {
+            background-color: #45a049; /* Darker green */
+        }
+    
+        .delete-button {
+            background-color: #f44336; /* Red */
+        }
+    
+        .delete-button:hover {
+            background-color: #e53935; /* Darker red */
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <!-- Sidebar -->
+        {% include 'includes/sidebar.html' %}
 
-<div class="container">
-    <h2>Teacher List</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for teacher in teachers %}
-            <tr>
-                <td>{{ teacher.user.username }}</td> <!-- Ensure this matches the field in your model -->
-                <td>{{ teacher.email }}</td>
-                <td>
-                    <a href="{% url 'update_teacher' teacher.pk %}">Edit</a>
-                    <a href="{% url 'delete_teacher' teacher.pk %}">Delete</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="2">No teachers found.</td>
-                <td colspan="1"><a href="{% url 'add_teacher' %}">Add Teacher</a></td>
-                <!-- Message when no teachers exist -->
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
+        <!-- Main Content -->
+        <div class="main-content">
+            <h2>Teacher List</h2>
+            <div class="product-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for teacher in teachers %}
+                        <tr>
+                            <td>{{ teacher.user.username }}</td>
+                            <td>{{ teacher.email }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'update_teacher' teacher.pk %}" class="edit-button">Edit</a>
+                                    <a href="{% url 'delete_teacher' teacher.pk %}" class="delete-button">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2">No teachers found.</td>
+                            <td colspan="1"><a href="{% url 'add_teacher' %}">Add Teacher</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

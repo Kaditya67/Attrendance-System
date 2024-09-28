@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager UI</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #F9F7EF;
+}
+
+.container {
+    width: 400px;
+    margin: 50px auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    cursor: pointer;
+    font-weight: bold;
+    color: #333;
+    border-bottom: 2px solid transparent;
+}
+
+.tab.active {
+    color: #4B5D40;
+    border-bottom: 2px solid #4B5D40;
+}
+
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.task-header h2 {
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.new-task-btn {
+    background-color: #AABD8C;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.task-filter {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    color: #999;
+}
+
+.count {
+    background-color: #E0E0E0;
+    padding: 5px 10px;
+    border-radius: 15px;
+    margin-left: 5px;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.task-list .task-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #FFF;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+}
+
+.task-info h3 {
+    font-size: 1rem;
+    color: #333;
+}
+
+.task-info p {
+    font-size: 0.85rem;
+    color: #777;
+    margin-top: 5px;
+}
+
+.task-status {
+    display: flex;
+    align-items: center;
+}
+
+.avatar-group {
+    display: flex;
+}
+
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-left: -10px;
+    border: 2px solid white;
+}
+
+.status-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-left: 15px;
+}
+
+.status-icon.completed {
+    background-color: #4B5D40;
+}
+
+.status-icon.pending {
+    background-color: #D3C99E;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active">Messages</button>
+            <button class="tab">Today's Task</button>
+            <button class="tab">Last Activity</button>
+        </div>
+
+        <div class="task-header">
+            <h2>Today's Task</h2>
+            <p>Wednesday, 11 May</p>
+            <button class="new-task-btn">+ New Task</button>
+        </div>
+
+        <div class="task-filter">
+            <span>All <span class="count">35</span></span>
+            <span>Open <span class="count">14</span></span>
+            <span>Closed <span class="count">10</span></span>
+            <span>Archived <span class="count">6</span></span>
+        </div>
+
+        <div class="task-list">
+            <div class="task-card">
+                <div class="task-info">
+                    <h3>Client Review & Feedback</h3>
+                    <p>Crypto Wallet Redesign</p>
+                    <p>Today 10:00 PM - 11:45 PM</p>
+                </div>
+                <div class="task-status">
+                    <div class="avatar-group">
+                        <img src="avatar1.jpg" alt="User 1" class="avatar">
+                        <img src="avatar2.jpg" alt="User 2" class="avatar">
+                    </div>
+                    <div class="status-icon completed"></div>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-info">
+                    <h3>Create Wireframe</h3>
+                    <p>Crypto Wallet Redesign</p>
+                    <p>Today 9:15 PM - 10:00 PM</p>
+                </div>
+                <div class="task-status">
+                    <div class="avatar-group">
+                        <img src="avatar1.jpg" alt="User 1" class="avatar">
+                        <img src="avatar2.jpg" alt="User 2" class="avatar">
+                    </div>
+                    <div class="status-icon pending"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

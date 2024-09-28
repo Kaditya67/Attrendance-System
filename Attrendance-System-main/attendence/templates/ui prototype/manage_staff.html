@@ -5,37 +5,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if pk %}Update{% else %}Add{% endif %} Staff</title>
+    <title>{% if staff %}Update Staff{% else %}Add Staff{% endif %}</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Link to your CSS file -->
 </head>
 <body>
+    <div class="container">
+        <!-- Sidebar -->
+        {% include 'includes/sidebar.html' %}
 
-<div class="container">
-    <h1>{% if pk %}Update Staff{% else %}Add Staff{% endif %}</h1>
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="form-container">
+                <h1>{% if staff %}Update Staff{% else %}Add Staff{% endif %}</h1>
 
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
-        
-        {% for field in form %}
-            <div class="form-group">
-                {{ field.label_tag }}
-                {{ field|add_class:"form-control" }}
-                {% for error in field.errors %}
-                    <div class="error">{{ error }}</div>
-                {% endfor %}
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+
+                    {% for field in form %}
+                        <div class="form-group">
+                            {{ field.label_tag }}
+                            {{ field|add_class:"form-control" }}
+                            {% for error in field.errors %}
+                                <div class="error">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <div class="button-group actions-section">
+                        <button type="submit" class="btn primary-btn">
+                            {% if staff %}Update{% else %}Add{% endif %}
+                        </button>
+                        {% if staff %}
+                            <button type="button" class="btn danger-btn" id="deleteStaffButton">Delete Staff</button>
+                        {% endif %}
+                        <a href="{% url 'staff_list' %}" class="btn secondary-btn">Cancel</a>
+                    </div>
+                </form>
             </div>
-        {% endfor %}
-        
-        <div class="button-group">
-            <button type="submit" class="btn btn-primary">Submit</button>
-            {% if pk %}
-            <a href="{% url 'delete_staff' pk=pk %}" class="btn btn-danger">Delete</a>
-            {% endif %}
-            <a href="{% url 'staff_list' %}" class="btn btn-secondary">Cancel</a>
         </div>
-    </form>
-</div>
+    </div>
 
 </body>
 </html>
