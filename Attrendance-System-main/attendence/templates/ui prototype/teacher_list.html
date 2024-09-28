@@ -1,0 +1,121 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher List</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Link to your CSS file -->
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9; /* Softer background */
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        /* Container Styles */
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #ffffff; /* White background for content */
+            border-radius: 10px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        /* Header Styles */
+        h2 {
+            color: #2c3e50;
+            text-align: center; /* Centered header */
+            margin-bottom: 20px;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse; /* Collapse borders for cleaner look */
+            margin-top: 20px; /* Space above the table */
+        }
+
+        th, td {
+            padding: 12px; /* Padding for cells */
+            text-align: left; /* Align text to the left */
+            border-bottom: 1px solid #ddd; /* Bottom border for table rows */
+        }
+
+        th {
+            background-color: #3498db; /* Blue background for header */
+            color: white; /* White text for header */
+        }
+
+        tr:hover {
+            background-color: #f1f1f1; /* Highlight row on hover */
+        }
+
+        /* Action Links Styles */
+        a {
+            text-decoration: none; /* Remove underline */
+            color: #3498db; /* Blue color for links */
+            padding: 5px 10px;
+            border: 1px solid transparent; /* Border for links */
+            border-radius: 5px; /* Rounded corners for links */
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        a:hover {
+            background-color: #e0f7fa; /* Light blue background on hover */
+            border-color: #3498db; /* Blue border on hover */
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px; /* Reduced padding on small screens */
+            }
+
+            th, td {
+                padding: 8px; /* Smaller padding on small screens */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Teacher List</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for teacher in teachers %}
+            <tr>
+                <td>{{ teacher.name }}</td> <!-- Ensure this matches the field in your model -->
+                <td>{{ teacher.email }}</td>
+                <td>
+                    <a href="{% url 'update_teacher' teacher.pk %}">Edit</a>
+                    <a href="{% url 'delete_teacher' teacher.pk %}">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">No teachers found.</td>
+                <td colspa="1"><a href="{% url 'add_teacher'%}">Add Teacher</a></td>
+                <!-- Message when no teachers exist -->
+            </tr>
+            {% endfor %}
+        </tbody>
+        
+    </table>
+</div>
+
+</body>
+</html>

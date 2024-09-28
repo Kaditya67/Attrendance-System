@@ -30,6 +30,9 @@ ALLOWED_HOSTS = []
 
 LOGIN_URL = '/login/'
 # LOGIN_REDIRECT_URL = '/logout' 
+LOGIN_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
 
 # Application definition
 
@@ -111,11 +114,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'  # Change to your local time zone
+USE_TZ = True 
 
 USE_I18N = True
-
-USE_TZ = True
 
 AUTH_USER_MODEL = 'auth.User'
 

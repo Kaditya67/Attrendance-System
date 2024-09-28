@@ -25,7 +25,11 @@ class Command(BaseCommand):
                     # Validate required fields
                     required_fields = ['username', 'first_name', 'last_name', 'faculty_id', 'assigned_department']
                     missing_fields = [field for field in required_fields if not row.get(field)]
+<<<<<<< HEAD
                     
+=======
+
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
                     if missing_fields:
                         self.stdout.write(self.style.ERROR(f"Missing fields {', '.join(missing_fields)} for row: {row}"))
                         continue
@@ -76,12 +80,27 @@ class Command(BaseCommand):
                         }
                     )
 
+<<<<<<< HEAD
                     # Handle courses
                     course_codes = row.get('courses_taught', '').split(',')
                     for code in [c.strip() for c in course_codes if c.strip()]:
                         course, created = Course.objects.get_or_create(code=code, defaults={'name': code})
                         teacher.courses_taught.add(course)
                     
+=======
+                    # Handle courses_taught
+                    courses_taught_codes = row.get('courses_taught', '').split(',')
+                    for code in [c.strip() for c in courses_taught_codes if c.strip()]:
+                        course, created = Course.objects.get_or_create(code=code, defaults={'name': code})
+                        teacher.courses_taught.add(course)
+
+                    # Handle assigned_courses
+                    assigned_courses_codes = row.get('assigned_courses', '').split(',')
+                    for code in [c.strip() for c in assigned_courses_codes if c.strip()]:
+                        course, created = Course.objects.get_or_create(code=code, defaults={'name': code})
+                        teacher.assigned_courses.add(course)
+
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
                     teacher.save()
 
                     self.stdout.write(self.style.SUCCESS(f'Successfully added/updated Teacher {user.username}'))

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #F9F7EF; /* Light Cream */
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .login-container h2 {
+            margin-bottom: 20px;
+            color: #333333;
+            text-align: center;
+        }
+
+        .btn-login {
+            background-color: #4B5D40;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .btn-login:hover {
+            background-color: #AABD8C;
+        }
+
+        /* Dashboard Sidebar */
+        .sidebar {
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #4B5D40;
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            padding: 15px 20px;
+            font-size: 18px;
+            color: #F9F7EF;
+            display: block;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            background-color: #AABD8C;
+            border-radius: 5px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .main-content h2 {
+            color: #333333;
+            font-weight: bold;
+        }
+
+        .card {
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h5 {
+            color: #333333;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .btn {
+            background-color: #4B5D40;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .btn:hover {
+            background-color: #AABD8C;
+        }
+
+        /* Attendance Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #AABD8C;
+            color: white;
+        }
+
+        td {
+            font-size: 16px;
+            background-color: #f9f9f9;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #F9F7EF;
+        }
+
+        .notification {
+            background-color: #D3C99E; /* Muted Yellow */
+            padding: 10px;
+            border-radius: 5px;
+            color: #333333;
+            margin-bottom: 10px;
+        }
+
+        .notification h6 {
+            color: #333333;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Page -->
+    <div class="login-container" id="login-page">
+        <h2>Student Login</h2>
+        <form>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" placeholder="Enter your email">
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" placeholder="Enter your password">
+            </div>
+            <button type="submit" class="btn btn-login w-100">Login</button>
+        </form>
+    </div>
+
+    <!-- Sidebar and Dashboard -->
+    <div class="sidebar" id="dashboard">
+        <a href="#" class="active">Dashboard</a>
+        <a href="#">Subject Wise Attendance</a>
+        <a href="#">Detailed Attendance</a>
+        <a href="#">Messages from Teacher</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h2>Subject-Wise Attendance</h2>
+
+        <!-- Subject-wise Attendance Overview -->
+        <div class="row">
+            <div class="col-lg-4 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Mathematics</h5>
+                        <p>Attendance: 85%</p>
+                        <a href="#" class="btn">View Details</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Science</h5>
+                        <p>Attendance: 90%</p>
+                        <a href="#" class="btn">View Details</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>History</h5>
+                        <p>Attendance: 75%</p>
+                        <a href="#" class="btn">View Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Attendance Page -->
+        <h2>Detailed Attendance - Mathematics</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>2024-09-01</td>
+                    <td>Present</td>
+                </tr>
+                <tr>
+                    <td>2024-09-02</td>
+                    <td>Absent</td>
+                </tr>
+                <tr>
+                    <td>2024-09-03</td>
+                    <td>Present</td>
+                </tr>
+                <tr>
+                    <td>2024-09-04</td>
+                    <td>Present</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Messages/Notifications from Teacher -->
+        <h2>Messages from Teacher</h2>
+        <div class="notification">
+            <h6>New Notification</h6>
+            <p>Your attendance in Mathematics is below the required 80%. Please improve your attendance.</p>
+        </div>
+        <div class="notification">
+            <h6>Assignment Reminder</h6>
+            <p>Don’t forget to submit your science project by this Friday.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

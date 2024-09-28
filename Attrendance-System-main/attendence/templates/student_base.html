@@ -5,15 +5,24 @@
     <title>{% block title %}Student Dashboard{% endblock title %}</title>
     <style>
         body {
+<<<<<<< HEAD
             font-family: 'Poppins', sans-serif;
             background-color: #F9F7EF; /* Softer background */
+=======
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5; /* Softer background */
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
             color: #333333;
             margin: 0;
             overflow-x: hidden;
         }
 
         .navbar {
+<<<<<<< HEAD
             background-color: #4B5D40; /* Darker blue */
+=======
+            background-color: #0062cc; /* Darker blue */
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
             overflow: hidden;
         }
 
@@ -59,7 +68,11 @@
         .openbtn {
             font-size: 15px;
             cursor: pointer;
+<<<<<<< HEAD
             background-color: #4B5D40;
+=======
+            background-color: #0062cc;
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
             color: white;
             border: none;
             padding: 10px 15px;
@@ -77,7 +90,11 @@
         h2 {
             margin-top: 20px;
             font-size: 24px;
+<<<<<<< HEAD
             color: #333333; /* Darker blue for consistency */
+=======
+            color: #004ba0; /* Darker blue for consistency */
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -121,7 +138,11 @@
         }
 
         th {
+<<<<<<< HEAD
             background-color: #AABD8C; /* Consistent blue for header */
+=======
+            background-color: #004ba0; /* Consistent blue for header */
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
             color: white;
             font-weight: bold;
             text-transform: uppercase;
@@ -160,6 +181,7 @@
             margin: 20px 0;
         }
 
+<<<<<<< HEAD
         /* Metrics Container */
         .metrics-container {
             display: flex;
@@ -176,17 +198,36 @@
             padding: 20px;
             border-radius: 8px;
             border: 1px solid #D3C99E; /* Muted Yellow */
+=======
+        /* Metric Containers */
+        .metric-box {
+            width: 50%;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
             margin-bottom: 40px;
         }
 
         .metric-box:hover {
+<<<<<<< HEAD
             background-color: #AABD8C; /* Pale Green */
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
 
         .metric-box h3 {
             color: #4B5D40; /* Dark Greenish-Gray */
+=======
+            background-color: #f1f9ff;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        .metric-box h3 {
+            color: #0062cc;
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
             font-size: 20px;
             margin-bottom: 10px;
             font-weight: bold;
@@ -199,8 +240,14 @@
 
         .metric-box p {
             font-size: 16px;
+<<<<<<< HEAD
             color: #333333; /* Soft Black */
         }
+=======
+            color: #555555;
+        }
+
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
         .present {
             background-color: #28a745; /* Bootstrap success green */
             color: white;
@@ -219,7 +266,10 @@
 <div class="navbar">
     <a class="openbtn" onclick="openNav()">&#9776;</a>
     <a href="{% url 'student_dashboard' %}">Home</a>
+<<<<<<< HEAD
     <a href="#">Analytics</a>
+=======
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
     <a href="{% url 'update_student' %}">Update Profile</a>
     <a href="{% url 'logout' %}">Logout</a>
 </div>

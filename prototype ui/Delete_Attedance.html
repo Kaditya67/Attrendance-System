@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Attendance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .student-list {
+            margin-bottom: 20px;
+        }
+
+        .student-list label {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        .button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .button:hover {
+            background-color: #c0392b;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #3498db;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Delete Attendance</h1>
+
+    <form action="/delete_attendance" method="post">
+        <!-- Date Picker for Selecting the Attendance Date -->
+        <label for="attendance-date">Select Date</label>
+        <input type="date" id="attendance-date" name="attendance_date" required>
+
+        <!-- List of Students with Checkboxes -->
+        <div class="student-list">
+            <label>Select Attendance to Delete</label>
+            <div>
+                <input type="checkbox" id="student1" name="students[]" value="John Doe">
+                <label for="student1">John Doe</label>
+            </div>
+            <div>
+                <input type="checkbox" id="student2" name="students[]" value="Jane Smith">
+                <label for="student2">Jane Smith</label>
+            </div>
+            <div>
+                <input type="checkbox" id="student3" name="students[]" value="Michael Brown">
+                <label for="student3">Michael Brown</label>
+            </div>
+            <div>
+                <input type="checkbox" id="student4" name="students[]" value="Emily Johnson">
+                <label for="student4">Emily Johnson</label>
+            </div>
+            <div>
+                <input type="checkbox" id="student5" name="students[]" value="David Miller">
+                <label for="student5">David Miller</label>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="button">Delete Selected Attendance</button>
+    </form>
+
+    <div class="back-link">
+        <a href="attendance_dashboard.html">Back to Dashboard</a>
+    </div>
+</div>
+
+</body>
+</html>

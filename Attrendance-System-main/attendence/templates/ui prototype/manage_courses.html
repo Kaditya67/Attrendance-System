@@ -1,0 +1,37 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if course %}Update Course{% else %}Add Course{% endif %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Link to your CSS file -->
+</head>
+<body>
+    <div class="container">
+        <h1>{% if course %}Update Course{% else %}Add Course{% endif %}</h1>
+        <form method="post" class="course-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">{% if course %}Update{% else %}Add{% endif %}</button>
+                {% if course %}
+                <button type="submit" name="delete" class="btn btn-danger">Delete</button>
+                {% endif %}
+            </div>
+        </form>
+
+        <h2>Course List</h2>
+        <ul class="course-list">
+            {% for course in courses %}
+                <li class="course-item">
+                    {{ course.code }} - {{ course.name }} 
+                    <a href="{% url 'update_course' course.pk %}" class="btn btn-edit">Edit</a>  <!-- Change this line -->
+                </li>
+            {% endfor %}
+        </ul>
+        
+    </div>
+</body>
+</html>

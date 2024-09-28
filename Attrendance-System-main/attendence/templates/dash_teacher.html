@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
+<<<<<<< HEAD
             font-family: 'Poppins', sans-serif;
             background-color: #F9F7EF; /* Light Cream */
             margin: 0;
@@ -72,12 +73,31 @@
             transition: margin-left 0.5s;
             padding: 20px;
         }
+=======
+            background-color: #F9F7EF; /* Light Cream */
+        }
+        .sidebar {
+            height: 100vh;
+            background-color: #4B5D40; /* Dark Greenish-Gray */
+            color: white;
+            padding: 20px;
+        }
+        .sidebar .nav-link {
+            color: #F9F7EF; /* Light Cream */
+            margin-bottom: 15px;
+        }
+        .card {
+            border-radius: 10px;
+            border: none;
+        }
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
         .dashboard-title {
             color: #333333; /* Soft Black */
             font-weight: bold;
             font-size: 24px;
             margin-top: 20px;
         }
+<<<<<<< HEAD
         .card {
             border-radius: 10px;
             border: none;
@@ -93,6 +113,22 @@
         .card-soft-black {
             background-color: #4B5D40; /* Dark Greenish-Gray */
             color: #ffffff !important;
+=======
+        .card-muted-yellow {
+            background-color: #D3C99E; /* Muted Yellow */
+            color: #ffffff !important; /* Off-White */
+        }
+        .card-pale-green {
+            background-color: #AABD8C; /* Pale Green */
+            color: #ffffff !important; /* Off-White */
+        }
+        .card-soft-black {
+            background-color: #4B5D40; /* Soft Black */
+            color: #ffffff !important; /* Off-White */
+        }
+        .table th, .table td {
+            vertical-align: middle;
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
         }
         .status-badge {
             border-radius: 12px;
@@ -115,6 +151,7 @@
 <body>
 
     <!-- Navbar -->
+<<<<<<< HEAD
     <div class="navbar">
         <a class="openbtn" onclick="openNav()">&#9776;</a>
         <a href="#">Home</a>
@@ -197,10 +234,85 @@
                         {% endfor %}
                     </tbody>
                 </table>
+=======
+    {% include 'navbar.html' %}
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12 mt-4">
+                <h2 class="dashboard-title">Teacher's Dashboard</h2>
+            </div>
+
+            <!-- Cards Section -->
+            <div class="row">
+                <div class="col-lg-4 col-md-6 my-3">
+                    <div class="card">
+                        <div class="card-body card-muted-yellow">
+                            <h5>Today's Attendance</h5>
+                            <h3>{{ todays_attendance }}</h3>
+                            <p>Class: {{ class_name }}</p>
+                            <div id="attendance-chart"></div> <!-- Chart for attendance trends -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 my-3">
+                    <div class="card">
+                        <div class="card-body card-pale-green">
+                            <h5>Pending Assignments</h5>
+                            <h3>{{ pending_assignments }} assignments</h3>
+                            <p>Action needed</p>
+                            <div id="assignments-notification"></div> <!-- Notification or alert -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 my-3">
+                    <div class="card">
+                        <div class="card-body card-soft-black">
+                            <h5>Top Performing Students</h5>
+                            <h3>{{ top_student_name }} - {{ top_student_percentage }}%</h3>
+                            <p>{{ second_student_name }} - {{ second_student_percentage }}%</p>
+                            <div id="performance-chart"></div> <!-- Chart for student performance -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Section -->
+            <div class="row">
+                <div class="col-12">
+                    <h4 class="mt-4">Standard Table Design</h4>
+                    <table class="table table-bordered table-hover mt-3">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>User Type</th>
+                                <th>Joined</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.name }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.user_type }}</td>
+                                <td>{{ user.joined_date }}</td>
+                                <td><span class="status-badge status-{{ user.status }}">{{ user.status }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
             </div>
         </div>
     </div>
 
+<<<<<<< HEAD
     <script>
         function openNav() {
             document.getElementById("mySidebar").style.width = "250px";
@@ -213,5 +325,10 @@
         }
 
     </script>
+=======
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Add your chart library here -->
+    <!-- <script src="path/to/chart.js"></script> -->
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
 </body>
 </html>

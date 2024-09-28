@@ -1,3 +1,30 @@
+<<<<<<< HEAD
 username,first_name,last_name,faculty_id,assigned_department,mobile_no,email,experience,courses_taught
 jdoe,John,Doe,F001,Computer Science,555-0101,jdoe@dbit.in,"5 years in teaching","CS101,CS102"
 mgreen,Michael,Green,F005,Computer Science,555-0105,mgreen@dbit.in,"4 years in teaching","CS201"
+=======
+username,first_name,last_name,faculty_id,assigned_department,mobile_no,email,experience,courses_taught,assigned_courses
+jdoe,John,Doe,F001,Computer Science,555-0101,jdoe@dbit.in,"5 years in teaching","CS101,CS102","CS101"
+mgreen,Michael,Green,F005,Computer Science,555-0105,mgreen@dbit.in,"4 years in teaching","CS201","CS201"
+bbrown,Bob,Brown,F002,Computer Science,555-0102,bbrown@dbit.in,"7 years in teaching","CS103,CS201","CS103"
+tjohnson,Tom,Johnson,F003,Computer Science,555-0103,tjohnson@dbit.in,"6 years in teaching","CS301,CS302","CS301"
+jthomas,James,Thomas,F004,Computer Science,555-0104,jthomas@dbit.in,"8 years in teaching","CS401,CS402","CS402"
+
+hwhite,Helen,White,F006,Information Technology,555-0201,hwhite@dbit.in,"5 years in teaching","IT101,IT102","IT101"
+bblack,Beth,Black,F007,Information Technology,555-0202,bblack@dbit.in,"6 years in teaching","IT201,IT202","IT201"
+lking,Larry,King,F008,Information Technology,555-0203,lking@dbit.in,"4 years in teaching","IT301,IT302","IT301"
+jwilson,Janet,Wilson,F009,Information Technology,555-0204,jwilson@dbit.in,"10 years in teaching","IT401,IT402","IT402"
+sgray,Susan,Gray,F010,Information Technology,555-0205,sgray@dbit.in,"7 years in teaching","IT501,IT502","IT501"
+
+rsmith,Richard,Smith,F011,Mechanical,555-0301,rsmith@dbit.in,"8 years in teaching","ME101,ME102","ME101"
+klee,Kevin,Lee,F012,Mechanical,555-0302,klee@dbit.in,"5 years in teaching","ME201,ME202","ME201"
+pjackson,Paul,Jackson,F013,Mechanical,555-0303,pjackson@dbit.in,"6 years in teaching","ME301,ME302","ME301"
+mwilliams,Mary,Williams,F014,Mechanical,555-0304,mwilliams@dbit.in,"4 years in teaching","ME401,ME402","ME402"
+dbaker,Daniel,Baker,F015,Mechanical,555-0305,dbaker@dbit.in,"7 years in teaching","ME501,ME502","ME501"
+
+dgarcia,David,Garcia,F016,Electronics and Telecommunication,555-0401,dgarcia@dbit.in,"9 years in teaching","ET101,ET102","ET101"
+slee,Sam,Lee,F017,Electronics and Telecommunication,555-0402,slee@dbit.in,"5 years in teaching","ET201,ET202","ET201"
+klopez,Kevin,Lopez,F018,Electronics and Telecommunication,555-0403,klopez@dbit.in,"7 years in teaching","ET301,ET302","ET301"
+bwilliams,Bill,Williams,F019,Electronics and Telecommunication,555-0404,bwilliams@dbit.in,"4 years in teaching","ET401,ET402","ET402"
+asanchez,Amy,Sanchez,F020,Electronics and Telecommunication,555-0405,asanchez@dbit.in,"8 years in teaching","ET501,ET502","ET501"
+>>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d

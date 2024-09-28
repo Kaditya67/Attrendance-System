@@ -6,6 +6,17 @@ from django.db import transaction
 from .models import Student, Department, Teacher, HOD, Staff, Principal, Course, Attendance, Semester
 from django.contrib.auth import authenticate
 
+from django import forms
+from .models import Attendance
+
+class AttendanceForm(forms.ModelForm):
+    class Meta:
+        model = Attendance
+        fields = ['student', 'course', 'lab_batch', 'date', 'time_slot', 'present']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
 
 class UserLoginForm(forms.Form):
     username = forms.CharField(
@@ -49,6 +60,7 @@ class StudentRegistrationForm(forms.ModelForm):
     email = forms.EmailField(validators=[EmailValidator(message="Enter a valid email address ending with @dbit.in")])
     mobile_no = forms.CharField(max_length=15, required=False)
     department = forms.ModelChoiceField(queryset=Department.objects.all(), widget=forms.Select(attrs={'onchange': 'updateSemesters()'}))
+    # department = forms.ModelChoiceField(queryset=Department.objects.all(), widget=forms.Select(attrs={'onchange': 'updateSemesters()'}))
     roll_number = forms.CharField(max_length=10)
     student_id = forms.CharField(max_length=20, required=True, label="Student ID")  # Added student_id
     address = forms.CharField(widget=forms.Textarea, required=False, label="Address")  # Added address
@@ -62,6 +74,8 @@ class StudentRegistrationForm(forms.ModelForm):
         fields = [
             'username', 'first_name', 'last_name', 'email', 'mobile_no',
             'department', 'roll_number', 'student_id', 'address', 
+            # 'department', 
+            'roll_number', 'student_id', 'address', 
             'password', 'confirm_password', 'semester'
         ]
         help_texts = {
@@ -368,6 +382,19 @@ class LectureSchedulingForm(forms.ModelForm):
     class Meta:
         model = Lecture
         fields = ['course', 'semester', 'program', 'date', 'time_slot']
+# from django import forms
+# from .models import Lecture, Course, Semester, Program
+
+# class LectureSchedulingForm(forms.ModelForm):
+#     course = forms.ModelChoiceField(queryset=Course.objects.all(), label='Select Course')
+#     semester = forms.ModelChoiceField(queryset=Semester.objects.all(), label='Select Semester')
+#     program = forms.ModelChoiceField(queryset=Program.objects.all(), label='Select Program')
+#     date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), label='Date')
+#     time_slot = forms.ChoiceField(choices=Lecture.TIME_SLOT_CHOICES, label='Time Slot')
+
+#     class Meta:
+#         model = Lecture
+#         fields = ['course', 'semester', 'program', 'date', 'time_slot']
 
 
 from django import forms
@@ -451,10 +478,54 @@ class CourseForm(forms.ModelForm):
         fields = ['code', 'name']
 
 
-from django import forms
-from .models import Lecture, Course, Program, Semester
-
 class LectureForm(forms.ModelForm):
     class Meta:
         model = Lecture
         fields = ['program', 'course', 'semester', 'date', 'time_slot']
+
+#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#
+
+
+class Courses(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = ['code', 'name', 'semester', 'is_lab']
+
+
+from django import forms
+from .models import Lecture, Course, Program, Semester
+
+class TeacherForm(forms.ModelForm):
+    class Meta:
+        model = Teacher
+        fields = [
+            'user',            # User instance (you may want to create a user separately)
+            'department',      # ForeignKey to Department
+            'courses_taught',  # ManyToManyField for Courses Taught
+            'faculty_id',      # Faculty ID field
+            'mobile_no',       # Mobile number field
+            'email',           # Email field
+            'experience',      # Experience field
+        ]
+        widgets = {
+            'courses_taught': forms.CheckboxSelectMultiple(),  # Use checkboxes for multiple selection
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super(TeacherForm, self).__init__(*args, **kwargs)
+        self.fields['user'].required = True  # Ensure user is required
+        self.fields['department'].required = True  # Ensure department is required
+
+    def clean_mobile_no(self):
+        mobile_no = self.cleaned_data.get('mobile_no')
+        if mobile_no and not mobile_no.isdigit():
+            raise forms.ValidationError("Mobile number should contain only digits.")
+        return mobile_no
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and '@' not in email:
+            raise forms.ValidationError("Please enter a valid email address.")
+        return email
+
+#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#
