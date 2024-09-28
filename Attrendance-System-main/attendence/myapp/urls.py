@@ -97,10 +97,15 @@ urlpatterns = [
     path('courses/update/<int:pk>/', views.manage_courses, name='update_course'),  # This is handled by the same view
     path('courses/delete/<int:pk>/',views. manage_courses, name='delete_course'),  # This is handled by the same view
 
-     path('manage_teacher/', views.manage_teacher, name='add_teacher'),  # For adding a teacher
+    path('manage_teacher/', views.manage_teacher, name='add_teacher'),  # For adding a teacher
     path('manage_teacher/<int:pk>/', views.manage_teacher, name='update_teacher'),  # For updating a teacher
     path('delete_teacher/<int:pk>/', views.delete_teacher, name='delete_teacher'),  # For deleting a teacher
     path('teachers/', views.TeacherListView.as_view(), name='teacher_list'),  # For listing all teachers
+
+    path('manage_staff/', views.manage_staff, name='add_staff'),  # For adding staff
+    path('manage_staff/<int:pk>/', views.manage_staff, name='update_staff'),  # For updating staff
+    path('delete_staff/<int:pk>/', views.delete_staff, name='delete_staff'),  # For deleting staff
+    path('staff/', views.StaffListView.as_view(), name='staff_list'),  # Staff list view
 
 ]
 

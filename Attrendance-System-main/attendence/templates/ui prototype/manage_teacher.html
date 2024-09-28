@@ -1,13 +1,18 @@
-{% extends "baseregister.html" %}
-{% block title %}Manage Teachers{% endblock title %}
-{% block content %}
-    <div class="background">
-        <div class="shape"></div>
-        <div class="shape"></div>
-    </div>
-    <div class="container">
-        <div class="form-container">
-            <h1 class="text-center mb-4">Manage Teachers</h1>
+{% load static %}
+{% load form_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if pk %}Update{% else %}Add{% endif %} Staff</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Link to your CSS file -->
+</head>
+<body>
+
+<div class="container">
+    <div class="form-container">
+    <h1>{% if pk %}Update Teacher{% else %}Add Teacher{% endif %}</h1>
 
             <form method="post">
                 {% csrf_token %}
@@ -97,4 +102,5 @@
             {% endif %}
         </div>
     </div>
-{% endblock content %}
+    </body>
+</html>

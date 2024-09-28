@@ -1,148 +1,88 @@
-/* Global Styles */
+/* General Styles */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f9f9f9; /* Softer background */
+    font-family: Arial, sans-serif;
+    background-color: #F9F7EF; /* Light Cream */
+    color: #333; /* Soft Black */
     margin: 0;
     padding: 20px;
-    color: #333;
 }
 
-/* Container Styles */
-.container {
-    max-width: 800px;
-    margin: auto;
-    background: #ffffff; /* White background for content */
-    border-radius: 10px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    padding: 30px;
+h2 {
+    color: #4B5D40; /* Dark Greenish-Gray */
 }
 
-/* Header Styles */
-h1, h2 {
-    color: #2c3e50;
-    margin-bottom: 20px;
-    text-align: center; /* Centered headers */
-}
-
-/* Form Styles */
-.course-form {
-    margin-bottom: 30px; /* Increased margin for better spacing */
-}
-
-.course-form input,
-.course-form select {
+/* Table Styles */
+table {
     width: 100%;
-    padding: 12px;
-    margin: 10px 0; /* Improved spacing between fields */
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    transition: border-color 0.3s;
+    border-collapse: collapse;
+    margin: 20px 0;
 }
 
-.course-form input:focus,
-.course-form select:focus {
-    border-color: #3498db; /* Blue focus border */
-    outline: none;
+th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #D3C99E; /* Muted Yellow */
+}
+
+th {
+    background-color: #4B5D40; /* Dark Greenish-Gray */
+    color: #F9F7EF; /* Light Cream */
 }
 
 /* Button Styles */
-.button-group {
-    display: flex; /* Flexbox for button alignment */
-    justify-content: center;
-    margin-top: 20px; /* Increased margin for spacing */
-}
-
-.btn {
-    padding: 12px 20px;
+button, a {
+    padding: 10px 15px;
+    margin: 5px;
+    text-decoration: none;
+    color: white;
+    background-color: #4B5D40; /* Dark Greenish-Gray */
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s, transform 0.2s;
-    margin: 0 10px; /* Spacing between buttons */
+    transition: background-color 0.3s;
 }
 
-.btn-primary {
-    background-color: #3498db; /* Blue */
-    color: white;
+button:hover, a:hover {
+    background-color: #3A4B32; /* Darker shade for hover */
 }
 
-.btn-primary:hover {
-    background-color: #2980b9; /* Darker Blue */
-    transform: translateY(-2px); /* Lift effect */
+/* Form Styles */
+form {
+    margin: 20px 0;
 }
 
-.btn-danger {
-    background-color: #e74c3c; /* Red */
-    color: white;
-}
-
-.btn-danger:hover {
-    background-color: #c0392b; /* Darker Red */
-    transform: translateY(-2px); /* Lift effect */
-}
-
-/* Teacher List Styles */
-.course-list {
-    list-style: none;
-    padding: 0;
-    margin-top: 20px; /* Spacing above the list */
-}
-
-.course-item {
-    padding: 15px;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #f8f8f8; /* Light gray for item backgrounds */
-    border-radius: 5px; /* Rounded corners for list items */
-    transition: background-color 0.3s; /* Smooth hover transition */
-}
-
-.course-item:hover {
-    background-color: #f1f1f1; /* Slightly darker on hover */
-}
-
-.btn-edit {
-    background-color: #2ecc71; /* Green */
-    color: white;
-    padding: 5px 10px;
-    text-decoration: none;
+input[type="text"], input[type="email"], select {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 10px 0;
+    border: 1px solid #D3C99E; /* Muted Yellow */
     border-radius: 5px;
 }
 
-.btn-edit:hover {
-    background-color: #27ae60; /* Darker Green */
-}
-
-/* Confirm Delete Button Styles */
-.confirm-delete {
-    background-color: #e74c3c; /* Red */
-    color: white;
-    padding: 8px 12px;
-    text-decoration: none;
+/* Confirmation Dialog Styles */
+.confirmation-dialog {
+    background-color: #fff;
+    border: 1px solid #4B5D40;
+    padding: 20px;
     border-radius: 5px;
+    text-align: center;
 }
 
-.confirm-delete:hover {
-    background-color: #c0392b; /* Darker Red */
+.confirmation-dialog button {
+    background-color: #D3C99E; /* Muted Yellow */
 }
 
 /* Responsive Styles */
 @media (max-width: 600px) {
-    .container {
-        padding: 15px; /* Reduced padding on small screens */
+    body {
+        padding: 10px;
     }
 
-    .btn {
-        width: 100%;
-        margin-bottom: 10px; /* Full width buttons on small screens */
+    th, td {
+        font-size: 14px;
     }
 
-    .course-item {
-        flex-direction: column; /* Stack items vertically */
-        align-items: flex-start;
+    button, a {
+        font-size: 14px;
     }
 }

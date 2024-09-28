@@ -1709,8 +1709,54 @@ def delete_teacher(request, pk):
 
 from django.views.generic import ListView
 from .models import Teacher
+from django.contrib import messages
+from .forms import StaffForm 
 
 class TeacherListView(ListView):
     model = Teacher
     template_name = 'ui prototype/teacher_list.html'  # Adjust this as necessary
     context_object_name = 'teachers'
+
+def manage_staff(request, pk=None):
+    if pk:
+        staff = get_object_or_404(Staff, pk=pk)
+        form = StaffForm(instance=staff)
+        if request.method == 'POST':
+            form = StaffForm(request.POST, instance=staff)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Staff updated successfully.")
+                return redirect('staff_list')
+    else:
+        form = StaffForm()
+        if request.method == 'POST':
+            form = StaffForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Staff added successfully.")
+                return redirect('staff_list')
+
+    return render(request, 'ui prototype/manage_staff.html', {
+        'form': form,
+        'staff': staff if pk else None,
+        'pk': pk,
+    })
+
+# Delete staff
+def delete_staff(request, pk):
+    staff = get_object_or_404(Staff, pk=pk)
+    print("########################",staff)
+    if request.method == 'POST':
+        staff.delete()
+        messages.success(request, "Staff deleted successfully.")
+        return redirect('staff_list')
+
+    return render(request, 'ui prototype/confirm_delete_staff.html', {'staff': staff})
+
+# List view for staff
+from django.views.generic import ListView
+
+class StaffListView(ListView):
+    model = Staff
+    template_name = 'ui prototype/staff_list.html'
+    context_object_name = 'staff'

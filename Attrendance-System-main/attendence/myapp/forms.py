@@ -528,4 +528,10 @@ class TeacherForm(forms.ModelForm):
             raise forms.ValidationError("Please enter a valid email address.")
         return email
 
+from .models import Staff
+class StaffForm(forms.ModelForm):
+    class Meta:
+        model = Staff
+        fields = ['user', 'position', 'assigned_department', 'staff_id']  
+    
 #,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#

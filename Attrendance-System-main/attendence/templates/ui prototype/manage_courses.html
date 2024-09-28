@@ -25,8 +25,8 @@
         <h2>Course List</h2>
         <ul class="course-list">
             {% for course in courses %}
-                <li class="course-item">
-                    {{ course.code }} - {{ course.name }} 
+                <li class="course-item" style="margin-bottom: 10px; padding: 10px;">
+                    {{ course.code }} - {{ course.name }} &nbsp;&nbsp;
                     <a href="{% url 'update_course' course.pk %}" class="btn btn-edit">Edit</a>  <!-- Change this line -->
                 </li>
             {% endfor %}
