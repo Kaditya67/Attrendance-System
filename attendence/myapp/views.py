@@ -777,93 +777,65 @@ def Subject_Attendance_Details(request):
     })
 
 
-# def Subject_Attendance_Details(request):
-#     # Get the teacher object for the currently logged-in user
-#     teacher = get_object_or_404(Teacher, user=request.user)
-#     # print(f"Teacher: {teacher.user.username}")  # Debug: Print the teacher's username
+from django.contrib import messages
+from django.shortcuts import render, get_object_or_404
+from .models import Labs, Teacher  # Adjust based on your app's structure
+from django.contrib.auth.decorators import login_required
 
-#     # Get all courses taught by the teacher
-#     courses = teacher.assigned_courses.all()
-#     # print(f"Courses Taught: {[course.name for course in courses]}")  # Debug: List of courses taught
+@login_required
+def Class_Report(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
+    semesters = Semester.objects.all().filter(session_year=teacher.assigned_courses.first().semester.session_year)
+    # print(semesters)
 
-#     course_data = []
-#     attendance_data = {}  # Initialize a dictionary to hold attendance data for each course
+    selected_semester = request.GET.get('semester')
+    semester_data = []
 
-#     for course in courses:
-#         semester = course.semester
-#         # print(f"Processing Course: {course.name} | Semester: {semester.year}")  # Debug: Current course and semester
+    if selected_semester:
+        semester = get_object_or_404(Semester, id=selected_semester)
+        students = Student.objects.filter(semester=semester)
+        courses = Course.objects.filter(semester=semester)
 
-#         students_in_semester = Student.objects.filter(semester=semester).distinct()
-#         # print(f"Students in Semester: {[student.user.username for student in students_in_semester]}")  # Debug: List of students in the semester
+        student_data = []
+        for student in students:
+            course_data = []
+            total_present = 0
+            total_classes = 0
 
-#         # Pick one student's attendance records to get the dates
-#         sample_student = students_in_semester.first()  # Assuming there is at least one student
-#         if sample_student:
-#             # print(f"Sample Student: {sample_student.user.username}")  # Debug: Print the sample student's username
-#             attendance_records = Attendance.objects.filter(course=course, student=sample_student).values('date', 'count').order_by('date')
+            for course in courses:
+                attendances = Attendance.objects.filter(student=student, course=course)
+                total_count = attendances.count()  # Get the total count directly
+                count_present = attendances.filter(present=True).count()  # Count of present directly
+                percentage = (count_present / total_count * 100) if total_count else 0
 
-#             # Store the attendance data in a dictionary
-#             attendance_data[course.name] = []  # Initialize a list for the current course
-#             for record in attendance_records:
-#                 attendance_data[course.name].append({
-#                     'date': record['date'],
-#                     'count': record['count']
-#                 })
-            
-#             # print(f"Attendance Data for {course.name}: {attendance_data[course.name]}")  # Debug: Print attendance data for the course
+                course_data.append({
+                    'course': course,
+                    'total_count': total_count,
+                    'count_present': count_present,
+                    'percentage': round(percentage, 2),
+                })
 
-#             # Create a list to hold the attendance data for each student
-#             student_data = []
-#             for student in students_in_semester:
-#                 # print(f"Processing Attendance for Student: {student.user.username}")  # Debug: Print current student
+                total_present += count_present
+                total_classes += total_count
 
-#                 attendance_records = []
-#                 for date_record in attendance_data[course.name]:  # Use attendance_data collected earlier
-#                     date = date_record['date']
-#                     count = date_record['count']  # Get the count for filtering
-                    
-#                     # Get the attendance record for the student on that date and count
-#                     attendance_instance = Attendance.objects.filter(course=course, student=student, date=date, count=count).first()
+            student_data.append({
+                'student': student,
+                'course_data': course_data,
+                'total_present': total_present,
+                'total_classes': total_classes,
+            })
 
-#                     attendance_records.append({
-#                         'date': date,
-#                         'latest_notes': attendance_instance.notes if attendance_instance else None,
-#                         'present': attendance_instance.present if attendance_instance else None,  # Add present/absent status
-#                     })
-
-#                     # print(f"Student: {student.user.username} | Date: {date} | Present: {attendance_instance.present if attendance_instance else 'No Record'} | Notes: {attendance_instance.notes if attendance_instance else 'No Record'}")  # Debug: Attendance record for the student
-
-#                 # Add student attendance data
-#                 student_data.append({
-#                     'student': student,
-#                     'attendance': attendance_records
-#                 })
-
-#             # Add course and student data to course_data
-#             course_data.append({
-#                 'course': course,
-#                 'semester': semester,
-#                 'students': student_data,
-#             })
-#         else:
-#             print(f"No students found for course: {course.name}")  # Debug: No students found for the course
-
-#     # # Debug: Print final structured data before rendering
-#     # print("Final Course Data Structure:")
-#     # for course in course_data:
-#     #     print(f"Course: {course['course'].name}, Semester: {course['semester'].year}")
-#     #     for student in course['students']:
-#     #         print(f"  Student: {student['student'].user.username}")
-#     #         for attendance_record in student['attendance']:
-#     #             print(f"    Attendance Record: Date: {attendance_record['date']}, Present: {attendance_record['present']}, Notes: {attendance_record['latest_notes']}")
-
-#     return render(request, 'teachertemplates/Subject_Attedance_Details.html', {
-#         'teacher': teacher,
-#         'course_data': course_data,
-#         'attendance_data': attendance_data
-#     })
-
-
+        semester_data.append({
+            'semester': semester,
+            'student_data': student_data,
+        })
+ 
+    return render(request, 'teachertemplates/class_report.html', {
+        'teacher': teacher,
+        'semester_data': semester_data,
+        'semesters': semesters,
+        'selected_semester': selected_semester
+    })
 
 
 # View for student dashboard
@@ -903,16 +875,6 @@ def ClassDashboard(request):
     return render(request, 'ClassDashboard.html')
 
 # View for class report
-from django.contrib import messages
-from django.shortcuts import render, get_object_or_404
-from .models import Labs, Teacher  # Adjust based on your app's structure
-from django.contrib.auth.decorators import login_required
-
-@login_required
-def Class_Report(request):
-    teacher = get_object_or_404(Teacher, user=request.user)
-
-    return render(request, 'teachertemplates/class_report.html', {'teacher': teacher})
 
 
 
@@ -1067,7 +1029,7 @@ def login_view(request):
             elif user.groups.filter(name='HOD').exists():
                 return redirect('hod_dashboard')
             elif user.groups.filter(name='Teacher').exists():
-                return redirect('teacher_dashboard')
+                return redirect('Teacher_dashboard')
             elif user.groups.filter(name='Student').exists():
                 return redirect('student_dashboard')
             else:

@@ -6,49 +6,89 @@
     <title>Common Summary Attendance Dashboard</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            color: #333;
         }
 
         .container {
-            width: 90%;
-            margin: auto;
+            max-width: 1200px;
+            margin: 50px auto;
             padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
             text-align: center;
-            margin-bottom: 20px;
+            font-size: 2.5rem;
+            color: #007bff;
+            margin-bottom: 30px;
+        }
+
+        form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        select {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 250px;
+            margin-left: 10px;
+            cursor: pointer;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 30px;
+            font-size: 1rem;
         }
 
         table th, table td {
-            border: 1px solid #ddd;
-            padding: 12px;
+            border: 1px solid #e0e0e0;
+            padding: 15px;
             text-align: center;
         }
 
         table th {
-            background-color: #f2f2f2;
+            background-color: #f7f7f7;
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        table td {
+            background-color: #fafafa;
+        }
+
+        table tr:nth-child(even) td {
+            background-color: #f1f1f1;
         }
 
         .green {
-            background-color: #b3ffb3;
+            background-color: #d4edda;
+            color: #155724;
+            font-weight: bold;
         }
 
         .red {
-            background-color: #ff9999;
+            background-color: #f8d7da;
+            color: #721c24;
+            font-weight: bold;
         }
 
         .blue {
-            background-color: #cce5ff;
+            background-color: #d1ecf1;
+            color: #0c5460;
+            font-weight: bold;
         }
 
         .highlight {
@@ -57,83 +97,116 @@
         }
 
         .low-attendance {
-            color: red;
+            color: #dc3545;
             font-weight: bold;
         }
 
         .overall {
-            background-color: #f2f2f2;
+            background-color: #e9ecef;
             font-weight: bold;
+        }
+
+        .legend {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .legend p {
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        .legend span {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 3px;
+        }
+
+        .green {
+            background-color: #d4edda;
+        }
+
+        .blue {
+            background-color: #d1ecf1;
+        }
+
+        .red {
+            background-color: #f8d7da;
         }
     </style>
 </head>
 <body>
-        <!-- Navbar -->
+    {% load custom_filters %}
+
+    <!-- Navbar -->
     {% include 'teachertemplates/navbar.html' %}
-<div class="content">
+    <div class="content">
 
-    {% if messages %}
-        <div class="alert alert-warning">
-            {% for message in messages %}
-                <p>{{ message }}</p>
-            {% endfor %}
+        {% if messages %}
+            <div class="alert alert-warning">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <div class="container">
+            <h1>Common Summary Attendance Dashboard</h1>
+        
+            <form method="GET" action="{% url 'Class_Report' %}">
+                <label for="semester">Select Semester:</label>
+                <select name="semester" id="semester" onchange="this.form.submit()">
+                    <option value="">--Select Semester--</option>
+                    {% for semester in semesters %}
+                        <option value="{{ semester.id }}" {% if request.GET.semester == semester.id|stringformat:"s" %}selected{% endif %}>
+                            {{ semester }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        
+            {% if semester_data %}
+                <h2>Semester: {{ semester_data.0.semester }}</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            {% for course in semester_data.0.student_data.0.course_data %}
+                                <th>{{ course.course.name }}</th>
+                            {% endfor %}
+                            <th>Overall Attendance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in semester_data.0.student_data %}
+                            <tr>
+                                <td>{{ student.student.user.first_name }} {{ student.student.user.last_name }}</td>
+                                {% with overall_present=student.total_present overall_total=student.total_classes %}
+                                    {% for course in student.course_data %}
+                                        <td class="{% if course.percentage > 80 %}green{% elif course.percentage >= 60 %}blue{% else %}red{% endif %}">
+                                            {{ course.count_present }}/{{ course.total_count }} ({{ course.percentage }}%)
+                                        </td>
+                                    {% endfor %}
+                                    <td class="overall {% if overall_present < overall_total|floatformat:0|multiply:0.6 %}low-attendance{% endif %}">
+                                        {{ overall_present }}/{{ overall_total }} ({{ overall_present|floatformat:2 }}%)
+                                    </td>
+                                {% endwith %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>Please select a semester to view the attendance report.</p>
+            {% endif %}
+            
+            <!-- Legend for Colors -->
+            <div class="legend">
+                <p><span class="green">Green:</span> Good attendance (Above 80%)</p>
+                <p><span class="blue">Blue:</span> Moderate attendance (60%-80%)</p>
+                <p><span class="red">Red:</span> Low attendance (Below 60%)</p>
+            </div>
         </div>
-    {% endif %}
-    
-<div class="container">
-    <h1>Common Summary Attendance Dashboard</h1>
-
-    <!-- Summary Table -->
-    <table>
-        <thead>
-        <tr>
-            <th>Student Name</th>
-            <th>Math (40 Classes)</th>
-            <th>Science (40 Classes)</th>
-            <th>History (40 Classes)</th>
-            <th>Overall Attendance</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- Sample Student-wise Data with Subject-wise Attendance -->
-        <tr>
-            <td>John Doe</td>
-            <td class="green">36/40 (90%)</td>
-            <td class="blue">34/40 (85%)</td>
-            <td class="green">38/40 (95%)</td>
-            <td class="overall">108/120 (90%)</td>
-        </tr>
-        <tr>
-            <td>Jane Smith</td>
-            <td class="red">20/40 (50%)</td>
-            <td class="blue">28/40 (70%)</td>
-            <td class="green">36/40 (90%)</td>
-            <td class="overall low-attendance">84/120 (70%)</td>
-        </tr>
-        <tr>
-            <td>Michael Brown</td>
-            <td class="green">40/40 (100%)</td>
-            <td class="green">39/40 (98%)</td>
-            <td class="green">40/40 (100%)</td>
-            <td class="overall">119/120 (99.3%)</td>
-        </tr>
-        <tr>
-            <td>Emily Johnson</td>
-            <td class="red">16/40 (40%)</td>
-            <td class="red">22/40 (55%)</td>
-            <td class="blue">26/40 (65%)</td>
-            <td class="overall low-attendance">64/120 (53.3%)</td>
-        </tr>
-        </tbody>
-    </table>
-
-    <!-- Legend for Colors -->
-    <h3>Color Legend:</h3>
-    <p><span class="green">Green:</span> Good attendance (Above 80%)</p>
-    <p><span class="blue">Blue:</span> Moderate attendance (60%-80%)</p>
-    <p><span class="red">Red:</span> Low attendance (Below 60%)</p>
-</div>
-</div>
-
+        
+    </div>
 </body>
 </html>
