@@ -196,17 +196,6 @@
           </a>
         </li>
 
-        <!-- Student List -->
-        {% url 'Student_List' as student_list_url %}
-        <li class="nav-item">
-          <a
-            class="nav-link {% if request.path == student_list_url %}active{% endif %}"
-            href="{{ student_list_url }}"
-          >
-            <i class="bi bi-people sidebar-icon"></i>Student List
-          </a>
-        </li>
-
         <!-- Reports -->
         {% url 'Class_Report' as class_report_url %}
         <li class="nav-item">

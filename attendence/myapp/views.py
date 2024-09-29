@@ -46,13 +46,13 @@ def add_batches(request, lab_id):
         batch_input = request.POST.get('batch_options')  # Example: "a,b,c"
         batch_list = [batch.strip() for batch in batch_input.split(',')]  # Split by commas
         batch_instance.set_batch_options(batch_list)
-        return redirect('assign_batches', lab_id=lab.id)
+        return redirect('teachertemplates/assign_batches', lab_id=lab.id)
 
     context = {
         'lab': lab,
         'batch_options': batch_instance.get_batch_options(),  # Retrieve the current batch options
     }
-    return render(request, 'add_batches.html', context)
+    return render(request, 'teachertemplates/assign_batches', context)
 
 
 # View to delete batches from a lab
@@ -123,7 +123,7 @@ def assign_batches_to_students(request, lab_id):
         # Redirect to the lab dashboard after assignment
         return redirect('lab_detail', lab_id=lab.id)
 
-    return render(request, 'assign_batches.html', {'lab': lab, 'batch_options': batch_options, 'students': students})
+    return render(request, 'teachertemplates/assign_batches.html', {'lab': lab, 'batch_options': batch_options, 'students': students})
 
 
 import json
@@ -179,7 +179,7 @@ def lab_dashboard(request):
         'lab': lab_data,
         'labs': labs,  # Include all labs for navbar display
     }
-    return render(request, 'lab_dashboard.html', context)
+    return render(request, 'teachertemplates/lab_dashboard.html', context)
 
 
 # views.py
@@ -225,7 +225,7 @@ def lab_detail(request, lab_id):
         'batches': batches,  # Pass all batches
         'batch_student_data': batch_student_data
     }
-    return render(request, 'lab_detail.html', context)
+    return render(request, 'teachertemplates/lab_detail.html', context)
 
 from django.shortcuts import render
 from .models import Attendance  # Adjust the import based on your project structure
@@ -689,12 +689,182 @@ def SubjectDetails(request):
     # Logic for displaying subject details
     return render(request, 'SubjectDetails.html')
 
-# View for subject attendance details
-@login_required
+
+from django.shortcuts import get_object_or_404, render
+from .models import Teacher, Student, Attendance
+
 def Subject_Attendance_Details(request):
+    # Get the teacher object for the currently logged-in user
     teacher = get_object_or_404(Teacher, user=request.user)
 
-    return render(request, 'teachertemplates/Subject_Attedance_Details.html', {'teacher': teacher})
+    # Get all courses taught by the teacher
+    courses = teacher.assigned_courses.all()
+
+    course_data = []
+    attendance_data = {}  # Initialize a dictionary to hold attendance data for each course
+
+    for course in courses:
+        semester = course.semester
+
+        students_in_semester = Student.objects.filter(semester=semester).distinct()
+
+        sample_student = students_in_semester.first()
+        if sample_student:
+            attendance_records = Attendance.objects.filter(course=course, student=sample_student).values('date', 'count').order_by('date')
+
+            attendance_data[course.name] = []
+            for record in attendance_records:
+                attendance_data[course.name].append({
+                    'date': record['date'],
+                    'count': record['count']
+                })
+
+            student_data = []
+            total_attended_sum = 0  # To sum total attended counts for average calculation
+            student_count = 0  # To count the number of students
+
+            for student in students_in_semester:
+                total_attended = 0
+                total_classes = len(attendance_data[course.name])
+                attendance_records = []
+                for date_record in attendance_data[course.name]:
+                    date = date_record['date']
+                    count = date_record['count']
+
+                    attendance_instance = Attendance.objects.filter(course=course, student=student, date=date, count=count).first()
+
+                    is_present = attendance_instance.present if attendance_instance else None
+                    attendance_records.append({
+                        'date': date,
+                        'latest_notes': attendance_instance.notes if attendance_instance else None,
+                        'present': is_present,
+                    })
+
+                    if is_present:
+                        total_attended += 1
+
+                # Calculate percentage attendance for the student
+                percentage = (total_attended / total_classes) * 100 if total_classes > 0 else 0
+
+                # Add student attendance data including total_attended and percentage
+                student_data.append({
+                    'student': student,
+                    'attendance': attendance_records,
+                    'total_attended': total_attended,
+                    'percentage': round(percentage, 2),  # Round the percentage to 2 decimal places
+                })
+
+                # Accumulate total attended counts and increment student count
+                total_attended_sum += total_attended
+                student_count += 1
+
+            # Calculate the average attendance percentage for the course
+            average_attendance = (total_attended_sum / (student_count * total_classes)) * 100 if student_count > 0 and total_classes > 0 else 0
+            top_students = sorted(student_data, key=lambda x: x['percentage'], reverse=True)[:3]
+
+            course_data.append({
+                'course': course,
+                'semester': semester,
+                'students': student_data,
+                'average_attendance': round(average_attendance, 2),  # Store the average attendance percentage
+                'top_students': top_students,  # Add top students to course_data
+            })
+
+    return render(request, 'teachertemplates/Subject_Attedance_Details.html', {
+        'teacher': teacher,
+        'course_data': course_data,
+        'attendance_data': attendance_data
+    })
+
+
+# def Subject_Attendance_Details(request):
+#     # Get the teacher object for the currently logged-in user
+#     teacher = get_object_or_404(Teacher, user=request.user)
+#     # print(f"Teacher: {teacher.user.username}")  # Debug: Print the teacher's username
+
+#     # Get all courses taught by the teacher
+#     courses = teacher.assigned_courses.all()
+#     # print(f"Courses Taught: {[course.name for course in courses]}")  # Debug: List of courses taught
+
+#     course_data = []
+#     attendance_data = {}  # Initialize a dictionary to hold attendance data for each course
+
+#     for course in courses:
+#         semester = course.semester
+#         # print(f"Processing Course: {course.name} | Semester: {semester.year}")  # Debug: Current course and semester
+
+#         students_in_semester = Student.objects.filter(semester=semester).distinct()
+#         # print(f"Students in Semester: {[student.user.username for student in students_in_semester]}")  # Debug: List of students in the semester
+
+#         # Pick one student's attendance records to get the dates
+#         sample_student = students_in_semester.first()  # Assuming there is at least one student
+#         if sample_student:
+#             # print(f"Sample Student: {sample_student.user.username}")  # Debug: Print the sample student's username
+#             attendance_records = Attendance.objects.filter(course=course, student=sample_student).values('date', 'count').order_by('date')
+
+#             # Store the attendance data in a dictionary
+#             attendance_data[course.name] = []  # Initialize a list for the current course
+#             for record in attendance_records:
+#                 attendance_data[course.name].append({
+#                     'date': record['date'],
+#                     'count': record['count']
+#                 })
+            
+#             # print(f"Attendance Data for {course.name}: {attendance_data[course.name]}")  # Debug: Print attendance data for the course
+
+#             # Create a list to hold the attendance data for each student
+#             student_data = []
+#             for student in students_in_semester:
+#                 # print(f"Processing Attendance for Student: {student.user.username}")  # Debug: Print current student
+
+#                 attendance_records = []
+#                 for date_record in attendance_data[course.name]:  # Use attendance_data collected earlier
+#                     date = date_record['date']
+#                     count = date_record['count']  # Get the count for filtering
+                    
+#                     # Get the attendance record for the student on that date and count
+#                     attendance_instance = Attendance.objects.filter(course=course, student=student, date=date, count=count).first()
+
+#                     attendance_records.append({
+#                         'date': date,
+#                         'latest_notes': attendance_instance.notes if attendance_instance else None,
+#                         'present': attendance_instance.present if attendance_instance else None,  # Add present/absent status
+#                     })
+
+#                     # print(f"Student: {student.user.username} | Date: {date} | Present: {attendance_instance.present if attendance_instance else 'No Record'} | Notes: {attendance_instance.notes if attendance_instance else 'No Record'}")  # Debug: Attendance record for the student
+
+#                 # Add student attendance data
+#                 student_data.append({
+#                     'student': student,
+#                     'attendance': attendance_records
+#                 })
+
+#             # Add course and student data to course_data
+#             course_data.append({
+#                 'course': course,
+#                 'semester': semester,
+#                 'students': student_data,
+#             })
+#         else:
+#             print(f"No students found for course: {course.name}")  # Debug: No students found for the course
+
+#     # # Debug: Print final structured data before rendering
+#     # print("Final Course Data Structure:")
+#     # for course in course_data:
+#     #     print(f"Course: {course['course'].name}, Semester: {course['semester'].year}")
+#     #     for student in course['students']:
+#     #         print(f"  Student: {student['student'].user.username}")
+#     #         for attendance_record in student['attendance']:
+#     #             print(f"    Attendance Record: Date: {attendance_record['date']}, Present: {attendance_record['present']}, Notes: {attendance_record['latest_notes']}")
+
+#     return render(request, 'teachertemplates/Subject_Attedance_Details.html', {
+#         'teacher': teacher,
+#         'course_data': course_data,
+#         'attendance_data': attendance_data
+#     })
+
+
+
 
 # View for student dashboard
 def StudentDashBoard(request):

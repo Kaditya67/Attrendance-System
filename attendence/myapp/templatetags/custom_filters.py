@@ -3,5 +3,6 @@ from django import template
 register = template.Library()
 
 @register.filter
-def add_class(field, css_class):
-    return field.as_widget(attrs={'class': css_class})
+def get_item(dictionary, key):
+    """Return the value for the given key in the dictionary."""
+    return dictionary.get(key)
