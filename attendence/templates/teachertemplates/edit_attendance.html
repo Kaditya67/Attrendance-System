@@ -143,29 +143,8 @@
                   class="attendance-select"
                   onchange="updateAttendanceColor(this)"
                 >
-                  <option
-                    value="Present"
-                    {%
-                    if
-                    record.present
-                    %}selected{%
-                    endif
-                    %}
-                  >
-                    Present
-                  </option>
-                  <option
-                    value="Absent"
-                    {%
-                    if
-                    not
-                    record.present
-                    %}selected{%
-                    endif
-                    %}
-                  >
-                    Absent
-                  </option>
+                <option value="Present" {% if record.present %}selected{% endif %}>Present</option>
+                <option value="Absent" {% if not record.present %}selected{% endif %}>Absent</option>                
                 </select>
               </td>
             </tr>
