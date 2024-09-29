@@ -6,47 +6,75 @@
     <title>Subject Attendance Details</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-color: #f9f9f9;
         }
 
         .container {
             width: 90%;
-            margin: auto;
+            margin: 40px auto;
+            background-color: #fff;
             padding: 20px;
-            margin-left: 250px; /* Leave space for sidebar */
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
         }
 
         h1 {
             text-align: center;
-            margin-top: 30px;
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 30px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 25px 0;
-            font-size: 18px;
+            margin: 20px 0;
+            font-size: 1rem;
+            text-align: center;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         table th, table td {
-            border: 1px solid #ddd;
             padding: 12px;
             text-align: center;
         }
 
         table th {
+            background-color: #3498db;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        table tr:nth-child(even) {
             background-color: #f2f2f2;
         }
 
+        table tr:hover {
+            background-color: #eaeaea;
+        }
+
+        table td {
+            border-bottom: 1px solid #ddd;
+        }
+
         .status-present {
-            background-color: #b3ffb3;
+            background-color: #27ae60;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            padding: 8px;
         }
 
         .status-absent {
-            background-color: #ff9999;
+            background-color: #e74c3c;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            padding: 8px;
         }
 
         .back-link {
@@ -56,68 +84,58 @@
 
         a {
             text-decoration: none;
-            color: #3498db;
+            color: #2980b9;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            transition: all 0.3s ease;
         }
 
         a:hover {
-            text-decoration: underline;
+            background-color: #3498db;
+            color: white;
+        }
+
+        /* Add transition effect for hover states */
+        table th, table td {
+            transition: all 0.3s ease;
         }
     </style>
 </head>
 <body>
 
-    {%include 'sidebar.html' %}
-
-<div class="container">
-    <h1 id="subject-title">Subject Name</h1>
-
-    <table>
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>Status</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- Sample Data, Replace with Dynamic Data -->
-        <tr>
-            <td>2024-09-01</td>
-            <td class="status-present">Present</td>
-        </tr>
-        <tr>
-            <td>2024-09-02</td>
-            <td class="status-absent">Absent</td>
-        </tr>
-        <tr>
-            <td>2024-09-03</td>
-            <td class="status-present">Present</td>
-        </tr>
-        <tr>
-            <td>2024-09-04</td>
-            <td class="status-absent">Absent</td>
-        </tr>
-        <tr>
-            <td>2024-09-05</td>
-            <td class="status-present">Present</td>
-        </tr>
-        </tbody>
-    </table>
-
-    <div class="back-link">
-        <a href="javascript:history.back()">Back to Dashboard</a>
+    <div class="container">
+        <h1>{{ course.name }} Attendance Details</h1>
+    
+        <table>
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for record in attendance_records %}
+            <tr>
+                <td>{{ record.date }}</td>
+                <td class="{% if record.present %}status-present{% else %}status-absent{% endif %}">
+                    {% if record.present %}Present{% else %}Absent{% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">No attendance records found for this subject.</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    
+        <div class="back-link">
+            <a href="javascript:history.back()">Back to Dashboard</a>
+        </div>
     </div>
-</div>
-
-<script>
-    // Function to extract subject name from the URL
-    function getSubjectFromUrl() {
-        const params = new URLSearchParams(window.location.search);
-        return params.get('subject');
-    }
-
-    // Set the subject name in the title dynamically
-    document.getElementById('subject-title').textContent = getSubjectFromUrl() + ' Attendance Details';
-</script>
 
 </body>
 </html>

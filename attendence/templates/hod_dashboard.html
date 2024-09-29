@@ -7,10 +7,9 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9; /* Soft White */
-            color: #333333; /* Dark Gray */
             margin: 0;
-            overflow-x: hidden;
+            padding: 0;
+            background-color: #f4f4f4;
         }
 
         .container {
@@ -20,16 +19,23 @@
             margin-left: 250px; /* Leave space for sidebar */
         }
 
-
         h1 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-top: 30px;
+        }
+
+        h2 {
+            margin-top: 30px;
+            margin-bottom: 10px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 30px;
+            margin: 25px 0;
+            font-size: 18px;
+            border-radius: 8px; /* Rounded corners for the table */
+            overflow: hidden; /* Ensures the rounded corners are applied */
         }
 
         table th, table td {
@@ -39,35 +45,31 @@
         }
 
         table th {
-            background-color: #f2f2f2;
+            background-color: #3498db; /* Header background color */
+            color: white; /* Header text color */
+            text-transform: uppercase; /* Uppercase text */
+            letter-spacing: 1px; /* Spacing between letters */
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f2f2f2; /* Light grey for even rows */
+        }
+
+        table tr:nth-child(odd) {
+            background-color: white; /* White for odd rows */
+        }
+
+        table tr:hover {
+            background-color: #e1f5fe; /* Light blue on hover */
+            transition: background-color 0.3s; /* Smooth transition */
         }
 
         .red {
-            background-color: #ff9999;
+            background-color: #ff9999; /* Highlight for low attendance */
         }
 
         .green {
-            background-color: #b3ffb3;
-        }
-
-        .button {
-            background-color: #3498db;
-            color: white;
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .button:hover {
-            background-color: #2980b9;
-        }
-
-        .back-link {
-            text-align: center;
-            margin-top: 20px;
+            background-color: #b3ffb3; /* Highlight for high attendance */
         }
 
         a {
@@ -77,11 +79,6 @@
 
         a:hover {
             text-decoration: underline;
-        }
-
-        .chart-container {
-            width: 50%;
-            margin: 20px auto;
         }
 
         /* Sidebar CSS */
@@ -149,134 +146,186 @@
         .openbtn:hover {
             background-color: #0056b3; /* Dark Blue */
         }
+
+        .table-container {
+            background-color: white; /* Background for each table container */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            padding: 20px; /* Padding inside the container */
+            margin-bottom: 30px; /* Spacing between table containers */
+        }
+
+        .button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .button:hover {
+            background-color: #2980b9;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Dropdown Styles */
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px; /* Rounded corners */
+            background-color: #ffffff; /* White background */
+            font-size: 16px; /* Larger font size */
+            margin-bottom: 20px; /* Space between dropdowns */
+            transition: border-color 0.3s; /* Smooth transition for border color */
+        }
+
+        select:focus {
+            outline: none; /* Remove outline */
+            border-color: #3498db; /* Blue border on focus */
+        }
+
     </style>
 </head>
 <body>
 
     {% include 'sidebar.html' %}
 
-<div class="container">
-    <h1>Head of the Department Attendance Dashboard</h1>
+    <div class="container">
+        <h1>HOD Attendance Dashboard</h1>
 
-    <!-- Overall Attendance Summary for Classes -->
-    <h2>Overall Class Attendance</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>Class</th>
-            <th>Number of Students</th>
-            <th>Overall Attendance (%)</th>
-            <th>Details</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- Sample Data for Overall Class Attendance -->
-        <tr>
-            <td>Class A</td>
-            <td>40</td>
-            <td>85%</td>
-            <td><a href="StudentDashBoard">View Details</a></td>
-        </tr>
-        <tr>
-            <td>Class B</td>
-            <td>35</td>
-            <td>78%</td>
-            <td><a href="StudentDashBoard">View Details</a></td>
-        </tr>
-        <tr>
-            <td>Class C</td>
-            <td>45</td>
-            <td>90%</td>
-            <td><a href="StudentDashBoard">View Details</a></td>
-        </tr>
-        </tbody>
-    </table>
+        <!-- Overall Attendance Summary for Classes -->
+        <div class="table-container">
+            <h2>Overall Class Attendance</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Class</th>
+                        <th>Number of Students</th>
+                        <th>Overall Attendance (%)</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in attendance_data %}
+                    <tr>
+                        <td>{{ data.name }}</td>
+                        <td>{{ data.total_students }}</td>
+                        <td>{{ data.attendance_percentage|floatformat:1 }}%</td>
+                        <td>
+                            <a href="{% url 'attendance_details' data.code %}">View Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-    <!-- Subject-wise Attendance for Selected Class -->
-    <h2>Subject-wise Attendance for Class A</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>Subject</th>
-            <th>Classes Attended</th>
-            <th>Total Classes</th>
-            <th>Attendance Percentage</th>
-            <th>Details</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- Sample Subject-wise Data for Class A -->
-        <tr class="green">
-            <td>Math</td>
-            <td>35</td>
-            <td>40</td>
-            <td>87.5%</td>
-            <td><a href="SubjectDetails">View Details</a></td>
-        </tr>
-        <tr class="red">
-            <td>Science</td>
-            <td>20</td>
-            <td>40</td>
-            <td>50%</td>
-            <td><a href="SubjectDetails">View Details</a></td>
-        </tr>
-        <tr>
-            <td>History</td>
-            <td>36</td>
-            <td>40</td>
-            <td>90%</td>
-            <td><a href="SubjectDetails">View Details</a></td>
-        </tr>
-        </tbody>
-    </table>
+        <!-- Year Selection for Subject-wise Attendance -->
+        <div class="table-container">
+            <label for="yearSelect">Select Year:</label>
+            <select id="yearSelect">
+                <option value="">-- Select Year --</option>
+                {% for year in years %}
+                <option value="{{ year.name }}">{{ year.get_name_display }}</option>
+                {% endfor %}
+            </select>
 
-    <!-- Student-wise Attendance -->
-    <h2>Student-wise Attendance for Class A - Math</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>Student Name</th>
-            <th>Attendance Status</th>
-            <th>Details</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- Sample Student-wise Attendance for Class A - Math -->
-        <tr>
-            <td>John Doe</td>
-            <td>Present (35/40)</td>
-            <td><a href="StudentDashBoard">View Details</a></td>
-        </tr>
-        <tr>
-            <td>Jane Smith</td>
-            <td>Absent (20/40)</td>
-            <td><a href="StudentDashBoard">View Details</a></td>
-        </tr>
-        <tr>
-            <td>Michael Brown</td>
-            <td>Present (40/40)</td>
-            <td><a href="StudentDashBoard">View Details</a></td>
-        </tr>
-        </tbody>
-    </table>
+            <!-- Subject List -->
+            <h2>Subjects for Selected Year:</h2>
+            <table id="subjectTable">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Classes Attended</th>
+                        <th>Total Classes</th>
+                        <th>Attendance Percentage</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody id="subjectList"></tbody>
+            </table>
+        </div>
 
-    <!-- Back Link -->
-    <div class="back-link">
-        <a href="dashboard.html">Back to Main Dashboard</a>
+        <!-- Student-wise Attendance -->
+        <div class="table-container">
+            <!-- Subject Selection Dropdown for Student Attendance -->
+            <label for="subjectSelect">Select Subject:</label>
+            <select id="subjectSelect" disabled>
+                <option value="">-- Select Subject --</option>
+            </select>
+
+            <!-- Student-wise Attendance Table -->
+            <h2>Student-wise Attendance for Selected Subject</h2>
+            <table id="studentTable">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Attendance Status</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody id="studentList"></tbody>
+            </table>
+        </div>
     </div>
 
-</div>
-<script>
-    function openNav() {
-        document.getElementById("mySidebar").style.width = "250px";
-        document.getElementById("mainContent").style.marginLeft = "250px";
-    }
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Handle year selection
+            $('#yearSelect').change(function() {
+                var yearCode = $(this).val();
+                if (yearCode) {
+                    $.ajax({
+                        url: "{% url 'get_subjects_by_year' %}",
+                        data: {
+                            'year_code': yearCode
+                        },
+                        success: function(data) {
+                            $('#subjectList').empty(); // Clear existing subjects
+                            $('#subjectSelect').empty().append('<option value="">-- Select Subject --</option>'); // Clear subject dropdown
+                            $.each(data.subjects, function(index, subject) {
+                                $('#subjectList').append('<tr><td>' + subject.name + '</td><td>' + subject.classes_attended + '</td><td>' + subject.total_classes + '</td><td>' + subject.attendance_percentage.toFixed(1) + '%</td><td><a href="SubjectDetails">View Details</a></td></tr>');
+                                $('#subjectSelect').append('<option value="' + subject.code + '">' + subject.name + '</option>');
+                            });
+                            $('#subjectSelect').prop('disabled', false); // Enable subject dropdown
+                        }
+                    });
+                } else {
+                    $('#subjectList').empty(); // Clear the subject list if no year is selected
+                    $('#subjectSelect').prop('disabled', true); // Disable subject dropdown
+                }
+            });
 
-    function closeNav() {
-        document.getElementById("mySidebar").style.width = "0";
-        document.getElementById("mainContent").style.marginLeft = "0";
-    }
-</script>
-
+            // Handle subject selection for student attendance
+            $('#subjectSelect').change(function() {
+                var subjectCode = $(this).val();
+                if (subjectCode) {
+                    $.ajax({
+                        url: "{% url 'get_students_by_subject' %}",
+                        data: {
+                            'subject_code': subjectCode
+                        },
+                        success: function(data) {
+                            $('#studentList').empty(); // Clear existing student list
+                            $.each(data.students, function(index, student) {
+                                $('#studentList').append('<tr><td>' + student.name + '</td><td>' + student.attendance_status + '</td><td><a href="StudentDetails">View Details</a></td></tr>');
+                            });
+                        }
+                    });
+                } else {
+                    $('#studentList').empty(); // Clear the student list if no subject is selected
+                }
+            });
+        });
+    </script>
 </body>
 </html>
