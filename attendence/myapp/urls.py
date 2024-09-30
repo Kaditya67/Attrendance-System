@@ -1,31 +1,59 @@
 from django.urls import path
 from . import views
+from . import teacherViews
 
 urlpatterns = [
+        path('teacher/<int:teacher_id>/update/', teacherViews.update_teacher, name='update_teacher'),
+
+    path('labs/', teacherViews.lab_dashboard, name='lab_dashboard'),
+    path('labs/<int:lab_id>/add_batches/', teacherViews.add_batches, name='add_batches'),
+    path('labs/<int:lab_id>/assign_batches/', teacherViews.assign_batches_to_students, name='assign_batches'),
+    path('labs/<int:lab_id>/select_batches/', views.select_batch_and_students, name='select_batches'),
+    path('labs/<int:lab_id>/', teacherViews.lab_detail, name='lab_detail'),
+    path('batches/<int:batch_id>/delete/', teacherViews.delete_batch, name='delete_batch'),
+    #to do
+    path('attendance/select/', teacherViews.select_course_lecture, name='select_course_lecture'),
+    path('attendance/edit/<int:subject_id>/<str:date>/<int:lecture_number>/', teacherViews.edit_attendance, name='edit_attendance'),
+
+    path('update_Attendance',teacherViews.update_Attendance,name='update_Attendance'), 
+    path('fetch_students/', teacherViews.fetch_students, name='fetch_students'),
+    path('Add_Attendance',teacherViews.Add_Attendance,name='Add_Attendance'),
+    path('view_Attendance',teacherViews.view_attendance,name='view_Attendance'),
+    path('submit_attendance/', teacherViews.submit_attendance, name='submit_attendance'),
+    path('SubjectDetails',views.SubjectDetails,name='SubjectDetails'),
+    
+    path('teacher_dashboard',teacherViews.Subject_Attendance_Details,name='Teacher_dashboard'),
+
     #to do
     path('update_Attendance',views.update_Attendance,name='update_Attendance'), 
     path('fetch_students/', views.fetch_students, name='fetch_students'),
     path('Add_Attendance',views.Add_Attendance,name='Add_Attendance'),
     path('submit_attendance/', views.submit_attendance, name='submit_attendance'),
     path('SubjectDetails/<str:student_id>/<int:course_id>/', views.SubjectDetails, name='SubjectDetails'),
+
     path('teacher_dashboard',views.Subject_Attendance_Details,name='Teacher_dashboard'),
     path('StudentDashBoard/<str:student_id>/',views.StudentDashBoard,name='StudentDashBoard'),
+    
     path('PrincipalDashboard',views.PrincipalDashboard,name='PrincipalDashboard'),
     path('HOD_Dashboard',views.HOD_Dashboard,name='HOD_Dashboard'),
+
     path('attendance-details/<str:year_code>/', views.AttendanceDetailsView.as_view(), name='attendance_details'),
     path('subject_attendance/', views.subject_attendance, name='subject_attendance'),
     path('get-subjects/', views.get_subjects_by_year, name='get_subjects_by_year'),
     path('get_students_by_subject/', views.get_students_by_subject, name='get_students_by_subject'),
     path('add_course/<int:semester_id>/', views.add_course, name='add_course'),
     path('get_subjects_by_year/', views.get_subjects_by_year, name='get_subjects_by_year'), 
+    
     path('forget_password',views.forget_password,name='forget_password'),
+    
     path('Delete_Attendance',views.Delete_Attendance,name='Delete_Attendance'),
     path('ClassDashboard',views.ClassDashboard,name='ClassDashboard'),
-    path('Class_Report',views.Class_Report,name='Class_Report'),
+    path('Class_Report',teacherViews.Class_Report,name='Class_Report'),
     
     # Authentication
     path('', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('forget_password/', views.forget_password, name='forget_password'),
     
     # User Registration
     path('register/student/', views.register_student, name='register_student'),

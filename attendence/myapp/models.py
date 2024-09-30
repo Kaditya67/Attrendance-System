@@ -81,6 +81,46 @@ class Course(models.Model):
             models.Index(fields=['name']),
         ]
 
+import json
+
+class Labs(models.Model):
+    code = models.CharField(max_length=10, unique=True, verbose_name="Course Code")
+    name = models.CharField(max_length=100, verbose_name="Course Name")
+    semester = models.ForeignKey('Semester', on_delete=models.CASCADE, related_name='lab_semester_list', verbose_name="Semester",blank=True, null=True)
+    index = models.IntegerField(verbose_name="Index", default=0)
+
+    def __str__(self):
+        return f"{self.code} - {self.name}"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['code']),
+            models.Index(fields=['name']),
+        ]
+
+import json
+from django.db import models
+
+class Batches(models.Model):
+    lab = models.ForeignKey('Labs', on_delete=models.CASCADE, related_name='batches', verbose_name="Lab")
+    batch_options = models.TextField(verbose_name="Batch Options", default="[]")  # Store a single set of batch options as a JSON string
+
+    def __str__(self):
+        return f"Batches for {self.lab.name} (Index {self.lab.index})"
+
+    def get_batch_options(self):
+        """
+        Returns batch options as a list, e.g., ["a", "b", "c"]
+        """
+        return json.loads(self.batch_options)
+
+    def set_batch_options(self, batch_list):
+        """
+        Set the batch options by passing a list.
+        """
+        self.batch_options = json.dumps(batch_list)
+        self.save()
+
 
 class Semester(models.Model):
     SEMESTER_CHOICES = [
@@ -101,6 +141,7 @@ class Semester(models.Model):
     year = models.CharField(max_length=2, choices=YEAR_CHOICES, verbose_name="Year")
 
     courses = models.ManyToManyField(Course, related_name='semesters', verbose_name="Courses", blank=True)
+    labs = models.ManyToManyField(Labs, related_name='semester_labs', verbose_name="Labs", blank=True)
 
     class Meta:
         unique_together = ('session_year', 'semester_number')
@@ -161,7 +202,7 @@ class Teacher(models.Model):
     email = models.EmailField(blank=True, null=True, verbose_name="Email")
     experience = models.TextField(blank=True, null=True, verbose_name="Experience")
     assigned_courses = models.ManyToManyField(Course, related_name='assigned_teachers', verbose_name="Assigned Courses", blank=True)
-
+    assigned_labs = models.ManyToManyField(Labs, related_name='assigned_labs', verbose_name="Assigned Labs", blank=True)
     class Meta:
         indexes = [
             models.Index(fields=['faculty_id']),
@@ -190,6 +231,18 @@ class Student(models.Model):
     email = models.EmailField(blank=True, null=True, verbose_name="Email")
     address = models.TextField(blank=True, null=True, verbose_name="Address")
     lab_batch = models.ForeignKey(LabsBatches, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Lab Batch")
+    batches = models.JSONField(verbose_name="Batches for Labs", blank=True, null=True, default=dict)  # Default to empty dict
+
+    def assign_batch(self, index, batch_value):
+        if self.batches is None:
+            self.batches = {}  # Initialize as an empty dictionary if it's None
+        
+        # Convert index to string because JSONField keys are stored as strings
+        index_str = str(index)
+        
+        # Assign the batch value at the given index (overwrite if exists)
+        self.batches[index_str] = batch_value
+        self.save()
 
     def calculate_attendance_percentage(self):
         total_classes = self.attendances.count()
@@ -200,6 +253,22 @@ class Student(models.Model):
 
     def __str__(self):
         return f"Student: {self.user.username} - ID: {self.student_id} - Roll No: {self.roll_number}"
+
+    # def assign_batch(self, lab):
+    #     """
+    #     Assigns a student to a batch based on the lab index.
+    #     """
+    #     lab_index = lab.index
+    #     batch_list = Batches.objects.get(lab=lab).get_batch_options()
+    #     assigned_batch = batch_list[lab_index - 1][0]  # Example assignment to the first batch
+    #     student_batches = json.loads(self.batches)
+    #     student_batches.append(assigned_batch)
+    #     self.batches = json.dumps(student_batches)
+    #     self.save()
+
+    def get_batch_for_lab(self, lab_index):
+        """Get batch assignment for a particular lab index."""
+        return self.batches.get(lab_index)
 
     class Meta:
         indexes = [

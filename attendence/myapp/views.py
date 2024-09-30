@@ -6,7 +6,16 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.utils import timezone
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db.models import Max
+from collections import defaultdict
+import json
+from django.urls import reverse  
+from .models import Labs, Batches, Teacher, Student, Course, Attendance, Semester, LabsBatches
 
+from .forms import TeacherUpdateForm
 from .forms import (
     StudentRegistrationForm, TeacherRegistrationForm,
     HODRegistrationForm, StaffRegistrationForm,
@@ -116,6 +125,35 @@ def update_Attendance(request):
         context = {'courses': courses}
         return render(request, 'teachertemplates/Update_Attedance.html', context)
 
+
+import plotly.graph_objects as go
+import plotly.io as pio
+import json
+from datetime import datetime
+
+def select_batch_and_students(request, lab_id):
+    lab = get_object_or_404(Labs, id=lab_id)
+    batch_obj = lab.batches.first()  # Get the first batch object associated with the lab
+
+    # Parse the batch options into a list
+    if batch_obj:
+        batch_options = json.loads(batch_obj.batch_options)  # Parse JSON string to list
+    else:
+        batch_options = []
+
+    students = Student.objects.filter(semester=lab.semester)  # Filter students based on lab semester
+
+    if request.method == 'POST':
+        selected_batch = request.POST.get('batch')
+        student_ids = request.POST.getlist('students')  # Get the list of selected student IDs
+
+        for student_id in student_ids:
+            student = get_object_or_404(Student, id=student_id)
+            student.assign_batch(lab.index, selected_batch)  # Assign batch based on lab index
+
+        return redirect('some_success_url')  # Redirect after successful assignment
+
+    return render(request, 'select_batch.html', {'lab': lab, 'batch_options': batch_options, 'students': students})
 
 
 # @login_required
