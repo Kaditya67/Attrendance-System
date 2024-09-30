@@ -81,39 +81,7 @@
             text-decoration: underline;
         }
 
-        /* Sidebar CSS */
-        .sidebar {
-            height: 100%;
-            width: 0;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #333333; /* Dark Gray */
-            overflow-x: hidden;
-            transition: 0.5s;
-            padding-top: 60px;
-        }
         
-        .sidebar a {
-            padding: 10px 15px;
-            text-decoration: none;
-            font-size: 20px;
-            color: white;
-            display: block;
-            transition: 0.3s;
-        }
-        
-        .sidebar a:hover {
-            background-color: #575757;
-        }
-        
-        .sidebar .closebtn {
-            position: absolute;
-            top: 0;
-            right: 25px;
-            font-size: 36px;
-            margin-left: 50px;
-        }
 
         .navbar {
             background-color: #007BFF; /* Bright Blue */
@@ -200,8 +168,8 @@
 </head>
 <body>
 
-    {% include 'sidebar.html' %}
-
+    {% include 'teachertemplates/navbar.html' %}
+<div class="content">
     <div class="container">
         <h1>HOD Attendance Dashboard</h1>
 
@@ -209,7 +177,7 @@
         <div class="table-container">
             <h2>Overall Class Attendance</h2>
             <div class="table-container">
-                <h2>Overall Class Attendance (Bar Chart)</h2>
+                <h2></h2>
                 <canvas id="classAttendanceChart" width="400" height="100"></canvas> <!-- Canvas for Bar Chart -->
             </div>
             
@@ -241,7 +209,7 @@
         <div class="table-container">
             <label for="yearSelect">Select Year:</label>
             <select id="yearSelect">
-                <option value="">-- Select Year --</option>
+                <option value="">-- To get the analysis --</option>
                 {% for year in years %}
                 <option value="{{ year.name }}">{{ year.get_name_display }}</option>
                 {% endfor %}
@@ -273,7 +241,7 @@
             <!-- Subject Selection Dropdown for Student Attendance -->
             <label for="subjectSelect">Select Subject:</label>
             <select id="subjectSelect" disabled>
-                <option value="">-- Select Subject --</option>
+                <option value="">-- Choose specific subject of the Year --</option>
             </select>
 
             
@@ -291,6 +259,7 @@
                 <tbody id="studentList"></tbody>
             </table>
         </div>
+    </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

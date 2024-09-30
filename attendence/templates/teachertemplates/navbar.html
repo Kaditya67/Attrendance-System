@@ -133,6 +133,7 @@
     <nav class="sidebar">
       <a class="navbar-brand" href="#">Attendance System</a>
       <ul class="navbar-nav">
+        
         <!-- Dashboard -->
         {% url 'Teacher_dashboard' as dashboard_url %}
         <li class="nav-item">
@@ -174,9 +175,8 @@
                 <b>-</b> View Attendance
               </a>
             </li>
-          </ul>
-        </li>
-        {% url 'select_course_lecture' as update_attendance_url %}
+
+            {% url 'select_course_lecture' as update_attendance_url %}
             <li>
               <a
                 class="dropdown-item {% if request.path == update_attendance_url %}active{% endif %}"
@@ -185,6 +185,9 @@
                 <b>-</b> Update Attendance
               </a>
             </li>
+          </ul>
+        </li>
+        
 
         <!-- Student List -->
         {% url 'lab_dashboard' as batch_url %}
