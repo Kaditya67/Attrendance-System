@@ -868,7 +868,12 @@ def login_view(request):
             elif user.groups.filter(name='Teacher').exists():
                 return redirect('teacher_dashboard')
             elif user.groups.filter(name='Student').exists():
-                return redirect('student_dashboard')
+                try:
+                    student = Student.objects.get(user=user)
+                    return redirect('StudentDashBoard', student_id=student.student_id)
+                except Student.DoesNotExist:
+                    return redirect('dashboard')
+                # return redirect('student_dashboard')
             else:
                 return redirect('dashboard')
     else:
