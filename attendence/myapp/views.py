@@ -11,64 +11,18 @@ from .forms import (
     StudentRegistrationForm, TeacherRegistrationForm,
     HODRegistrationForm, StaffRegistrationForm,
     PrincipalRegistrationForm, UserLoginForm, AttendanceForm,
-    CourseEnrollmentForm, CourseManagementForm,
-    AttendanceReportForm, PasswordResetForm,
+    CourseEnrollmentForm,
+    AttendanceReportForm,
     StudentUpdateForm  # Only if used in update_student
 )
 from .models import (
-    Student, Teacher, HOD, Staff, Principal, Department, Semester,
-    Course, LabsBatches, HonorsMinors, Attendance
+    Student, Teacher, HOD, Staff, Semester, LabsBatches, Attendance, TIME_SLOT_CHOICES, Labs
 )
 
 import plotly.graph_objects as go
 import plotly.io as pio
-from .models import TIME_SLOT_CHOICES  # Only if used in attendance
-
-# View for updating attendance
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import Teacher, Attendance, Course
-from django.db.models import Max
-
-
-
-# views.py
-
-
-
-
-# views.py
-
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Labs, Batches, Student
 import json
-
-# def assign_batches_to_students(request, lab_id):
-#     lab = get_object_or_404(Labs, id=lab_id)
-#     batch_obj = lab.batches.first()  # Get the first batch object associated with the lab
-
-#     # Parse the batch options into a list
-#     if batch_obj:
-#         batch_options = json.loads(batch_obj.batch_options)  # Parse JSON string to list
-#     else:
-#         batch_options = []
-
-#     students = Student.objects.filter(semester=lab.semester)  # Filter students based on lab semester
-
-#     if request.method == 'POST':
-#         for student in students:
-#             selected_batch = request.POST.get(f'batch_{student.id}')  # Get batch for each student
-#             student.assign_batch(lab.index, selected_batch)  # Assign batch based on lab index
-
-#         return redirect('labs')  # Redirect after successful assignment
-
-#     return render(request, 'assign_batches.html', {'lab': lab, 'batch_options': batch_options, 'students': students})
-
-
-
-
-import json
+from datetime import datetime
 
 def select_batch_and_students(request, lab_id):
     lab = get_object_or_404(Labs, id=lab_id)
@@ -93,76 +47,6 @@ def select_batch_and_students(request, lab_id):
         return redirect('some_success_url')  # Redirect after successful assignment
 
     return render(request, 'select_batch.html', {'lab': lab, 'batch_options': batch_options, 'students': students})
-
-
-
-
-
-# views.py
-
-# @login_required
-# def view_attendance(request):
-#     teacher = get_object_or_404(Teacher, user=request.user)
-#     courses = teacher.assigned_courses.all()
-
-#     selected_course = None
-#     attendance_summary = []
-
-#     if request.method == 'POST':
-#         subject_id = request.POST.get('subject')
-#         selected_course = get_object_or_404(Course, id=subject_id)
-
-#         # Fetch all attendance records for the selected course
-#         attendance_records = Attendance.objects.filter(course=selected_course)
-
-#         if not attendance_records.exists():
-#             messages.warning(request, "No attendance records found for the selected course.")
-#             return redirect('view_attendance')
-
-#         # Summarize attendance records by date
-#         summary = defaultdict(lambda: [0, ''])  # [total present, common notes]
-#         for record in attendance_records:
-#             summary[record.date][0] += 1 if record.present else 0
-#             summary[record.date][1] = record.notes  # You can modify how to aggregate notes
-
-#         # Convert the summary to a list for rendering
-#         attendance_summary = [(date, total_present, notes) for date, (total_present, notes) in summary.items()]
-
-#     context = {
-#         'courses': courses,
-#         'attendance_summary': attendance_summary,
-#         'selected_course': selected_course,
-#     }
-#     return render(request, 'teachertemplates/view_attendance.html', context)
-
-from django.contrib import messages
-from django.shortcuts import redirect
-from .models import Attendance, Course, Student
-
-from datetime import datetime
-
-def get_current_time_slot():
-    now = datetime.now()
-    current_time = now.strftime('%H:%M')  # Get current time in 24-hour format
-
-    # Define time slots with start and end times for easy comparison
-    time_slots = {
-        '8-9': ('08:00', '09:00'),
-        '9-10': ('09:00', '10:00'),
-        '10-11': ('10:00', '11:00'),
-        '11:15-12:15': ('11:15', '12:15'),
-        '12:15-1:15': ('12:15', '13:15'),  # 1:15 PM in 24-hour format is 13:15
-        '2-3': ('14:00', '15:00'),
-        '3-4': ('15:00', '16:00'),
-        '4-5': ('16:00', '17:00'),
-    }
-
-    # Check which time slot the current time falls into
-    for slot, (start, end) in time_slots.items():
-        if start <= current_time < end:
-            return slot  # Return the slot if current time falls within its range
-
-    return None  # No matching time slot
 
 # View for subject details
 def SubjectDetails(request):
@@ -205,98 +89,6 @@ def Delete_Attendance(request):
 def ClassDashboard(request):
     # Logic for displaying class dashboard
     return render(request, 'ClassDashboard.html')
-
-# View for class report
-
-
-
-
-
-
-
-@login_required
-def attendance(request):
-    # Get the logged-in teacher
-    teacher = get_object_or_404(Teacher, user=request.user)
-    print(f"Logged in teacher: {teacher}")
-
-    # Get all courses taught by the teacher
-    courses = teacher.assigned_courses.all()
-    print(f"Courses taught by the teacher: {courses}")
-
-    # Check if the teacher has any courses
-    if courses.count() == 0:
-        return render(request, 'mark_attendance.html', {'error': 'No courses available for this teacher.'})
-
-    # Dictionary to hold courses, their semesters, and students of those semesters
-    course_data = []
-
-    # Iterate through each course
-    for course in courses:
-        semester = course.semester  # Get the semester of the current course
-        print(f"Course: {course}, Semester: {semester}")
-
-        # Fetch students from this semester
-        students_in_semester = Student.objects.filter(semester=semester).distinct()
-        print(f"Students in Semester {semester}: {students_in_semester.count()}")
-
-        # Append the course, semester, and its students to the course_data list
-        course_data.append({
-            'course': course,
-            'semester': semester,
-            'students': students_in_semester,
-        })
-
-    # Handle POST request (process attendance)
-    if request.method == 'POST':
-        print("Received POST request, processing attendance...")
-        
-        # Common fields
-        lab_batch_id = request.POST.get('lab_batch')  # Get the selected lab batch
-        time_slot = request.POST.get('time_slot')  # Get the selected time slot
-        present_all = request.POST.get('present_all')  # Checkbox for marking all present
-
-        for course_info in course_data:
-            for student in course_info['students']:
-                # Determine attendance status based on checkbox
-                attendance_status = 'Present' if present_all else request.POST.get(f'student_{student.id}')
-
-                # Create an Attendance entry
-                Attendance.objects.create(
-                    student=student,
-                    course=course_info['course'],
-                    lab_batch=LabsBatches.objects.get(id=lab_batch_id) if lab_batch_id else None,
-                    date=timezone.now().date(),  # Current date
-                    time_slot=time_slot,  # Time slot from the form
-                    present=(attendance_status == 'Present'),  # Convert to boolean
-                )
-        
-        return redirect('success')  # Redirect to attendance list after processing
-
-    # Render the attendance creation template with the course, semester, and students data
-    return render(request, 'mark_attendance.html', {
-        'teacher': teacher,
-        'course_data': course_data,  # Send the course data (with semester and students) to the template
-        'time_slots': TIME_SLOT_CHOICES,  # Pass time slots to the template
-        'lab_batches': LabsBatches.objects.all(),  # Pass all lab batches to the template
-    })
-
-
-
-# Update attendance
-def update_attendance(request, pk):
-    attendance = Attendance.objects.get(pk=pk)
-    
-    if request.method == 'POST':
-        form = AttendanceForm(request.POST, instance=attendance)
-        if form.is_valid():
-            form.save()
-            return redirect('attendance_list')  # Redirect after updating
-    else:
-        form = AttendanceForm(instance=attendance)
-    
-    return render(request, 'update_attendance.html', {'form': form})
-
 
 
 # User Management Views
@@ -470,107 +262,6 @@ def view_teacher_details(request):
     teachers = Teacher.objects.all()
     return render(request, 'view_teacher_details.html', {'teachers': teachers})
 
-
-# Attendance Views
-@login_required
-def attendance(request):
-    # Get the logged-in teacher
-    teacher = get_object_or_404(Teacher, user=request.user)
-
-    # Get all courses taught by the teacher
-    courses = teacher.assigned_courses.all()
-
-    # Check if the teacher has any courses
-    if courses.count() == 0:
-        return render(request, 'mark_attendance.html', {'error': 'No courses available for this teacher.'})
-
-    # Dictionary to hold courses, their semesters, and students of those semesters
-    course_data = []
-
-    # Iterate through each course
-    for course in courses:
-        semester = course.semester  # Get the semester of the current course
-        # Fetch students from this semester
-        students_in_semester = Student.objects.filter(semester=semester).distinct()
-        
-        # Append the course, semester, and its students to the course_data list
-        course_data.append({
-            'course': course,
-            'semester': semester,
-            'students': students_in_semester,
-        })
-
-    # Handle POST request (process attendance)
-    if request.method == 'POST':
-        lab_batch_id = request.POST.get('lab_batch')  # Get the selected lab batch
-        time_slot = request.POST.get('time_slot')  # Get the selected time slot
-        present_all = request.POST.get('present_all')  # Checkbox for marking all present
-
-        for course_info in course_data:
-            for student in course_info['students']:
-                # Determine attendance status based on checkbox
-                attendance_status = 'Present' if present_all else request.POST.get(f'student_{student.id}')
-
-                # Create an Attendance entry
-                Attendance.objects.create(
-                    student=student,
-                    course=course_info['course'],
-                    lab_batch=LabsBatches.objects.get(id=lab_batch_id) if lab_batch_id else None,
-                    date=timezone.now().date(),  # Current date
-                    time_slot=time_slot,  # Time slot from the form
-                    present=(attendance_status == 'Present'),  # Convert to boolean
-                )
-        
-        return redirect('success')  # Redirect to attendance list after processing
-
-    # Render the attendance creation template with the course, semester, and students data
-    return render(request, 'mark_attendance.html', {
-        'teacher': teacher,
-        'course_data': course_data,  # Send the course data (with semester and students) to the template
-        'time_slots': TIME_SLOT_CHOICES,  # Pass time slots to the template
-        'lab_batches': LabsBatches.objects.all(),  # Pass all lab batches to the template
-    })
-
-
-@login_required
-def update_attendance(request, pk):
-    attendance = Attendance.objects.get(pk=pk)
-    
-    if request.method == 'POST':
-        form = AttendanceForm(request.POST, instance=attendance)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Attendance updated successfully.")
-            return redirect('attendance_list')  # Redirect to the attendance list
-    else:
-        form = AttendanceForm(instance=attendance)
-
-    return render(request, 'update_attendance.html', {'form': form})
-
-
-@login_required
-def attendance_report(request):
-    if request.method == 'POST':
-        form = AttendanceReportForm(request.POST)
-        if form.is_valid():
-            semester = form.cleaned_data['semester']
-            course = form.cleaned_data['course']
-            student = form.cleaned_data['student']
-
-            # Query to fetch attendance records
-            attendance_records = Attendance.objects.filter(student=student, course=course)
-
-            # Prepare data for display
-            attendance_data = {
-                'present': attendance_records.filter(present=True).count(),
-                'absent': attendance_records.filter(present=False).count(),
-                'total': attendance_records.count(),
-            }
-
-            return render(request, 'attendance_report.html', {'attendance_data': attendance_data, 'student': student})
-
-    form = AttendanceReportForm()
-    return render(request, 'attendance_report.html', {'form': form})
 
 # Student Management Views
 @login_required
