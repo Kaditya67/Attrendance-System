@@ -193,6 +193,10 @@
         }
 
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+
+
 </head>
 <body>
 
@@ -204,6 +208,11 @@
         <!-- Overall Attendance Summary for Classes -->
         <div class="table-container">
             <h2>Overall Class Attendance</h2>
+            <div class="table-container">
+                <h2>Overall Class Attendance (Bar Chart)</h2>
+                <canvas id="classAttendanceChart" width="400" height="100"></canvas> <!-- Canvas for Bar Chart -->
+            </div>
+            
             <table>
                 <thead>
                     <tr>
@@ -237,6 +246,11 @@
                 <option value="{{ year.name }}">{{ year.get_name_display }}</option>
                 {% endfor %}
             </select>
+            <div class="table-container">
+                
+                <canvas id="subjectAttendanceChart" width="400" height="100"></canvas>
+            </div>
+            
 
             <!-- Subject List -->
             <h2>Subjects for Selected Year:</h2>
@@ -261,6 +275,8 @@
             <select id="subjectSelect" disabled>
                 <option value="">-- Select Subject --</option>
             </select>
+
+            
 
             <!-- Student-wise Attendance Table -->
             <h2>Student-wise Attendance for Selected Subject</h2>
@@ -329,5 +345,144 @@
 });
 
     </script>
+    <script>
+        $(document).ready(function() {
+            // Data from Django passed into JavaScript
+            var classLabels = [];
+            var attendancePercentages = [];
+    
+            // Assuming 'attendance_data' is passed from the Django view as context
+            {% for data in attendance_data %}
+                classLabels.push("{{ data.name }}"); // Class Name
+                attendancePercentages.push("{{ data.attendance_percentage|floatformat:1 }}"); // Attendance Percentage
+            {% endfor %}
+    
+            // Bar chart configuration
+            var ctx = document.getElementById('classAttendanceChart').getContext('2d');
+            var classAttendanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: classLabels, // Class names as labels
+                    datasets: [{
+                        label: 'Attendance Percentage (%)',
+                        data: attendancePercentages, // Attendance percentages as data
+                        backgroundColor: 'rgba(52, 152, 219, 0.5)', // Light blue background
+                        borderColor: 'rgba(41, 128, 185, 1)', // Dark blue border
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return tooltipItem.raw + "%";
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            var subjectAttendanceChart; // Store the chart instance globally
+    
+            // Handle year selection
+            $('#yearSelect').change(function() {
+                var yearCode = $(this).val();
+                if (yearCode) {
+                    $.ajax({
+                        url: "{% url 'get_subjects_by_year' %}",
+                        data: {
+                            'year_code': yearCode
+                        },
+                        success: function(data) {
+                            // Clear and populate subject table
+                            $('#subjectList').empty();
+                            $('#subjectSelect').empty().append('<option value="">-- Select Subject --</option>');
+    
+                            // Prepare data arrays for chart
+                            var subjectLabels = [];
+                            var classesAttended = [];
+                            var totalClasses = [];
+    
+                            $.each(data.subjects, function(index, subject) {
+                                $('#subjectList').append('<tr><td>' + subject.name + '</td><td>' + subject.classes_attended + '</td><td>' + subject.total_classes + '</td><td>' + subject.attendance_percentage.toFixed(1) + '%</td><td><a href="SubjectDetails">View Details</a></td></tr>');
+                                $('#subjectSelect').append('<option value="' + subject.code + '">' + subject.name + '</option>');
+    
+                                // Populate chart data
+                                subjectLabels.push(subject.name);
+                                classesAttended.push(subject.classes_attended);
+                                totalClasses.push(subject.total_classes - subject.classes_attended); // Calculate missed classes
+                            });
+    
+                            // If chart already exists, destroy it before creating a new one
+                            if (subjectAttendanceChart) {
+                                subjectAttendanceChart.destroy();
+                            }
+    
+                            // Render chart with the new data
+                            var ctx = document.getElementById('subjectAttendanceChart').getContext('2d');
+                            subjectAttendanceChart = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: subjectLabels,
+                                    datasets: [{
+                                        label: 'Classes Attended',
+                                        data: classesAttended,
+                                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                                        borderColor: 'rgba(75, 192, 192, 1)',
+                                        borderWidth: 1
+                                    },
+                                    {
+                                        label: 'Classes Missed',
+                                        data: totalClasses,
+                                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                                        borderColor: 'rgba(255, 99, 132, 1)',
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true
+                                        }
+                                    },
+                                    plugins: {
+                                        legend: {
+                                            display: true
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    $('#subjectList').empty(); // Clear the subject list if no year is selected
+                    $('#subjectSelect').prop('disabled', true).empty().append('<option value="">-- Select Subject --</option>');
+    
+                    // Destroy chart if no year is selected and clear the canvas
+                    if (subjectAttendanceChart) {
+                        subjectAttendanceChart.destroy();
+                        subjectAttendanceChart = null;
+                    }
+                }
+            });
+        });
+    </script>
+   
+    
+    
 </body>
 </html>
