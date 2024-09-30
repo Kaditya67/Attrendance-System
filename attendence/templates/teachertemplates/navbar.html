@@ -164,15 +164,7 @@
                 <b>-</b> Add Attendance
               </a>
             </li>
-            {% url 'select_course_lecture' as update_attendance_url %}
-            <li>
-              <a
-                class="dropdown-item {% if request.path == update_attendance_url %}active{% endif %}"
-                href="{{ update_attendance_url }}"
-              >
-                <b>-</b> Update Attendance
-              </a>
-            </li>
+            
             {% url 'view_Attendance' as view_attendance_url %}
             <li>
               <a
@@ -184,6 +176,15 @@
             </li>
           </ul>
         </li>
+        {% url 'select_course_lecture' as update_attendance_url %}
+            <li>
+              <a
+                class="dropdown-item {% if request.path == update_attendance_url %}active{% endif %}"
+                href="{{ update_attendance_url }}"
+              >
+                <b>-</b> Update Attendance
+              </a>
+            </li>
 
         <!-- Student List -->
         {% url 'lab_dashboard' as batch_url %}
