@@ -134,7 +134,15 @@
       <a class="navbar-brand" href="#">Attendance System</a>
       <ul class="navbar-nav">
         
-        <!-- Dashboard -->
+        {% url 'HOD_Dashboard' as dashboard_url_hod %}
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.path == dashboard_url_hod %}active{% endif %}"
+            href="{{ dashboard_url_hod }}"
+          >
+            <i class="bi bi-speedometer2 sidebar-icon"></i>HOD Dashboard
+          </a>
+        </li>
         {% url 'Teacher_dashboard' as dashboard_url %}
         <li class="nav-item">
           <a

@@ -474,6 +474,9 @@ from django.http import JsonResponse
 from .models import Year, Student, Attendance
 
 def HOD_Dashboard(request):
+    if not request.user.groups.filter(name='HOD').exists():
+        return redirect('no_permission')
+    
     # Fetch all years
     years = Year.objects.all()
     attendance_data = []
@@ -861,7 +864,7 @@ def login_view(request):
             elif user.groups.filter(name='Principal').exists():
                 return redirect('principal_dashboard')
             elif user.groups.filter(name='HOD').exists():
-                return redirect('hod_dashboard')
+                return redirect('HOD_Dashboard')
             elif user.groups.filter(name='Teacher').exists():
                 return redirect('teacher_dashboard')
             elif user.groups.filter(name='Student').exists():
