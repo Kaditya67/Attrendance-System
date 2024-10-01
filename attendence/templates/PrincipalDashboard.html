@@ -97,39 +97,27 @@
     <h2>Department-wise Attendance Summary</h2>
     <table>
         <thead>
-        <tr>
-            <th>Department</th>
-            <th>Number of Classes</th>
-            <th>Number of Students</th>
-            <th>Overall Attendance (%)</th>
-            <th>Details</th>
-        </tr>
+            <tr>
+                <th>Department</th>
+                <th>Number of Classes</th>
+                <th>Number of Students</th>
+                <th>Overall Attendance (%)</th>
+                <th>Details</th>
+            </tr>
         </thead>
         <tbody>
-        <!-- Sample Department Data -->
-        <tr class="green">
-            <td>Computer Science</td>
-            <td>3</td>
-            <td>120</td>
-            <td>85%</td>
-            <td><a href="#cs-classes">View Classes</a></td>
-        </tr>
-        <tr class="blue">
-            <td>Mechanical Engineering</td>
-            <td>2</td>
-            <td>80</td>
-            <td>78%</td>
-            <td><a href="#me-classes">View Classes</a></td>
-        </tr>
-        <tr class="green">
-            <td>Civil Engineering</td>
-            <td>2</td>
-            <td>90</td>
-            <td>88%</td>
-            <td><a href="#ce-classes">View Classes</a></td>
-        </tr>
+            {% for department in department_data %}
+            <tr>
+                <td>{{ department.name }}</td>
+                <td>{{ department.total_classes }}</td>
+                <td>{{ department.total_students }}</td>
+                <td>{{ department.attendance_percentage }}%</td>
+                <td><a href="#details">View Details</a></td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
+    
 
     <!-- Class-wise Attendance for Computer Science Department -->
     <h2 id="cs-classes">Class-wise Attendance for Computer Science Department</h2>

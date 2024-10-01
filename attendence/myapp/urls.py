@@ -2,7 +2,15 @@ from django.urls import path
 from . import views
 from . import teacherViews
 
+from django.urls import path
+from . import views
+
+
+
 urlpatterns = [
+
+
+    path('super_admin/',views.super_admin,name='super_admin'),
     path('teacher/<int:teacher_id>/update/', teacherViews.update_teacher, name='update_teacher'),
 
     path('labs/', teacherViews.lab_dashboard, name='lab_dashboard'),

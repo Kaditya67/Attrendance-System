@@ -112,21 +112,25 @@
         <table>
             <thead>
             <tr>
+                <th>#</th> <!-- Serial number column -->
                 <th>Date</th>
+                <th>Topics Covered</th> <!-- New column for topics covered -->
                 <th>Status</th>
             </tr>
             </thead>
             <tbody>
             {% for record in attendance_records %}
             <tr>
+                <td>{{ forloop.counter }}</td> <!-- Serial number -->
                 <td>{{ record.date }}</td>
+                <td>{{ record.notes|default:"No topics available" }}</td> <!-- Fetch and display notes -->
                 <td class="{% if record.present %}status-present{% else %}status-absent{% endif %}">
                     {% if record.present %}Present{% else %}Absent{% endif %}
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="2">No attendance records found for this subject.</td>
+                <td colspan="4">No attendance records found for this subject.</td>
             </tr>
             {% endfor %}
             </tbody>

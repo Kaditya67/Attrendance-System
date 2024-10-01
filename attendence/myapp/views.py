@@ -391,6 +391,10 @@ def submit_attendance(request):
     return redirect('Add_Attendance')
 
 
+def super_admin(request):
+    return render(request,'super_admin.html')
+
+
 
 # View for subject details
 def SubjectDetails(request, student_id, course_id):
@@ -404,7 +408,7 @@ def SubjectDetails(request, student_id, course_id):
     attendance_records = Attendance.objects.filter(student=student, course=course).order_by('date')
     
     # Pass the attendance records to the template
-    return render(request, 'SubjectDetails.html', {
+    return render(request, 'SubjectDetails.html', { 
         'student': student,
         'course': course,
         'attendance_records': attendance_records,
@@ -457,11 +461,42 @@ def StudentDashBoard(request, student_id):
         'missed_attendance': missed_attendance,    # Pass the missed attendance to the template
     })
 
+from django.shortcuts import render
+from django.db.models import Count, Q
+from .models import Department, Student, Attendance
 
-# View for principal dashboard
 def PrincipalDashboard(request):
-    # Logic for displaying principal dashboard
-    return render(request, 'PrincipalDashboard.html')
+    departments = Department.objects.all()
+    department_data = []
+
+    for department in departments:
+        # Get the total number of students in this department
+        total_students = Student.objects.filter(semester__session_year__department=department).count()
+
+        # Get all attendance records for students in this department
+        attendance_records = Attendance.objects.filter(student__semester__session_year__department=department)
+
+        # Count distinct courses based on attendance records for this department
+        total_classes = attendance_records.values('course').distinct().count()
+
+        # Calculate total attendance percentage for the department
+        if attendance_records.count() > 0:  # Only calculate if there are attendance records
+            total_present = attendance_records.filter(present=True).count()
+            overall_attendance_percentage = (total_present / attendance_records.count()) * 100
+        else:
+            overall_attendance_percentage = 0  # No attendance records, so 0%
+
+        # Append department data to the list for rendering
+        department_data.append({
+            'name': department.name,  # Department name
+            'total_classes': total_classes,  # Number of distinct classes
+            'total_students': total_students,  # Number of students in the department
+            'attendance_percentage': round(overall_attendance_percentage, 2),  # Rounded to 2 decimal places
+        })
+
+    # Render the PrincipalDashboard template and pass the department data
+    return render(request, 'PrincipalDashboard.html', {'department_data': department_data})
+
 
 # View for HOD dashboard
 # views.py
@@ -474,13 +509,16 @@ from django.http import JsonResponse
 from .models import Year, Student, Attendance
 
 def HOD_Dashboard(request):
+    # Fetch the IT department
+    it_department = Department.objects.get(name='Information Technology')
+    
     # Fetch all years
     years = Year.objects.all()
     attendance_data = []
 
     for year in years:
-        # Fetch all students in this year
-        students = Student.objects.filter(semester__year=year.name)
+        # Fetch all students in this year who belong to the IT department
+        students = Student.objects.filter(semester__year=year.name, semester__session_year__department=it_department)
         total_students = students.count()
 
         # Calculate overall attendance for this year
@@ -505,28 +543,41 @@ def HOD_Dashboard(request):
     return render(request, 'HOD_Dashboard.html', {'attendance_data': attendance_data, 'years': years})
 
 
+
 from django.http import JsonResponse
 from .models import Semester, Course  # Import the necessary models
+
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import Semester, Attendance, Student, Department
 
 def get_subjects_by_year(request):
     year_code = request.GET.get('year_code')
     
+    # Fetch the IT department
+    it_department = get_object_or_404(Department, name='Information Technology')
+    
     # Fetch all semesters that belong to the selected year
     semester_objects = Semester.objects.filter(year=year_code)
-    
+
     subjects = []
     
+    # Check if any semesters were found
+    if not semester_objects.exists():
+        return JsonResponse({'subjects': [], 'message': 'No semesters found for this year.'})
+
     # Fetch all courses related to each semester
     for semester in semester_objects:
         for course in semester.courses.all():  # Fetch all courses related to the semester
-            # Get total classes and classes attended by students
+            
+            # Get total classes and classes attended by students in the IT department
             total_classes = Attendance.objects.filter(course=course).count()  # Total classes for this course
             classes_attended = Attendance.objects.filter(course=course, present=True).count()  # Classes attended by students
             
-            # Get total students for the course (You might want to adjust this based on your enrollment logic)
-            total_students = Student.objects.filter(semester=semester).count()  # Count of students in the current semester
+            # Get total students for the course in the IT department
+            total_students = Student.objects.filter(semester=semester, semester__session_year__department=it_department).count()  # Count of IT students in the current semester
             
-            # Calculate class attended using the provided formula
+            # Calculate class attended score
             if total_students > 0:
                 class_attended_score = (classes_attended / total_students) * 10
             else:
@@ -544,14 +595,14 @@ def get_subjects_by_year(request):
     return JsonResponse({'subjects': subjects})
 
 
-from django.http import JsonResponse
-from .models import Course, Attendance
+
 
 from django.http import JsonResponse
 from .models import Course, Attendance, Student
 
 from django.http import JsonResponse
-from .models import Course, Attendance, Student
+from django.shortcuts import get_object_or_404
+from .models import Course, Attendance, Student, Department
 
 def get_students_by_subject(request):
     subject_code = request.GET.get('subject_code')
@@ -560,6 +611,9 @@ def get_students_by_subject(request):
         course = Course.objects.get(code=subject_code)
     except Course.DoesNotExist:
         return JsonResponse({'students': [], 'error': 'Course not found'}, status=404)
+
+    # Fetch the IT department
+    it_department = get_object_or_404(Department, name='Information Technology')
 
     # Fetch attendance records for the selected course
     attendances = Attendance.objects.filter(course=course)
@@ -570,6 +624,10 @@ def get_students_by_subject(request):
 
     for attendance in attendances:
         student = attendance.student
+        
+        # Ensure the student is in the IT department
+        if student.semester.session_year.department != it_department:
+            continue
         
         # Use student_id as a string to check uniqueness
         student_id = str(student.user.id)
@@ -598,19 +656,24 @@ def get_students_by_subject(request):
 
 
 
+
 # views.py
 
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from .models import Year, Student, Attendance
 
+
 class AttendanceDetailsView(View):
     def get(self, request, year_code):
         # Fetch the year based on the year_code (should be 'FE', 'SE', etc.)
         year = get_object_or_404(Year, name=year_code)
         
-        # Fetch all students in this year
-        students = Student.objects.filter(semester__year=year_code)
+        # Fetch the IT department
+        it_department = get_object_or_404(Department, name='Information Technology')
+        
+        # Fetch all students in this year who belong to the IT department
+        students = Student.objects.filter(semester__year=year_code, semester__session_year__department=it_department)
         student_data = []
 
         for student in students:
