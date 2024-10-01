@@ -61,7 +61,7 @@
         }
 
         select:focus, input[type="date"]:focus, input[type="text"]:focus, textarea:focus {
-            border-color: #3498db;
+            border-color: #2b2b2b;
             outline: none;
         }
 
@@ -80,7 +80,7 @@
         }
 
         table th {
-            background-color: #3498db;
+            background-color: #2b2b2b;
             color: #fff;
             font-weight: 500;
         }
@@ -100,7 +100,7 @@
         }
 
         .button {
-            background-color: #3498db;
+            background-color: #2b2b2b;
             color: white;
             padding: 12px 20px;
             font-size: 18px;
@@ -264,13 +264,13 @@
                 </table>
 
                 <!-- Submit Button -->
-<input type="hidden" name="absent_students" id="absent_students">
-<!-- Notes Text Field -->
-<label for="common_notes">Common Notes:</label>
-<input type="text" id="common_notes" name="common_notes" placeholder="Enter any notes here..." required>
-
-<button type="submit" class="button" onclick="markAbsentStudents();">Submit Attendance</button>
-
+                <div class="text-center">
+                <input type="hidden" name="absent_students" id="absent_students">
+                <!-- Notes Text Field -->
+                <label for="common_notes" style="text-align:center; font-size:2rem">Topics Covered: (optional)</label>
+                <input type="text" id="common_notes" name="common_notes" placeholder="Enter any notes here...">
+                </div>
+                <button type="submit" class="button" onclick="markAbsentStudents();">Submit Attendance</button>
             </form>
             {% endif %}
         </div>

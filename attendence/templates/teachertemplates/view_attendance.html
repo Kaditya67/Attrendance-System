@@ -31,7 +31,7 @@
       }
       h2 {
         margin: 20px 0;
-        color: #2980b9;
+        color: #2b2b2b;
       }
       table {
         width: 100%;
@@ -46,7 +46,7 @@
         text-align: center;
       }
       table th {
-        background-color: #3498db;
+        background-color: #2b2b2b;
         color: #fff;
       }
       table tr:nth-child(even) {
@@ -56,7 +56,7 @@
         background-color: #e1e1e1;
       }
       .button {
-        background-color: #3498db;
+        background-color: #2b2b2b;
         color: white;
         padding: 10px 15px;
         border: none;
@@ -107,14 +107,14 @@
     {% include 'teachertemplates/navbar.html' %}
     <div class="content">
       <div class="container">
-        <h1>View Attendance</h1>
+        <h1 style="text-align: center;">View Attendance</h1>
 
         <!-- Course Selection Form -->
-        <form method="POST" action="{% url 'view_Attendance' %}" onsubmit="validateForm(event)">
+        <form method="POST" action="{% url 'view_Attendance' %}" onsubmit="validateForm(event)" style="margin-top: 20px; background-color: #f9f9f9; border-radius: 8px; padding: 20px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
           {% csrf_token %}
-          <div class="form-group">
-            <label for="course">Select Course:</label>
-            <select name="subject" id="course">
+          <div class="form-group" style="margin-bottom: 15px;">
+            <label for="course" style="font-weight: bold; color: #333;">Select Course:</label>
+            <select name="subject" id="course" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; color: #333;">
               <option value="">--Select a Course--</option>
               {% for course in courses %}
                 <option value="{{ course.id }}" {% if selected_course and selected_course.id == course.id %}selected{% endif %}>
@@ -122,15 +122,18 @@
                 </option>
               {% endfor %}
             </select>
-            <div id="error-message" class="error"></div> <!-- Error message container -->
+            <div id="error-message" class="error" style="color: red; margin-top: 5px;"></div> <!-- Error message container -->
           </div>
-          <div class="button-container">
-            <button type="submit" class="button">Fetch Attendance</button>
+          <div class="button-container" style="text-align: center;">
+            <button type="submit" class="button" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
+              Fetch Attendance
+            </button>
           </div>
         </form>
+        
 
         {% if selected_course %}
-          <h2 style="margin-top: 10px;">Attendance for {{ selected_course.name }}</h2>
+          <h2 style="margin-top: 20px;text-align: center;">Attendance for {{ selected_course.name }}</h2>
           <table>
             <thead>
                 <tr>

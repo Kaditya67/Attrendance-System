@@ -1,4 +1,3 @@
-{% extends "base.html" %} {% block content %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -18,55 +17,41 @@
       }
 
       .container {
-        width: 80%;
-        margin: auto;
+        max-width: 1200px;
+        margin: 30px auto; /* Reduced margin */
         padding: 20px;
         background-color: #fff;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        margin-top: 50px;
-        border-radius: 10px;
-        animation: fadeIn 0.5s ease-in;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       }
 
       h2 {
         text-align: center;
         color: #2c3e50;
-        margin-bottom: 20px;
+        margin: 10px 0; /* Reduced margin */
       }
 
       p {
         text-align: center;
         color: #34495e;
-        margin-bottom: 20px;
+        margin: 5px 0 20px; /* Reduced margin */
       }
 
       table {
         width: 100%;
         border-collapse: collapse;
         margin-bottom: 20px;
-        animation: fadeIn 1s ease-in;
       }
 
       table th,
       table td {
         border: 1px solid #ddd;
-        padding: 15px;
+        padding: 10px; /* Reduced padding */
         text-align: center;
       }
 
       table th {
-        background-color: #3498db;
+        background-color: #2b2b2b;
         color: #fff;
         font-weight: 500;
       }
@@ -76,24 +61,22 @@
       }
 
       .button-container {
-        display: grid; /* Use CSS Grid */
-        grid-template-columns: repeat(2, 1fr); /* Two columns of equal width */
-        justify-content: center; /* Center the grid items */
+        display: flex; /* Use Flexbox */
+        justify-content: center; /* Center the buttons */
         gap: 10px; /* Space between the buttons */
         margin-top: 20px; /* Space above the buttons */
       }
 
       .button {
-        background-color: #3498db;
+        background-color: #2b2b2b;
         color: white;
-        padding: 8px 15px; /* Smaller padding for smaller buttons */
+        padding: 10px 15px; /* Slightly smaller padding */
         font-size: 14px; /* Slightly smaller font size */
         border: none;
         cursor: pointer;
         text-align: center;
         border-radius: 5px;
         transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        width: auto; /* Allow width to be determined by content */
       }
 
       .button.back {
@@ -117,53 +100,57 @@
     </style>
   </head>
   <body>
-    <div class="container">
-      <h2>Edit Attendance for Course: {{ selected_course.name }}</h2>
-      <p>Date: {{ selected_date }} | Lecture Number: {{ lecture_number }}</p>
 
-      <form method="POST">
-        {% csrf_token %}
-        <table>
-          <thead>
-            <tr>
-              <th>Student</th>
-              <th>Attendance</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for record in attendance_records %}
-            <tr>
-              <td>{{ record.student.user.get_full_name }}</td>
-              <td
-                class="attendance-cell {% if record.present %}present{% else %}absent{% endif %}"
-                onclick="toggleAttendance(this, {{ record.student.id }})"
-              >
-                <select
-                  name="attendance_{{ record.student.id }}"
-                  class="attendance-select"
-                  onchange="updateAttendanceColor(this)"
+    {% include 'teachertemplates/navbar.html' %}
+    <div class="content">
+      <div class="container">
+        <h2>Edit Attendance for Course: {{ selected_course.name }}</h2>
+        <p>Date: {{ selected_date }} | Lecture Number: {{ lecture_number }}</p>
+
+        <form method="POST">
+          {% csrf_token %}
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Attendance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for record in attendance_records %}
+              <tr>
+                <td>{{ record.student.user.get_full_name }}</td>
+                <td
+                  class="attendance-cell {% if record.present %}present{% else %}absent{% endif %}"
+                  onclick="toggleAttendance(this, {{ record.student.id }})"
                 >
-                <option value="Present" {% if record.present %}selected{% endif %}>Present</option>
-                <option value="Absent" {% if not record.present %}selected{% endif %}>Absent</option>                
-                </select>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+                  <select
+                    name="attendance_{{ record.student.id }}"
+                    class="attendance-select"
+                    onchange="updateAttendanceColor(this)"
+                  >
+                    <option value="Present" {% if record.present %}selected{% endif %}>Present</option>
+                    <option value="Absent" {% if not record.present %}selected{% endif %}>Absent</option>                
+                  </select>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
 
-        <!-- Buttons Side by Side -->
-        <div style="text-align: center">
-          <button
-            type="button"
-            class="button back"
-            onclick="window.location.href='{% url 'view_Attendance' %}'"
-          >
-            Cancel
-          </button>
-          <button type="submit" class="button">Update Attendance</button>
-        </div>
-      </form>
+          <!-- Buttons Side by Side -->
+          <div class="button-container">
+            <button
+              type="button"
+              class="button back"
+              onclick="window.location.href='{% url 'view_Attendance' %}'"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="button">Update Attendance</button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <script>
@@ -194,4 +181,3 @@
     </script>
   </body>
 </html>
-{% endblock %}

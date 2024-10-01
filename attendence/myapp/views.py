@@ -155,6 +155,25 @@ def select_batch_and_students(request, lab_id):
 
     return render(request, 'select_batch.html', {'lab': lab, 'batch_options': batch_options, 'students': students})
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Student
+from .forms import StudentUpdateForm
+
+@login_required
+def update_student_profile(request):
+    # Get the current student's profile
+    student = get_object_or_404(Student, user=request.user)
+
+    if request.method == 'POST':
+        form = StudentUpdateForm(request.POST, instance=student)
+        if form.is_valid():
+            form.save()
+            return redirect('StudentDashBoard', student_id=student.student_id)
+    else:
+        form = StudentUpdateForm(instance=student)
+
+    return render(request, 'student/update_profile.html', {'form': form})
 
 # @login_required
 # def update_Attendance(request):
@@ -477,6 +496,8 @@ def HOD_Dashboard(request):
     if not request.user.groups.filter(name='HOD').exists():
         return redirect('no_permission')
     
+    teacher =  get_object_or_404(Teacher, user=request.user)
+    
     # Fetch all years
     years = Year.objects.all()
     attendance_data = []
@@ -505,7 +526,7 @@ def HOD_Dashboard(request):
             'attendance_percentage': attendance_percentage,
         })
 
-    return render(request, 'HOD_Dashboard.html', {'attendance_data': attendance_data, 'years': years})
+    return render(request, 'HOD_Dashboard.html', {'attendance_data': attendance_data, 'years': years, 'teacher': teacher})
 
 
 from django.http import JsonResponse

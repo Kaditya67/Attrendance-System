@@ -6,6 +6,20 @@ from django.db import transaction
 from .models import Student, Department, Teacher, HOD, Staff, Principal, Course, Attendance, Semester
 from django.contrib.auth import authenticate
 
+from django import forms
+from django.contrib.auth.forms import PasswordChangeForm
+from .models import Teacher
+
+class TeacherProfileForm(forms.ModelForm):
+    class Meta:
+        model = Teacher
+        fields = ['mobile_no', 'email', 'experience']  # Add other fields as needed
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    class Meta:
+        model = Teacher.user
+        fields = ['old_password', 'new_password1', 'new_password2']
+
 
 from django import forms
 from .models import Teacher
@@ -13,7 +27,7 @@ from .models import Teacher
 class TeacherUpdateForm(forms.ModelForm):
     class Meta:
         model = Teacher
-        fields = ['courses_taught', 'mobile_no', 'email', 'experience']  # Excluded faculty_id and department
+        fields = ['mobile_no', 'email', 'experience']
 
 
 from django import forms

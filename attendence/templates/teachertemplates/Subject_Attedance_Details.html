@@ -153,10 +153,11 @@
                         <table>
                             <thead>
                                 <tr>
+                                    <th>Roll No.</th>
                                     <th>Student Name</th>
                                     {% if attendance_data|get_item:course.course.name %}
                                         {% for date in attendance_data|get_item:course.course.name %}
-                                            <th>{{ date.date }}</th>
+                                            <th class="date-cell">{{ date.date }}</th>
                                         {% endfor %}
                                     {% else %}
                                         <th>No Dates Available</th>
@@ -168,6 +169,7 @@
                             <tbody>
                                 {% for student in course.students %}
                                 <tr>
+                                    <td>{{ student.student.roll_number}}</td>
                                     <td>{{ student.student.user.username }}</td>
                                     {% if attendance_data|get_item:course.course.name %}
                                         {% for record in student.attendance %}
@@ -195,7 +197,34 @@
             <p><span class="absent">Absent:</span> The student was absent on this date.</p>
         </div>
     </div>
+    <script>
+// Function to convert date from "Sept. 5, 2024" to "5/9/2024"
+function convertDate(dateString) {
+    const monthConversion = {
+        "Jan.": "1", "Feb.": "2", "Mar.": "3", "Apr.": "4", "May.": "5",
+        "Jun.": "6", "Jul.": "7", "Aug.": "8", "Sept.": "9", "Oct.": "10",
+        "Nov.": "11", "Dec.": "12"
+    };
 
+    // Split the date string assuming it follows the "Sept. 5, 2024" format
+    let dateParts = dateString.replace(',', '').split(' ');
+    let day = dateParts[1];
+    let month = monthConversion[dateParts[0]];
+    let year = dateParts[2];
+
+    // Return the date in "5/9/2024" format (day/month/year)
+    return `${day}/${month}/${year}`;
+}
+
+// Apply the function on page load
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll(".date-cell").forEach(function(cell) {
+        let originalDate = cell.textContent.trim();
+        let convertedDate = convertDate(originalDate);
+        cell.textContent = convertedDate;
+    });
+});
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
