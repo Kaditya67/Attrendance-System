@@ -5,9 +5,30 @@ from django.db.models import Max
 from collections import defaultdict
 import json
 from django.urls import reverse  
-from .models import Labs, Batches, Teacher, Student, Course, Attendance, Semester, LabsBatches
+from .models import Labs, Batches, Teacher, Student, Course, Attendance, Semester, LabsBatches, HOD
 
 from .forms import TeacherUpdateForm
+
+# views.py
+from django.shortcuts import render, get_object_or_404
+from myapp.models import Teacher, Labs
+from myapp.forms import LabForm
+
+@login_required
+def add_lab(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
+    
+    if request.method == 'POST':
+        form = LabForm(request.POST, teacher=teacher)
+        if form.is_valid():
+            form.save()
+            return redirect('lab_dashboard')  # Redirect to some relevant page after saving
+    else:
+        form = LabForm(teacher=teacher)  # Pass teacher to the form
+
+    return render(request, 'teachertemplates/add_lab.html', {'form': form, 'teacher': teacher})
+
+
 
 @login_required
 def lab_dashboard(request):
@@ -15,6 +36,14 @@ def lab_dashboard(request):
     teacher = get_object_or_404(Teacher, user=request.user)
     labs = teacher.assigned_labs.all()
     print(f"Assigned Labs: {labs}")
+
+    is_hod = False
+    
+    if request.user.groups.filter(name="HOD").exists():
+        is_hod = True
+
+        labs = Labs.objects.all()
+    print(f"Labs: {labs}")
 
     lab_data = []
 
@@ -30,6 +59,7 @@ def lab_dashboard(request):
     context = {
         'lab': lab_data,
         'labs': labs,  # Include all labs for navbar display
+        'is_hod': is_hod
     }
     return render(request, 'teachertemplates/lab_dashboard.html', context)
 
@@ -42,13 +72,13 @@ def add_batches(request, lab_id):
         batch_input = request.POST.get('batch_options')  # Example: "a,b,c"
         batch_list = [batch.strip() for batch in batch_input.split(',')]  # Split by commas
         batch_instance.set_batch_options(batch_list)
-        return redirect('teachertemplates/assign_batches', lab_id=lab.id)
+        return redirect('assign_batches', lab_id=lab.id)
 
     context = {
         'lab': lab,
         'batch_options': batch_instance.get_batch_options(),  # Retrieve the current batch options
     }
-    return render(request, 'teachertemplates/assign_batches', context)
+    return render(request, 'teachertemplates/add_batches.html', context)
 
 
 def delete_batch(request, batch_id):
@@ -124,14 +154,36 @@ def lab_detail(request, lab_id):
     return render(request, 'teachertemplates/lab_detail.html', context)
 
 
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib import messages
+
 def update_teacher(request, teacher_id):
     teacher = get_object_or_404(Teacher, id=teacher_id)
     
     if request.method == 'POST':
-        form = TeacherUpdateForm(request.POST, instance=teacher)
-        if form.is_valid():
-            form.save()
-            return redirect('Teacher_dashboard')  # Change this to your success URL
+        if 'update_profile' in request.POST:
+            form = TeacherUpdateForm(request.POST, instance=teacher)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Profile updated successfully!')
+                return redirect('update_teacher', teacher_id=teacher.id)  # Redirect to the same page to show message
+
+        elif 'change_password' in request.POST:
+            # Handle password change logic here
+            old_password = request.POST.get('old_password')
+            new_password1 = request.POST.get('new_password1')
+            new_password2 = request.POST.get('new_password2')
+
+            # Add your password change logic here
+            if new_password1 == new_password2 and teacher.user.check_password(old_password):
+                teacher.user.set_password(new_password1)
+                teacher.user.save()
+                messages.success(request, 'Password changed successfully!')
+                return redirect('update_teacher', teacher_id=teacher.id)  # Redirect to the same page to show message
+            else:
+                messages.error(request, 'Password change failed. Please check your inputs.')
+
     else:
         form = TeacherUpdateForm(instance=teacher)
 
@@ -140,6 +192,48 @@ def update_teacher(request, teacher_id):
         'teacher': teacher
     }
     return render(request, 'teachertemplates/update_teacher.html', context)
+
+
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect, render
+from .models import Student
+from .forms import StudentUpdateForm  # Assuming you have a form for Student similar to TeacherUpdateForm
+
+def update_student(request, student_id):
+    student = get_object_or_404(Student, id=student_id)
+    
+    if request.method == 'POST':
+        if 'update_profile' in request.POST:
+            form = StudentUpdateForm(request.POST, instance=student)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Profile updated successfully!')
+                return redirect('update_student', student_id=student.id)  # Redirect to the same page to show message
+
+        elif 'change_password' in request.POST:
+            old_password = request.POST.get('old_password')
+            new_password1 = request.POST.get('new_password1')
+            new_password2 = request.POST.get('new_password2')
+
+            if new_password1 == new_password2 and student.user.check_password(old_password):
+                student.user.set_password(new_password1)
+                student.user.save()
+                update_session_auth_hash(request, student.user)  # Important to keep the user logged in
+                messages.success(request, 'Password changed successfully!')
+                return redirect('update_student', student_id=student.id)  # Redirect to the same page to show message
+            else:
+                messages.error(request, 'Password change failed. Please check your inputs.')
+
+    else:
+        form = StudentUpdateForm(instance=student)
+
+    context = {
+        'form': form,
+        'student': student
+    }
+    return render(request, 'update_student.html', context)
 
 
 @login_required
@@ -482,6 +576,7 @@ def submit_attendance(request):
     return redirect('Add_Attendance')
 
 
+from django.http import JsonResponse
 def Subject_Attendance_Details(request):
     # Get the teacher object for the currently logged-in user
     teacher = get_object_or_404(Teacher, user=request.user)
@@ -549,21 +644,29 @@ def Subject_Attendance_Details(request):
 
             # Calculate the average attendance percentage for the course
             average_attendance = (total_attended_sum / (student_count * total_classes)) * 100 if student_count > 0 and total_classes > 0 else 0
-            top_students = sorted(student_data, key=lambda x: x['percentage'], reverse=True)[:3]
+            
+            # Initialize top_students as empty
+            top_students = []
+
+            # Check if the form is submitted to load top students
+            if request.method == 'POST' and 'load_top_students' in request.POST:
+                # Sort and get the top students based on attendance percentage
+                top_students = sorted(student_data, key=lambda x: x['percentage'], reverse=True)[:3]  # Get top 3
 
             course_data.append({
                 'course': course,
                 'semester': semester,
                 'students': student_data,
-                'average_attendance': round(average_attendance, 2),  # Store the average attendance percentage
-                'top_students': top_students,  # Add top students to course_data
+                'average_attendance': round(average_attendance, 2),
+                'top_students': top_students,  # Pass the top students to the template
             })
 
     return render(request, 'teachertemplates/Subject_Attedance_Details.html', {
         'teacher': teacher,
         'course_data': course_data,
-        'attendance_data': attendance_data
+        'attendance_data': attendance_data,
     })
+
 
 
 @login_required

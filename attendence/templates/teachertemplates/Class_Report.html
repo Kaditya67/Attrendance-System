@@ -154,7 +154,7 @@
             <h1>Common Summary Attendance Dashboard</h1>
         
             <form method="GET" action="{% url 'Class_Report' %}">
-                <label for="semester">Select Semester:</label>
+                <label for="semester" style="font-size: 2rem;padding: 1rem;">Select Semester:</label>
                 <select name="semester" id="semester" onchange="this.form.submit()">
                     <option value="">--Select Semester--</option>
                     {% for semester in semesters %}
@@ -166,6 +166,7 @@
             </form>
         
             {% if semester_data %}
+            <div>
                 <h3 style="margin: 20px 0px;">Semester: {{ semester_data.0.semester }}</h3>
                 <table>
                     <thead>
@@ -195,16 +196,18 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                <div class="legend">
+                    <p><span class="green">Green:</span> Good attendance (Above 80%)</p>
+                    <p><span class="blue">Blue:</span> Moderate attendance (60%-80%)</p>
+                    <p><span class="red">Red:</span> Low attendance (Below 60%)</p>
+                </div>
+            </div>
             {% else %}
-                <p>Please select a semester to view the attendance report.</p>
+                <p align="center">Please select a semester to view the attendance report.</p>
             {% endif %}
             
             <!-- Legend for Colors -->
-            <div class="legend">
-                <p><span class="green">Green:</span> Good attendance (Above 80%)</p>
-                <p><span class="blue">Blue:</span> Moderate attendance (60%-80%)</p>
-                <p><span class="red">Red:</span> Low attendance (Below 60%)</p>
-            </div>
+            
         </div>
         
     </div>

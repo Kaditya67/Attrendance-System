@@ -5,8 +5,10 @@ from . import teacherViews
 urlpatterns = [
     path('update_profile/', views.update_student_profile, name='update_student_profile'),
     path('teacher/<int:teacher_id>/update/', teacherViews.update_teacher, name='update_teacher'),
+    path('students/<int:student_id>/update/', teacherViews.update_student, name='update_student'),
 
     path('labs/', teacherViews.lab_dashboard, name='lab_dashboard'),
+    path('labs/add/', teacherViews.add_lab, name='add_lab'),
     path('labs/<int:lab_id>/add_batches/', teacherViews.add_batches, name='add_batches'),
     path('labs/<int:lab_id>/assign_batches/', teacherViews.assign_batches_to_students, name='assign_batches'),
     path('labs/<int:lab_id>/select_batches/', views.select_batch_and_students, name='select_batches'),

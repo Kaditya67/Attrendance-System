@@ -10,6 +10,51 @@ from django import forms
 from django.contrib.auth.forms import PasswordChangeForm
 from .models import Teacher
 
+# forms.py
+from django import forms
+from myapp.models import Labs, Semester
+
+# forms.py
+from django import forms
+from django.db import models  # Add this import
+from myapp.models import Labs, Semester
+
+class LabForm(forms.ModelForm):
+    class Meta:
+        model = Labs
+        fields = ['code', 'name', 'semester', 'index']
+        widgets = {
+            'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter course code'}),
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter course name'}),
+            'semester': forms.Select(attrs={'class': 'form-control'}),
+            'index': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter index'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        # Pop the teacher object if provided
+        teacher = kwargs.pop('teacher', None)
+        super(LabForm, self).__init__(*args, **kwargs)
+        
+        # Filter semesters based on the teacher's department
+        if teacher:
+            department = teacher.department
+            self.fields['semester'].queryset = Semester.objects.filter(session_year__department=department)
+
+        # Set the next available index
+        max_index = Labs.objects.aggregate(max_index=models.Max('index'))['max_index']
+        self.fields['index'].initial = (max_index + 1) if max_index is not None else 0
+
+
+from django import forms
+from .models import Student
+
+class StudentUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['roll_number', 'semester', 'mobile_no', 'email', 'address']  # Add other fields as needed
+
+
+
 class TeacherProfileForm(forms.ModelForm):
     class Meta:
         model = Teacher

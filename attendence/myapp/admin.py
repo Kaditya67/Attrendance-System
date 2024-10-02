@@ -69,7 +69,11 @@ class LectureAdmin(admin.ModelAdmin):
     list_filter = ('date', 'program')
     ordering = ('date',)
 
+from .models import Labs, Batches, Program, HOD, Staff
 # Registering the LabsBatches model
+admin.site.register(Labs)
+admin.site.register(Batches)
+
 @admin.register(LabsBatches)
 class LabsBatchesAdmin(admin.ModelAdmin):
     list_display = ('name', 'program', 'department')

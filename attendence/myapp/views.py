@@ -887,7 +887,7 @@ def login_view(request):
             elif user.groups.filter(name='HOD').exists():
                 return redirect('HOD_Dashboard')
             elif user.groups.filter(name='Teacher').exists():
-                return redirect('teacher_dashboard')
+                return redirect('Teacher_dashboard')
             elif user.groups.filter(name='Student').exists():
                 try:
                     student = Student.objects.get(user=user)

@@ -40,6 +40,9 @@
     <div class="container">
         <div class="dashboard-header">
             <h1>Lab Management Dashboard</h1>
+            {% if is_hod %}
+            <a href="{% url 'add_lab' %}" class="btn btn-primary">Add New Lab</a>
+            {% endif %}
         </div>
 
         {% if labs %}
@@ -72,10 +75,6 @@
                 No labs available at the moment. Please create a lab to view batches.
             </div>
         {% endif %}
-    </div>
-
-    <div class="container">
-        <a href="{% url 'Teacher_dashboard' %}" class="btn btn-primary btn-lg">Back to Teacher Dashboard</a>    
     </div>
     </div>
 
