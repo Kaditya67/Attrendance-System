@@ -101,7 +101,8 @@
     </tbody>
 </table>
 
-<a href="{% url 'HOD_Dashboard' %}">Back to HOD Dashboard</a>
+<a href="{% url 'HOD_Dashboard' %}?department={{ department.name|urlencode }}">Back to HOD Dashboard</a>
+
 
 </body>
 </html>

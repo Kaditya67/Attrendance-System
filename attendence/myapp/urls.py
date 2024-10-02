@@ -44,6 +44,7 @@ urlpatterns = [
     path('PrincipalDashboard',views.PrincipalDashboard,name='PrincipalDashboard'),
     path('HOD_Dashboard',views.HOD_Dashboard,name='HOD_Dashboard'),
 
+
     path('attendance-details/<str:year_code>/', views.AttendanceDetailsView.as_view(), name='attendance_details'),
     path('subject_attendance/', views.subject_attendance, name='subject_attendance'),
     path('get-subjects/', views.get_subjects_by_year, name='get_subjects_by_year'),
