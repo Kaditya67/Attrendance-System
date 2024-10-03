@@ -163,6 +163,7 @@
               >
                 <b>-</b> Add Attendance
               </a>
+
             </li>
             
             {% url 'view_Attendance' as view_attendance_url %}
@@ -219,6 +220,64 @@
             <i class="bi bi-pencil sidebar-icon"></i>Update Profile
           </a>
         </li>
+
+
+            </li>
+            {% url 'select_course_lecture' as update_attendance_url %}
+            <li>
+              <a
+                class="dropdown-item {% if request.path == update_attendance_url %}active{% endif %}"
+                href="{{ update_attendance_url }}"
+              >
+                <b>-</b> Update Attendance
+              </a>
+            </li>
+            {% url 'view_Attendance' as view_attendance_url %}
+            <li>
+              <a
+                class="dropdown-item {% if request.path == view_attendance_url %}active{% endif %}"
+                href="{{ view_attendance_url }}"
+              >
+                <b>-</b> View Attendance
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Student List -->
+        {% url 'lab_dashboard' as batch_url %}
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.path == batch_url %}active{% endif %}"
+            href="{{ batch_url }}"
+          >
+            <i class="bi bi-people sidebar-icon"></i>Manage Batches
+          </a>
+        </li>
+
+        <!-- Reports -->
+        {% url 'Class_Report' as class_report_url %}
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.path == class_report_url %}active{% endif %}"
+            href="{{ class_report_url }}"
+          >
+            <i class="bi bi-graph-up sidebar-icon"></i>Reports
+          </a>
+        </li>
+
+        <!-- Profile -->
+        {% url 'update_teacher' teacher.id as update_teacher_url %}
+
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.path == update_teacher_url %}active{% endif %}"
+            href="{{ update_teacher_url }}"
+          >
+            <i class="bi bi-pencil sidebar-icon"></i>Update Profile
+          </a>
+        </li>
+
 
         <!-- Logout -->
         <li class="nav-item">

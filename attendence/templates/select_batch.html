@@ -1,0 +1,24 @@
+<form method="post">
+    {% csrf_token %}
+    <h2>Select Batch and Assign to Students for {{ lab.name }}</h2>
+    
+    <label for="batch">Select Batch:</label>
+    <select name="batch" id="batch" required>
+        <option value="">Choose a Batch</option>
+        {% for batch in batch_options %}
+        <option value="{{ batch }}">{{ batch }}</option>
+        {% endfor %}
+    </select>
+
+    <h3>Students:</h3>
+    <div>
+        {% for student in students %}
+        <label>
+            <input type="checkbox" name="students" value="{{ student.id }}">
+            {{ student.user.first_name }} {{ student.user.last_name }}
+        </label><br>
+        {% endfor %}
+    </div>
+    
+    <button type="submit">Assign Selected Batches</button>
+</form>

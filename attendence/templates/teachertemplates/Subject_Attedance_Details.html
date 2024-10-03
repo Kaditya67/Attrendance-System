@@ -172,7 +172,11 @@
                                     {% if attendance_data|get_item:course.course.name %}
                                         {% for record in student.attendance %}
                                             <td class="{% if record.present %}present{% else %}absent{% endif %}">
+
                                                 <span>{% if record.present %}P{% else %}A{% endif %}</span>
+
+                                                <span>{% if record.present %}Present{% else %}Absent{% endif %}</span>
+
                                             </td>
                                         {% endfor %}
                                         <td>{{ student.total_attended }}</td>
