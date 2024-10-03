@@ -36,9 +36,9 @@ urlpatterns = [
 
     #to do
     path('update_Attendance',views.update_Attendance,name='update_Attendance'), 
-    path('fetch_students/', views.fetch_students, name='fetch_students'),
+
     path('Add_Attendance',views.Add_Attendance,name='Add_Attendance'),
-    path('submit_attendance/', views.submit_attendance, name='submit_attendance'),
+
     path('SubjectDetails/<str:student_id>/<int:course_id>/', dashboardViews.SubjectDetails, name='SubjectDetails'),
 
     path('StudentDashBoard/<str:student_id>/',dashboardViews.StudentDashBoard,name='StudentDashBoard'),
