@@ -186,9 +186,10 @@
             <select id="yearSelect">
                 <option value="">-- Select Year --</option>
                 {% for year in years %}
-                <option value="{{ year.name }}">{{ year.get_name_display }}</option>
+                <option value="{{ year.name }}" {% if forloop.counter == 1 %}selected{% endif %}>{{ year.get_name_display }}</option>
                 {% endfor %}
             </select>
+            
             <div class="table-container">
                 
                 <canvas id="subjectAttendanceChart" width="400" height="100"></canvas>
@@ -341,7 +342,7 @@
     <script>
         $(document).ready(function() {
             var subjectAttendanceChart; // Store the chart instance globally
-    
+        
             // Handle year selection
             $('#yearSelect').change(function() {
                 var yearCode = $(this).val();
@@ -355,27 +356,27 @@
                             // Clear and populate subject table
                             $('#subjectList').empty();
                             $('#subjectSelect').empty().append('<option value="">-- Select Subject --</option>');
-    
+        
                             // Prepare data arrays for chart
                             var subjectLabels = [];
                             var classesAttended = [];
                             var totalClasses = [];
-    
+        
                             $.each(data.subjects, function(index, subject) {
                                 $('#subjectList').append('<tr><td>' + subject.name + '</td><td>' + subject.classes_attended + '</td><td>' + subject.total_classes + '</td><td>' + subject.attendance_percentage.toFixed(1) + '%</td><td><a href="SubjectDetails">View Details</a></td></tr>');
                                 $('#subjectSelect').append('<option value="' + subject.code + '">' + subject.name + '</option>');
-    
+        
                                 // Populate chart data
                                 subjectLabels.push(subject.name);
                                 classesAttended.push(subject.classes_attended);
                                 totalClasses.push(subject.total_classes - subject.classes_attended); // Calculate missed classes
                             });
-    
+        
                             // If chart already exists, destroy it before creating a new one
                             if (subjectAttendanceChart) {
                                 subjectAttendanceChart.destroy();
                             }
-    
+        
                             // Render chart with the new data
                             var ctx = document.getElementById('subjectAttendanceChart').getContext('2d');
                             subjectAttendanceChart = new Chart(ctx, {
@@ -415,7 +416,7 @@
                 } else {
                     $('#subjectList').empty(); // Clear the subject list if no year is selected
                     $('#subjectSelect').prop('disabled', true).empty().append('<option value="">-- Select Subject --</option>');
-    
+        
                     // Destroy chart if no year is selected and clear the canvas
                     if (subjectAttendanceChart) {
                         subjectAttendanceChart.destroy();
@@ -423,7 +424,11 @@
                     }
                 }
             });
+        
+            // Automatically trigger the change event on page load to select the second year
+            $('#yearSelect').trigger('change');
         });
+        
     </script>
 
     
