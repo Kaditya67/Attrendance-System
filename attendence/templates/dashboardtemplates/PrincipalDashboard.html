@@ -98,6 +98,90 @@
             padding: 20px; /* Padding inside the container */
             margin-bottom: 30px; /* Spacing between table containers */
         }
+
+        .circle {
+            display: inline-block;
+            width: 55px;  /* Adjust the size of the circle */
+            height: 50px;  /* Adjust the size of the circle */
+            border-radius: 50%;  /* Makes it a perfect circle */
+            border: 4px solid;  /* This will be adjusted by the color classes */
+            background-color: transparent;  /* Ensure the inside is transparent */
+            text-align: center;
+            line-height: 45px;  /* Vertically center the text */
+            font-weight: bold;  /* Bold font */
+            font-size: 16px;  /* Adjust the font size */
+            box-sizing: border-box;  /* Ensures padding and border are included in the element's width and height */
+            color: black;  /* Text color */
+            transition: transform 0.2s ease, border-color 0.3s ease;  /* Smooth transition for transform and border color */
+            cursor: pointer;  /* Change cursor to pointer */
+        }
+        
+        /* Red border for values 1-3 */
+        .circle.red {
+            border-color: red;
+        }
+        
+        /* Yellow border for values 4-6 */
+        .circle.yellow {
+            border-color: yellow;
+        }
+        
+        /* Green border for values 7-10 */
+        .circle.green {
+            border-color: green;
+        }
+        
+        /* Scale effect on hover */
+        .circle:hover {
+            transform: scale(1.1);  /* Scale up by 10% */
+        }
+        
+        /* Pulse effect */
+        .circle.pulse {
+            animation: pulse 1.5s infinite;  /* Pulsing effect */
+        }
+        
+        /* Keyframes for pulsing effect */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        
+        .circle-container {
+            position: relative; /* Position relative to position the tooltip */
+            display: inline-block; /* Align circles and tooltips */
+        }
+        
+        .tooltip {
+            display: none; /* Initially hide the tooltip */
+            position: absolute; /* Position absolutely within the container */
+            bottom: 100%; /* Position above the circle */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Center align */
+            background-color: black; /* Tooltip background color */
+            color: white; /* Tooltip text color */
+            padding: 5px; /* Padding around tooltip text */
+            border-radius: 4px; /* Rounded corners */
+            white-space: nowrap; /* Prevent line breaks */
+            z-index: 10; /* Make sure it appears above other elements */
+        }
+        
+        /* Show tooltip on hover */
+        .circle-container:hover .tooltip {
+            display: block; /* Show tooltip when hovering over the circle container */
+        }
+        
+        
+        
+        
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Include Chart.js -->
 </head>
@@ -130,14 +214,27 @@
                 {% for department in department_data %}
                 <tr>
                     <td>{{ department.name }}</td>
-                    <td>{{ department.total_classes }}</td>
+                    <td>
+                        <div class="circle-container">
+                            <span id="circle-{{ forloop.counter }}" class="circle 
+                                {% if department.total_classes <= 3 %}red{% elif department.total_classes <= 6 %}yellow{% else %}green{% endif %} 
+                                pulse">
+                                {{ department.total_classes|floatformat:0 }}/10
+                            </span> <!-- Circle around total_classes -->
+                            <span class="tooltip">Total Classes Attended: {{ department.total_classes|floatformat:0 }}</span>
+                        </div>
+                    </td>
                     <td>{{ department.total_students }}</td>
                     <td>{{ department.attendance_percentage }}%</td>
                     <td><a href="{% url 'HOD_Dashboard' %}?department={{ department.name|urlencode }}">View Details</a></td>
-
                 </tr>
                 {% endfor %}
             </tbody>
+            
+            
+            
+            
+            
         </table>
     </div>
 
@@ -189,6 +286,36 @@
             }
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const circles = document.querySelectorAll('.circle');
+    
+            circles.forEach(circle => {
+                const value = parseInt(circle.textContent.split('/')[0]); // Get the first number (attended classes)
+    
+                // Apply color based on the value
+                if (value >= 1 && value <= 3) {
+                    circle.classList.add('red');
+                } else if (value >= 4 && value <= 6) {
+                    circle.classList.add('yellow');
+                } else if (value >= 7 && value <= 10) {
+                    circle.classList.add('green');
+                }
+            });
+        });
+    </script>
+    <script>
+        // Select all circles with the class 'pulse'
+        const circles = document.querySelectorAll('.circle.pulse');
+    
+        // Set a timeout to remove the pulse effect after 5 seconds
+        setTimeout(() => {
+            circles.forEach(circle => {
+                circle.classList.remove('pulse'); // Remove the pulse class
+            });
+        }, 5000); // 5000 milliseconds = 5 seconds
+    </script>
+    
 
 
 

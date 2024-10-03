@@ -1,4 +1,6 @@
 from django.urls import path
+
+from . import dashboardViews
 from . import views
 from . import teacherViews
 
@@ -10,7 +12,7 @@ from . import views
 urlpatterns = [
 
 
-    path('super_admin/',views.super_admin,name='super_admin'),
+    path('super_admin/',dashboardViews.super_admin,name='super_admin'),
     path('teacher/<int:teacher_id>/update/', teacherViews.update_teacher, name='update_teacher'),
 
     path('labs/', teacherViews.lab_dashboard, name='lab_dashboard'),
@@ -28,7 +30,7 @@ urlpatterns = [
     path('Add_Attendance',teacherViews.Add_Attendance,name='Add_Attendance'),
     path('view_Attendance',teacherViews.view_attendance,name='view_Attendance'),
     path('submit_attendance/', teacherViews.submit_attendance, name='submit_attendance'),
-    path('SubjectDetails',views.SubjectDetails,name='SubjectDetails'),
+    path('SubjectDetails',dashboardViews.SubjectDetails,name='SubjectDetails'),
     
     path('teacher_dashboard',teacherViews.Subject_Attendance_Details,name='Teacher_dashboard'),
 
@@ -37,20 +39,20 @@ urlpatterns = [
     path('fetch_students/', views.fetch_students, name='fetch_students'),
     path('Add_Attendance',views.Add_Attendance,name='Add_Attendance'),
     path('submit_attendance/', views.submit_attendance, name='submit_attendance'),
-    path('SubjectDetails/<str:student_id>/<int:course_id>/', views.SubjectDetails, name='SubjectDetails'),
+    path('SubjectDetails/<str:student_id>/<int:course_id>/', dashboardViews.SubjectDetails, name='SubjectDetails'),
 
-    path('StudentDashBoard/<str:student_id>/',views.StudentDashBoard,name='StudentDashBoard'),
+    path('StudentDashBoard/<str:student_id>/',dashboardViews.StudentDashBoard,name='StudentDashBoard'),
     
-    path('PrincipalDashboard',views.PrincipalDashboard,name='PrincipalDashboard'),
-    path('HOD_Dashboard',views.HOD_Dashboard,name='HOD_Dashboard'),
+    path('PrincipalDashboard',dashboardViews.PrincipalDashboard,name='PrincipalDashboard'),
+    path('HOD_Dashboard',dashboardViews.HOD_Dashboard,name='HOD_Dashboard'),
 
 
-    path('attendance-details/<str:year_code>/', views.AttendanceDetailsView.as_view(), name='attendance_details'),
+    path('attendance-details/<str:year_code>/', dashboardViews.AttendanceDetailsView.as_view(), name='attendance_details'),
     path('subject_attendance/', views.subject_attendance, name='subject_attendance'),
-    path('get-subjects/', views.get_subjects_by_year, name='get_subjects_by_year'),
-    path('get_students_by_subject/', views.get_students_by_subject, name='get_students_by_subject'),
-    path('add_course/<int:semester_id>/', views.add_course, name='add_course'),
-    path('get_subjects_by_year/', views.get_subjects_by_year, name='get_subjects_by_year'), 
+    path('get-subjects/', dashboardViews.get_subjects_by_year, name='get_subjects_by_year'),
+    path('get_students_by_subject/', dashboardViews.get_students_by_subject, name='get_students_by_subject'),
+    path('add_course/<int:semester_id>/', dashboardViews.add_course, name='add_course'),
+    path('get_subjects_by_year/', dashboardViews.get_subjects_by_year, name='get_subjects_by_year'), 
     
     path('forget_password',views.forget_password,name='forget_password'),
     
