@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance System</title>
+    <!-- Bootstrap Icons CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            background-color: #EAEAEA; /* Light Gray Background */
+        }
+
+        .sidebar {
+            min-width: 250px;
+            max-width: 250px;
+            background-color: #2B2B2B; /* Dark Charcoal Sidebar */
+            padding-top: 20px;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            transition: all 0.3s;
+        }
+
+        .sidebar a {
+            font-weight: bold;
+            color: #B3B3B3; /* Medium Gray Text */
+            display: block;
+            padding: 10px 20px;
+            text-decoration: none;
+            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+
+        .sidebar a.active {
+            background-color: #1F6FE5; /* Active Link Color */
+            color: #ffffff; /* White Text */
+            border-radius: 5px;
+        }
+
+        .sidebar a:hover {
+            background-color: #0FD7E0; /* Highlight on Hover */
+            color: #ffffff; /* White Text on Hover */
+            border-radius: 5px;
+        }
+
+        .sidebar .navbar-brand {
+            color: #ffffff; /* White for Branding */
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            display: block;
+            padding-left: 20px;
+        }
+
+        .navbar-nav {
+            padding-left: 0; /* Remove default padding from navbar */
+        }
+
+        .nav-item{
+            margin-bottom: 5px;
+        }
+
+        .navbar-nav li {
+            list-style-type: none; /* Remove default list style */
+            width: 100%; /* Ensure li takes full width */
+        }
+
+        .content {
+            margin-left: 250px; /* Same width as sidebar */
+            padding: 20px;
+            width: 100%;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <a class="navbar-brand" href="#" style="font-size: 1.4rem;">Attendance System</a>
+        <ul class="navbar-nav">
+            <!-- Student Dashboard -->
+            {% url 'StudentDashBoard' student.student_id as student_dashboard_url %}
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == student_dashboard_url %}active{% endif %}" href="{{ student_dashboard_url }}">
+                    <i class="bi bi-speedometer2 sidebar-icon"></i> Student Dashboard
+                </a>
+            </li>
+
+            <!-- Profile -->
+            {% url 'update_student' student.id as profile_url %}
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == profile_url %}active{% endif %}" href="{{ profile_url }}">
+                    <i class="bi bi-pencil sidebar-icon"></i> Profile
+                </a>
+            </li>
+
+            <!-- Logout -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}" style="color: red;">
+                    <i class="bi bi-box-arrow-right sidebar-icon" ></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>

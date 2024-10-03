@@ -26,7 +26,10 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 30px;
+            margin: 25px 0;
+            font-size: 18px;
+            border-radius: 8px; /* Rounded corners for the table */
+            overflow: hidden; /* Ensures the rounded corners are applied */
         }
 
         table th, table td {
@@ -35,8 +38,11 @@
             text-align: center;
         }
 
+
+
         table th {
-            background-color: #f2f2f2;
+            background-color: black;
+            color:white;
         }
 
         .red {
@@ -84,147 +90,232 @@
             font-weight: bold;
             color: green;
         }
+
+        .table-container {
+            background-color: white; /* Background for each table container */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            padding: 20px; /* Padding inside the container */
+            margin-bottom: 30px; /* Spacing between table containers */
+        }
+
+        .circle {
+            display: inline-block;
+            width: 55px;  /* Adjust the size of the circle */
+            height: 50px;  /* Adjust the size of the circle */
+            border-radius: 50%;  /* Makes it a perfect circle */
+            border: 4px solid;  /* This will be adjusted by the color classes */
+            background-color: transparent;  /* Ensure the inside is transparent */
+            text-align: center;
+            line-height: 45px;  /* Vertically center the text */
+            font-weight: bold;  /* Bold font */
+            font-size: 16px;  /* Adjust the font size */
+            box-sizing: border-box;  /* Ensures padding and border are included in the element's width and height */
+            color: black;  /* Text color */
+            transition: transform 0.2s ease, border-color 0.3s ease;  /* Smooth transition for transform and border color */
+            cursor: pointer;  /* Change cursor to pointer */
+        }
+        
+        /* Red border for values 1-3 */
+        .circle.red {
+            border-color: red;
+        }
+        
+        /* Yellow border for values 4-6 */
+        .circle.yellow {
+            border-color: yellow;
+        }
+        
+        /* Green border for values 7-10 */
+        .circle.green {
+            border-color: green;
+        }
+        
+        /* Scale effect on hover */
+        .circle:hover {
+            transform: scale(1.1);  /* Scale up by 10% */
+        }
+        
+        /* Pulse effect */
+        .circle.pulse {
+            animation: pulse 1.5s infinite;  /* Pulsing effect */
+        }
+        
+        /* Keyframes for pulsing effect */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        
+        .circle-container {
+            position: relative; /* Position relative to position the tooltip */
+            display: inline-block; /* Align circles and tooltips */
+        }
+        
+        .tooltip {
+            display: none; /* Initially hide the tooltip */
+            position: absolute; /* Position absolutely within the container */
+            bottom: 100%; /* Position above the circle */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Center align */
+            background-color: black; /* Tooltip background color */
+            color: white; /* Tooltip text color */
+            padding: 5px; /* Padding around tooltip text */
+            border-radius: 4px; /* Rounded corners */
+            white-space: nowrap; /* Prevent line breaks */
+            z-index: 10; /* Make sure it appears above other elements */
+        }
+        
+        /* Show tooltip on hover */
+        .circle-container:hover .tooltip {
+            display: block; /* Show tooltip when hovering over the circle container */
+        }
+        
+        
+        
+        
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Include Chart.js -->
 </head>
 <body>
 
-    {% include 'sidebar.html' %}
-
+    {% include 'teachertemplates/navbar.html' %}
+<div class="content">
 <div class="container">
     <h1>Principal Attendance Dashboard</h1>
 
-    <!-- Department-wise Summary -->
-    <h2>Department-wise Attendance Summary</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>Department</th>
-            <th>Number of Classes</th>
-            <th>Number of Students</th>
-            <th>Overall Attendance (%)</th>
-            <th>Details</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- Sample Department Data -->
-        <tr class="green">
-            <td>Computer Science</td>
-            <td>3</td>
-            <td>120</td>
-            <td>85%</td>
-            <td><a href="#cs-classes">View Classes</a></td>
-        </tr>
-        <tr class="blue">
-            <td>Mechanical Engineering</td>
-            <td>2</td>
-            <td>80</td>
-            <td>78%</td>
-            <td><a href="#me-classes">View Classes</a></td>
-        </tr>
-        <tr class="green">
-            <td>Civil Engineering</td>
-            <td>2</td>
-            <td>90</td>
-            <td>88%</td>
-            <td><a href="#ce-classes">View Classes</a></td>
-        </tr>
-        </tbody>
-    </table>
 
-    <!-- Class-wise Attendance for Computer Science Department -->
-    <h2 id="cs-classes">Class-wise Attendance for Computer Science Department</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>Class</th>
-            <th>Number of Students</th>
-            <th>Overall Attendance (%)</th>
-            <th>Details</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- Sample Class Data for Computer Science -->
-        <tr>
-            <td>Class A</td>
-            <td>40</td>
-            <td>85%</td>
-            <td><a href="class_details.html?department=ComputerScience&class=A">View Student Details</a></td>
-        </tr>
-        <tr>
-            <td>Class B</td>
-            <td>40</td>
-            <td>82%</td>
-            <td><a href="class_details.html?department=ComputerScience&class=B">View Student Details</a></td>
-        </tr>
-        <tr>
-            <td>Class C</td>
-            <td>40</td>
-            <td>88%</td>
-            <td><a href="class_details.html?department=ComputerScience&class=C">View Student Details</a></td>
-        </tr>
-        </tbody>
-    </table>
-
-    <!-- Class-wise Attendance for Mechanical Engineering Department -->
-    <h2 id="me-classes">Class-wise Attendance for Mechanical Engineering Department</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>Class</th>
-            <th>Number of Students</th>
-            <th>Overall Attendance (%)</th>
-            <th>Details</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- Sample Class Data for Mechanical Engineering -->
-        <tr>
-            <td>Class A</td>
-            <td>40</td>
-            <td>80%</td>
-            <td><a href="class_details.html?department=Mechanical&class=A">View Student Details</a></td>
-        </tr>
-        <tr>
-            <td>Class B</td>
-            <td>40</td>
-            <td>76%</td>
-            <td><a href="class_details.html?department=Mechanical&class=B">View Student Details</a></td>
-        </tr>
-        </tbody>
-    </table>
-
-    <!-- Class-wise Attendance for Civil Engineering Department -->
-    <h2 id="ce-classes">Class-wise Attendance for Civil Engineering Department</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>Class</th>
-            <th>Number of Students</th>
-            <th>Overall Attendance (%)</th>
-            <th>Details</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- Sample Class Data for Civil Engineering -->
-        <tr>
-            <td>Class A</td>
-            <td>45</td>
-            <td>87%</td>
-            <td><a href="class_details.html?department=Civil&class=A">View Student Details</a></td>
-        </tr>
-        <tr>
-            <td>Class B</td>
-            <td>45</td>
-            <td>89%</td>
-            <td><a href="class_details.html?department=Civil&class=B">View Student Details</a></td>
-        </tr>
-        </tbody>
-    </table>
-
-    <!-- Back Link -->
-    <div class="back-link">
-        <a href="dashboard.html">Back to Main Dashboard</a>
+    <div class="table-container">
+        <h2>Department-wise Attendance Comparison</h2>
+        <div class="table-container">
+            <canvas id="attendanceChart" width="400" height="100"></canvas> <!-- Set the width and height -->
+        </div>
+    
+        <!-- Department-wise Attendance Summary Table -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Department</th>
+                    <th>Classes Attended</th>
+                    <th>Number of Students</th>
+                    <th>Overall Attendance (%)</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for department in department_data %}
+                <tr>
+                    <td>{{ department.name }}</td>
+                    <td>
+                        <div class="circle-container">
+                            <span id="circle-{{ forloop.counter }}" class="circle 
+                                {% if department.total_classes <= 3 %}red{% elif department.total_classes <= 6 %}yellow{% else %}green{% endif %} 
+                                pulse">
+                                {{ department.total_classes|floatformat:0 }}/10
+                            </span> <!-- Circle around total_classes -->
+                            <span class="tooltip">Total Classes Attended: {{ department.total_classes|floatformat:0 }}</span>
+                        </div>
+                    </td>
+                    <td>{{ department.total_students }}</td>
+                    <td>{{ department.attendance_percentage }}%</td>
+                    <td><a href="{% url 'HOD_Dashboard' %}?department={{ department.name|urlencode }}">View Details</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+             
+            
+        </table>
     </div>
+    </div>
+
+    
+
+    <!-- Script to generate the bar chart using Chart.js -->
+    <script>
+        var ctx = document.getElementById('attendanceChart').getContext('2d');
+        var attendanceChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [{% for department in department_data %} '{{ department.name }}', {% endfor %}], // Department names
+                datasets: [{
+                    label: 'Attendance (%)',
+                    data: [{% for department in department_data %} {{ department.attendance_percentage }}, {% endfor %}], // Attendance percentage for each department
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)', // Blue color for bars
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                           
+                        },
+                        ticks: {
+                            callback: function(value) { return value + '%'; } // Add '%' to the y-axis labels
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                           
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.raw + '%'; // Show percentage in tooltip
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const circles = document.querySelectorAll('.circle');
+    
+            circles.forEach(circle => {
+                const value = parseInt(circle.textContent.split('/')[0]); // Get the first number (attended classes)
+    
+                // Apply color based on the value
+                if (value >= 1 && value <= 3) {
+                    circle.classList.add('red');
+                } else if (value >= 4 && value <= 6) {
+                    circle.classList.add('yellow');
+                } else if (value >= 7 && value <= 10) {
+                    circle.classList.add('green');
+                }
+            });
+        });
+    </script>
+    <script>
+        // Select all circles with the class 'pulse'
+        const circles = document.querySelectorAll('.circle.pulse');
+    
+        // Set a timeout to remove the pulse effect after 5 seconds
+        setTimeout(() => {
+            circles.forEach(circle => {
+                circle.classList.remove('pulse'); // Remove the pulse class
+            });
+        }, 5000); // 5000 milliseconds = 5 seconds
+    </script>
+    
+
+
 
 </div>
 

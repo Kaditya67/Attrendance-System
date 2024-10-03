@@ -32,16 +32,22 @@ def add_lab(request):
 
 @login_required
 def lab_dashboard(request):
+
+    if request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
+    elif request.user.groups.filter(name='Principal').exists():
+        is_hod = False
+        is_principal = True
+    else:
+        is_hod = False
+        is_principal = False
         # Get the logged-in teacher
     teacher = get_object_or_404(Teacher, user=request.user)
     labs = teacher.assigned_labs.all()
     print(f"Assigned Labs: {labs}")
-
-    is_hod = False
     
     if request.user.groups.filter(name="HOD").exists():
-        is_hod = True
-
         labs = Labs.objects.all()
     print(f"Labs: {labs}")
 
@@ -59,7 +65,8 @@ def lab_dashboard(request):
     context = {
         'lab': lab_data,
         'labs': labs,  # Include all labs for navbar display
-        'is_hod': is_hod
+        'is_hod': is_hod,
+        'is_principal': is_principal,
     }
     return render(request, 'teachertemplates/lab_dashboard.html', context)
 
@@ -160,6 +167,17 @@ from django.contrib import messages
 
 def update_teacher(request, teacher_id):
     teacher = get_object_or_404(Teacher, id=teacher_id)
+
+    if request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
+    elif request.user.groups.filter(name='Principal').exists():
+        is_hod = False
+        is_principal = True
+    else:
+        is_hod = False
+        is_principal = False
+
     
     if request.method == 'POST':
         if 'update_profile' in request.POST:
@@ -202,6 +220,16 @@ from .models import Student
 from .forms import StudentUpdateForm  # Assuming you have a form for Student similar to TeacherUpdateForm
 
 def update_student(request, student_id):
+    if request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
+    elif request.user.groups.filter(name='Principal').exists():
+        is_hod = False
+        is_principal = True
+    else:
+        is_hod = False
+        is_principal = False
+
     student = get_object_or_404(Student, id=student_id)
     
     if request.method == 'POST':
@@ -231,7 +259,9 @@ def update_student(request, student_id):
 
     context = {
         'form': form,
-        'student': student
+        'student': student,
+        'is_hod': is_hod,
+        'is_principal': is_principal
     }
     return render(request, 'update_student.html', context)
 
@@ -578,6 +608,17 @@ def submit_attendance(request):
 
 from django.http import JsonResponse
 def Subject_Attendance_Details(request):
+
+    # if hod group exists
+    if request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
+    elif request.user.groups.filter(name='Principal').exists():
+        is_hod = False
+        is_principal = True
+    else:
+        is_hod = False
+        is_principal = False
     # Get the teacher object for the currently logged-in user
     teacher = get_object_or_404(Teacher, user=request.user)
 
@@ -665,12 +706,24 @@ def Subject_Attendance_Details(request):
         'teacher': teacher,
         'course_data': course_data,
         'attendance_data': attendance_data,
+        'is_hod': is_hod,
+        'is_principal':is_principal,
     })
 
 
 
 @login_required
 def Class_Report(request):
+    if request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
+    elif request.user.groups.filter(name='Principal').exists():
+        is_hod = False
+        is_principal = True
+    else:
+        is_hod = False
+        is_principal = False
+
     teacher = get_object_or_404(Teacher, user=request.user)
     semesters = Semester.objects.all().filter(session_year=teacher.assigned_courses.first().semester.session_year)
     # print(semesters)
@@ -721,5 +774,7 @@ def Class_Report(request):
         'teacher': teacher,
         'semester_data': semester_data,
         'semesters': semesters,
-        'selected_semester': selected_semester
+        'selected_semester': selected_semester,
+        'is_hod': is_hod,
+        'is_principal':is_principal,
     })
