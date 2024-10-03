@@ -12,7 +12,11 @@ from . import views
 urlpatterns = [
 
 
+
     path('super_admin/',dashboardViews.super_admin,name='super_admin'),
+
+    path('update_profile/', views.update_student_profile, name='update_student_profile'),
+
     path('teacher/<int:teacher_id>/update/', teacherViews.update_teacher, name='update_teacher'),
 
     path('labs/', teacherViews.lab_dashboard, name='lab_dashboard'),
@@ -30,7 +34,11 @@ urlpatterns = [
     path('Add_Attendance',teacherViews.Add_Attendance,name='Add_Attendance'),
     path('view_Attendance',teacherViews.view_attendance,name='view_Attendance'),
     path('submit_attendance/', teacherViews.submit_attendance, name='submit_attendance'),
+
     path('SubjectDetails',dashboardViews.SubjectDetails,name='SubjectDetails'),
+
+    # path('SubjectDetails',views.SubjectDetails,name='SubjectDetails'),
+
     
     path('teacher_dashboard',teacherViews.Subject_Attendance_Details,name='Teacher_dashboard'),
 

@@ -7,8 +7,6 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
             background-color: #f4f4f4;
         }
 
@@ -16,7 +14,7 @@
             width: 90%;
             margin: auto;
             padding: 20px;
-            margin-left: 250px; /* Leave space for sidebar */
+            margin-left: 250px; /* Space for sidebar */
         }
 
         h1 {
@@ -24,18 +22,12 @@
             margin-top: 30px;
         }
 
-        h2 {
-            margin-top: 30px;
-            margin-bottom: 10px;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 25px 0;
             font-size: 18px;
-            border-radius: 8px; /* Rounded corners for the table */
-            overflow: hidden; /* Ensures the rounded corners are applied */
+            border-radius: 8px;
         }
 
         table th, table td {
@@ -45,171 +37,70 @@
         }
 
         table th {
-            background-color: #3498db; /* Header background color */
-            color: white; /* Header text color */
-            text-transform: uppercase; /* Uppercase text */
-            letter-spacing: 1px; /* Spacing between letters */
+            background-color: #2b2b2b;
+            color: white;
         }
 
         table tr:nth-child(even) {
-            background-color: #f2f2f2; /* Light grey for even rows */
+            background-color: #f2f2f2;
         }
 
         table tr:nth-child(odd) {
-            background-color: white; /* White for odd rows */
+            background-color: white;
         }
 
         table tr:hover {
-            background-color: #e1f5fe; /* Light blue on hover */
-            transition: background-color 0.3s; /* Smooth transition */
-        }
-
-        .red {
-            background-color: #ff9999; /* Highlight for low attendance */
-        }
-
-        .green {
-            background-color: #b3ffb3; /* Highlight for high attendance */
-        }
-
-        a {
-            text-decoration: none;
-            color: #3498db;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        /* Sidebar CSS */
-        .sidebar {
-            height: 100%;
-            width: 0;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #333333; /* Dark Gray */
-            overflow-x: hidden;
-            transition: 0.5s;
-            padding-top: 60px;
-        }
-        
-        .sidebar a {
-            padding: 10px 15px;
-            text-decoration: none;
-            font-size: 20px;
-            color: white;
-            display: block;
-            transition: 0.3s;
-        }
-        
-        .sidebar a:hover {
-            background-color: #575757;
-        }
-        
-        .sidebar .closebtn {
-            position: absolute;
-            top: 0;
-            right: 25px;
-            font-size: 36px;
-            margin-left: 50px;
+            background-color: #e1f5fe;
+            transition: background-color 0.3s;
         }
 
         .navbar {
-            background-color: #007BFF; /* Bright Blue */
+            background-color: #2b2b2b;
             overflow: hidden;
         }
-        
+
         .navbar a {
             float: left;
-            display: block;
             color: white;
-            text-align: center;
             padding: 15px 18px;
             text-decoration: none;
-            font-size: 15px;
-        }
-        
-        .navbar a:hover {
-            background-color: #0056b3; /* Dark Blue */
         }
 
-        .openbtn {
-            font-size: 15px;
-            cursor: pointer;
-            background-color: #007BFF; /* Bright Blue */
-            color: white;
-            border: none;
-            padding: 10px 15px;
-        }
-        
-        .openbtn:hover {
-            background-color: #0056b3; /* Dark Blue */
+        .navbar a:hover {
+            background-color: #0056b3;
         }
 
         .table-container {
-            background-color: white; /* Background for each table container */
-            border-radius: 8px; /* Rounded corners */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-            padding: 20px; /* Padding inside the container */
-            margin-bottom: 30px; /* Spacing between table containers */
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 30px;
         }
 
-        .button {
-            background-color: #3498db;
-            color: white;
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .button:hover {
-            background-color: #2980b9;
-        }
-
-        .back-link {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        /* Dropdown Styles */
         select {
             width: 100%;
             padding: 12px 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px; /* Rounded corners */
-            background-color: #ffffff; /* White background */
-            font-size: 16px; /* Larger font size */
-            margin-bottom: 20px; /* Space between dropdowns */
-            transition: border-color 0.3s; /* Smooth transition for border color */
+            margin-bottom: 20px;
         }
-
-        select:focus {
-            outline: none; /* Remove outline */
-            border-color: #3498db; /* Blue border on focus */
-        }
-
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+  
 
 
 </head>
 <body>
+    {% include 'teachertemplates/navbar.html' %}
 
-    {% include 'sidebar.html' %}
-
+<div class="content">
     <div class="container">
         <h1>HOD Attendance Dashboard</h1>
 
-        <!-- Overall Attendance Summary for Classes -->
+        <!-- Overall Attendance Summary -->
         <div class="table-container">
             <h2>Overall Class Attendance</h2>
             <div class="table-container">
-                
+                <h2>Overall Class Attendance (Bar Chart)</h2>
                 <canvas id="classAttendanceChart" width="400" height="100"></canvas> <!-- Canvas for Bar Chart -->
             </div>
             
@@ -228,9 +119,7 @@
                         <td>{{ data.name }}</td>
                         <td>{{ data.total_students }}</td>
                         <td>{{ data.attendance_percentage|floatformat:1 }}%</td>
-                        <td>
-                            <a href="{% url 'attendance_details' data.code %}">View Details</a>
-                        </td>
+                        <td><a href="{% url 'attendance_details' data.code %}">View Details</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -238,24 +127,26 @@
         </div>
 
         <!-- Year Selection for Subject-wise Attendance -->
-         
         <div class="table-container">
             <h2>Subjects for Selected Year:</h2>
             <label for="yearSelect">Select Year:</label>
             <select id="yearSelect">
-                <option value="">-- Select Year --</option>
                 {% for year in years %}
-                <option value="{{ year.name }}">{{ year.get_name_display }}</option>
+                    {% if forloop.first %}
+                        <option value="{{ year.name }}" selected>{{ year.get_name_display }}</option>
+                    {% else %}
+                        <option value="{{ year.name }}">{{ year.get_name_display }}</option>
+                    {% endif %}
                 {% endfor %}
             </select>
+
             <div class="table-container">
-                
                 <canvas id="subjectAttendanceChart" width="400" height="100"></canvas>
             </div>
             
 
             <!-- Subject List -->
-           
+            <h2>Subjects for Selected Year:</h2>
             <table id="subjectTable">
                 <thead>
                     <tr>
@@ -272,7 +163,6 @@
 
         <!-- Student-wise Attendance -->
         <div class="table-container">
-            <h2>Student-wise Attendance for Selected Subject</h2>
             <!-- Subject Selection Dropdown for Student Attendance -->
             <label for="subjectSelect">Select Subject:</label>
             <select id="subjectSelect" disabled>
@@ -282,7 +172,7 @@
             
 
             <!-- Student-wise Attendance Table -->
-            
+            <h2>Student-wise Attendance for Selected Subject</h2>
             <table id="studentTable">
                 <thead>
                     <tr>
@@ -298,7 +188,7 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-    $(document).ready(function() {
+       $(document).ready(function() {
     // Handle year selection
     $('#yearSelect').change(function() {
         var yearCode = $(this).val();
@@ -350,49 +240,64 @@
     </script>
     <script>
         $(document).ready(function() {
-            // Data from Django passed into JavaScript
-            var classLabels = [];
-            var attendancePercentages = [];
-    
-            // Assuming 'attendance_data' is passed from the Django view as context
+            var classLabels = [], attendancePercentages = [];
             {% for data in attendance_data %}
-                classLabels.push("{{ data.name }}"); // Class Name
-                attendancePercentages.push("{{ data.attendance_percentage|floatformat:1 }}"); // Attendance Percentage
+                classLabels.push("{{ data.name }}");
+                attendancePercentages.push("{{ data.attendance_percentage|floatformat:1 }}");
             {% endfor %}
-    
-            // Bar chart configuration
+
             var ctx = document.getElementById('classAttendanceChart').getContext('2d');
-            var classAttendanceChart = new Chart(ctx, {
+            new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: classLabels, // Class names as labels
+                    labels: classLabels,
                     datasets: [{
                         label: 'Attendance Percentage (%)',
-                        data: attendancePercentages, // Attendance percentages as data
-                        backgroundColor: 'rgba(52, 152, 219, 0.5)', // Light blue background
-                        borderColor: 'rgba(41, 128, 185, 1)', // Dark blue border
+                        data: attendancePercentages,
+                        backgroundColor: 'rgba(52, 152, 219, 0.5)',
+                        borderColor: 'rgba(41, 128, 185, 1)',
                         borderWidth: 1
                     }]
                 },
                 options: {
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    return tooltipItem.raw + "%";
-                                }
-                            }
-                        }
+                        y: { beginAtZero: true, max: 100 }
                     }
+                }
+            });
+
+            $('#yearSelect').change(function() {
+                var yearCode = $(this).val();
+                if (yearCode) {
+                    $.ajax({
+                        url: "{% url 'get_subjects_by_year' %}",
+                        data: { 'year_code': yearCode },
+                        success: function(data) {
+                            var subjectLabels = [], classesAttended = [], totalClasses = [];
+                            $('#subjectList').empty();
+                            $.each(data.subjects, function(index, subject) {
+                                $('#subjectList').append('<tr><td>' + subject.name + '</td><td>' + subject.classes_attended + '</td><td>' + subject.total_classes + '</td><td>' + subject.attendance_percentage.toFixed(1) + '%</td><td><a href="SubjectDetails">View Details</a></td></tr>');
+                                subjectLabels.push(subject.name);
+                                classesAttended.push(subject.classes_attended);
+                                totalClasses.push(subject.total_classes - subject.classes_attended);
+                            });
+
+                            var ctx2 = document.getElementById('subjectAttendanceChart').getContext('2d');
+                            new Chart(ctx2, {
+                                type: 'bar',
+                                data: {
+                                    labels: subjectLabels,
+                                    datasets: [
+                                        { label: 'Classes Attended', data: classesAttended, backgroundColor: 'rgba(75, 192, 192, 0.5)' },
+                                        { label: 'Classes Missed', data: totalClasses, backgroundColor: 'rgba(255, 99, 132, 0.5)' }
+                                    ]
+                                },
+                                options: {
+                                    scales: { y: { beginAtZero: true } }
+                                }
+                            });
+                        }
+                    });
                 }
             });
         });
@@ -484,7 +389,7 @@
             });
         });
     </script>
-
+   
     
     
 </body>

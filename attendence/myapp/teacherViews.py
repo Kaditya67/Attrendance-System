@@ -521,7 +521,7 @@ def Subject_Attendance_Details(request):
                     count = date_record['count']
 
                     attendance_instance = Attendance.objects.filter(course=course, student=student, date=date, count=count).first()
-
+                    
                     is_present = attendance_instance.present if attendance_instance else None
                     attendance_records.append({
                         'date': date,

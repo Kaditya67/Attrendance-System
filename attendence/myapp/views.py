@@ -155,6 +155,25 @@ def select_batch_and_students(request, lab_id):
 
     return render(request, 'select_batch.html', {'lab': lab, 'batch_options': batch_options, 'students': students})
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Student
+from .forms import StudentUpdateForm
+
+@login_required
+def update_student_profile(request):
+    # Get the current student's profile
+    student = get_object_or_404(Student, user=request.user)
+
+    if request.method == 'POST':
+        form = StudentUpdateForm(request.POST, instance=student)
+        if form.is_valid():
+            form.save()
+            return redirect('StudentDashBoard', student_id=student.student_id)
+    else:
+        form = StudentUpdateForm(instance=student)
+
+    return render(request, 'student/update_profile.html', {'form': form})
 
 # @login_required
 # def update_Attendance(request):
@@ -387,6 +406,7 @@ def Subject_Attendance_Details(request):
 #             'attendance_percentage': attendance_percentage,
 #         })
 
+    return render(request, 'HOD_Dashboard.html', {'attendance_data': attendance_data, 'years': years, 'teacher': teacher})
 #     return render(request, 'HOD_Dashboard.html', {'attendance_data': attendance_data, 'years': years})
 
 
@@ -669,11 +689,16 @@ def login_view(request):
             elif user.groups.filter(name='Principal').exists():
                 return redirect('principal_dashboard')
             elif user.groups.filter(name='HOD').exists():
-                return redirect('hod_dashboard')
+                return redirect('HOD_Dashboard')
             elif user.groups.filter(name='Teacher').exists():
                 return redirect('Teacher_dashboard')
             elif user.groups.filter(name='Student').exists():
-                return redirect('student_dashboard')
+                try:
+                    student = Student.objects.get(user=user)
+                    return redirect('StudentDashBoard', student_id=student.student_id)
+                except Student.DoesNotExist:
+                    return redirect('dashboard')
+                # return redirect('student_dashboard')
             else:
                 return redirect('dashboard')
     else:
