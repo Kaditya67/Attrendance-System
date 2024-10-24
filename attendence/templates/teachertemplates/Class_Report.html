@@ -205,6 +205,14 @@
             {% if semester_data %}
             <div>
                 <h3 style="margin: 20px 0px;">Semester: {{ semester_data.0.semester }}</h3>
+                <div class="export-buttons">
+                    <a href="?semester={{ selected_semester }}&format=excel" class="btn btn-excel">
+                        <i class="fas fa-file-excel"></i> Export to Excel
+                    </a>
+                    <a href="?semester={{ selected_semester }}&format=pdf" class="btn btn-pdf">
+                        <i class="fas fa-file-pdf"></i> Export to PDF
+                    </a>
+                </div>
                 <table>
                     <thead>
                         <tr>
