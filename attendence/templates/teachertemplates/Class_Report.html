@@ -133,6 +133,42 @@
         .red {
             background-color: #f8d7da;
         }
+        .export-buttons {
+            display: flex;
+            gap: 10px; /* Add space between buttons */
+            margin-top: 20px;
+        }
+    
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+    
+        .btn-excel {
+            background-color: #28a745; /* Green for Excel */
+        }
+    
+        .btn-excel:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+    
+        .btn-pdf {
+            background-color: #e74c3c; /* Red for PDF */
+        }
+    
+        .btn-pdf:hover {
+            background-color: #c0392b; /* Darker red on hover */
+        }
+    
+        .btn i {
+            margin-right: 5px; /* Add space between icon and text */
+        }
     </style>
 </head>
 <body>
@@ -167,6 +203,14 @@
         
             {% if semester_data %}
                 <h3 style="margin: 20px 0px;">Semester: {{ semester_data.0.semester }}</h3>
+                <div class="export-buttons">
+                    <a href="?semester={{ selected_semester }}&format=excel" class="btn btn-excel">
+                        <i class="fas fa-file-excel"></i> Export to Excel
+                    </a>
+                    <a href="?semester={{ selected_semester }}&format=pdf" class="btn btn-pdf">
+                        <i class="fas fa-file-pdf"></i> Export to PDF
+                    </a>
+                </div>
                 <table>
                     <thead>
                         <tr>
