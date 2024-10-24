@@ -25,30 +25,31 @@
         }
 
         .chart-container {
-            display: flex; /* Use flexbox for horizontal layout */
-            justify-content: space-between; /* Space out the containers */
+            display: flex;
+            justify-content: space-between;
             margin: 20px auto;
             margin-top: 2%;
         }
 
         .chart-box {
-            width: 38%; /* Set each chart container to occupy nearly half the width */
-            background-color: white; /* Optional: Background for visual appeal */
-            border-radius: 8px; /* Rounded corners */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-            padding: 10px; /* Padding inside the box */
+            width: 38%;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 10px;
         }
+
         .chart-box1 {
-            width: 58%; /* Set each chart container to occupy nearly half the width */
-            background-color: white; /* Optional: Background for visual appeal */
-            border-radius: 8px; /* Rounded corners */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-            padding: 10px; /* Padding inside the box */
+            width: 58%;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 10px;
         }
 
         canvas {
-            width: 100% !important; /* Full width for canvas */
-            height: 400px !important; /* Fixed height for canvas */
+            width: 100% !important;
+            height: 400px !important;
         }
 
         table {
@@ -56,9 +57,9 @@
             border-collapse: collapse;
             margin: 25px 0;
             font-size: 18px;
-            border-radius: 8px; /* Rounded corners for the table */
-            overflow: hidden; /* Ensures the rounded corners are applied */
-            margin-top:2%;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 2%;
         }
 
         table th, table td {
@@ -68,27 +69,27 @@
         }
 
         table th {
-            background-color: #3498db; /* Header background color */
-            color: white; /* Header text color */
-            text-transform: uppercase; /* Uppercase text */
-            letter-spacing: 1px; /* Spacing between letters */
+            background-color: #3498db;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         table tr:nth-child(even) {
-            background-color: #f2f2f2; /* Light grey for even rows */
+            background-color: #f2f2f2;
         }
 
         table tr:nth-child(odd) {
-            background-color: white; /* White for odd rows */
+            background-color: white;
         }
 
         table tr:hover {
-            background-color: #e1f5fe; /* Light blue on hover */
-            transition: background-color 0.3s; /* Smooth transition */
+            background-color: #e1f5fe;
+            transition: background-color 0.3s;
         }
 
         .red {
-            background-color: #ff9999; /* Highlight for low attendance */
+            background-color: #ff9999;
         }
 
         a {
@@ -110,12 +111,14 @@
     
         <div class="chart-container">
             <div class="chart-box">
-                <canvas id="attendanceChart"></canvas> <!-- Pie chart for average attendance -->
-                <div class="chart-label" style="font-size: larger;text-align: center;">Total Attendance: {{ average_attendance|floatformat:0 }}%</div> <!-- Label for total attendance -->
+                <canvas id="attendanceChart"></canvas>
+                <div class="chart-label" style="font-size: larger; text-align: center;">
+                    Total Attendance: {{ average_attendance|floatformat:0 }}%
+                </div>
             </div>
             
             <div class="chart-box1">
-                <canvas id="courseAttendanceChart"></canvas> <!-- Bar chart for course attendance -->
+                <canvas id="courseAttendanceChart"></canvas>
             </div>
         </div>
     
@@ -148,7 +151,18 @@
     </div>
     
     <script>
-        // Pie chart to display the student's average attendance
+        // Function to extract initials from course names
+        function getInitials(name) {
+            return name.split(' ').map(word => word[0]).join(''); // Extract initials
+        }
+
+        // Original course names from the attendance summary
+        const courseNames = [{% for record in attendance_summary %}'{{ record.course__name }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
+
+        // Generate initials for the x-axis
+        const courseInitials = courseNames.map(getInitials);
+
+        // Attendance Pie Chart
         const ctxPie = document.getElementById('attendanceChart').getContext('2d');
         const attendanceChart = new Chart(ctxPie, {
             type: 'pie',
@@ -157,8 +171,11 @@
                 datasets: [{
                     label: 'Attendance Percentage',
                     data: [{{ average_attendance }}, {{ missed_attendance }}],
-                    backgroundColor: ['Blue', 'grey'],
-                    hoverOffset: 4
+                    backgroundColor: ['#1abc9c', '#e74c3c'], // Bright green for attended, bright red for missed
+                    hoverBackgroundColor: ['#16a085', '#c0392b'],
+                    borderColor: ['#ffffff', '#ffffff'],
+                    borderWidth: 2,
+                    hoverOffset: 6
                 }]
             },
             options: {
@@ -166,32 +183,46 @@
                 plugins: {
                     legend: {
                         position: 'top',
+                        labels: {
+                            font: {
+                                size: 14
+                            }
+                        }
                     },
                     tooltip: {
-                        enabled: true
+                        backgroundColor: '#f8f9fa',
+                        titleColor: '#333',
+                        bodyColor: '#333',
+                        borderColor: '#ddd',
+                        borderWidth: 1
                     }
                 }
             }
         });
 
-        // Bar chart for attendance in each course
+        // Course Attendance Bar & Line Chart with initials
         const ctxBar = document.getElementById('courseAttendanceChart').getContext('2d');
         const courseAttendanceChart = new Chart(ctxBar, {
             type: 'bar',
             data: {
-                labels: [{% for record in attendance_summary %}'{{ record.course__name }}'{% if not forloop.last %}, {% endif %}{% endfor %}], // Course names
-                datasets: [{
-                    label: 'Classes Attended',
-                    data: [{% for record in attendance_summary %}{{ record.attended_classes }}{% if not forloop.last %}, {% endif %}{% endfor %}], // Attended classes
-                    backgroundColor: '#3498db',
-                }, {
-                    label: 'Total Classes',
-                    data: [{% for record in attendance_summary %}{{ record.total_classes }}{% if not forloop.last %}, {% endif %}{% endfor %}], // Total classes
-                    backgroundColor: '#f2f2f2',
-                    borderColor: '#3498db',
-                    borderWidth: 1,
-                    type: 'line', // Set this dataset to be a line chart
-                }]
+                labels: courseInitials, // Use initials as x-axis labels
+                datasets: [
+                    {
+                        label: 'Classes Attended',
+                        data: [{% for record in attendance_summary %}{{ record.attended_classes }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                        backgroundColor: '#3498db', // Blue for attended
+                        hoverBackgroundColor: '#2980b9'
+                    },
+                    {
+                        label: 'Total Classes',
+                        data: [{% for record in attendance_summary %}{{ record.total_classes }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                        backgroundColor: '#f2f2f2', // Light gray for total classes
+                        borderColor: '#3498db', // Border for line chart
+                        borderWidth: 2,
+                        type: 'line',
+                        tension: 0.4 // Curved line
+                    }
+                ]
             },
             options: {
                 responsive: true,
@@ -200,22 +231,37 @@
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Number of Classes'
+                            text: 'Number of Classes',
+                            font: {
+                                size: 14
+                            }
                         }
                     },
                     x: {
                         title: {
                             display: true,
-                            text: 'Courses'
+                            text: 'Courses',
+                            font: {
+                                size: 14
+                            }
                         }
                     }
                 },
                 plugins: {
                     legend: {
                         position: 'top',
+                        labels: {
+                            font: {
+                                size: 14
+                            }
+                        }
                     },
                     tooltip: {
-                        enabled: true
+                        backgroundColor: '#f8f9fa',
+                        titleColor: '#333',
+                        bodyColor: '#333',
+                        borderColor: '#ddd',
+                        borderWidth: 1
                     }
                 }
             }
