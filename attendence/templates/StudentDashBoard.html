@@ -111,7 +111,9 @@
         <div class="chart-container">
             <div class="chart-box">
                 <canvas id="attendanceChart"></canvas> <!-- Pie chart for average attendance -->
+                <div class="chart-label" style="font-size: larger;text-align: center;">Total Attendance: {{ average_attendance|floatformat:0 }}%</div> <!-- Label for total attendance -->
             </div>
+            
             <div class="chart-box1">
                 <canvas id="courseAttendanceChart"></canvas> <!-- Bar chart for course attendance -->
             </div>
