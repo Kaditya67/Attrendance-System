@@ -2,7 +2,6 @@
 <html lang="en">
   <head>
     <title>Login Form</title>
-
     <link rel="preconnect" href="https://fonts.gstatic.com" />
     <link
       rel="stylesheet"
@@ -13,11 +12,9 @@
       rel="stylesheet"
     />
 
-    <!--Stylesheet-->
+    <!-- Stylesheet -->
     <style media="screen">
-      *,
-      *:before,
-      *:after {
+      * {
         padding: 0;
         margin: 0;
         box-sizing: border-box;
@@ -38,6 +35,7 @@
         width: 200px;
         position: absolute;
         border-radius: 50%;
+        z-index: 1; /* Lower z-index for background shapes */
       }
       .shape:first-child {
         background: linear-gradient(#1845ad, #23a2f6);
@@ -62,6 +60,7 @@
         border: 2px solid rgba(255, 255, 255, 0.1);
         box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
         padding: 50px 35px;
+        z-index: 5; /* Lower than welcome message */
       }
       form * {
         font-family: "Poppins", sans-serif;
@@ -97,7 +96,7 @@
         color: #e5e5e5;
       }
       button {
-        margin-top: 50px;
+        margin-top: 30px;
         width: 100%;
         background-color: #ffffff;
         color: #080710;
@@ -107,81 +106,113 @@
         border-radius: 5px;
         cursor: pointer;
       }
+      button:hover {
+        background-color: #e5e5e5;
+      }
       .register-link {
         margin-top: 20px;
-        display: block;
-        text-align: center;
+        display: flex;
+        justify-content: space-between;
         color: #ffffff;
         font-size: 14px;
         transition: color 0.3s ease;
       }
       .register-link a {
-        color: #29f6a7;
+        color: #ffffff;
         text-decoration: none;
         font-weight: 600;
         transition: color 0.3s ease;
       }
       .register-link a:hover {
-        color: #373eff;
-        text-decoration: underline; /* Add underline on hover */
+        color: #23a2f6;
       }
-      .social {
-        margin-top: 30px;
-        display: flex;
-      }
-      .social div {
-        background: red;
-        width: 150px;
-        border-radius: 3px;
-        padding: 5px 10px 10px 5px;
-        background-color: rgba(255, 255, 255, 0.27);
-        color: #eaf0fb;
+
+      .welcome-message {
+        display: none;
+        color: #fff;
+        padding: 20px;
+        font-size: 1.5rem;
+        margin: 20px auto;
+        max-width: 600px;
+        border-radius: 10px;
         text-align: center;
-      }
-      .social div:hover {
-        background-color: rgba(255, 255, 255, 0.47);
-      }
-      .social .fb {
-        margin-left: 25px;
-      }
-      .social i {
-        margin-right: 4px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        position: relative; /* Ensure it is positioned */
+        z-index: 10; /* Higher z-index to be on top of background shapes */
       }
     </style>
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div class="background">
       <div class="shape"></div>
       <div class="shape"></div>
     </div>
+    <div class="welcome-message">
+      <p>Welcome!</p>
+    </div>
+
     <form method="post">
-      <h3>Login Here</h3>
+      <p style="text-align: center; font-size: 3rem">
+        <i class="bx bx-user"></i>
+      </p>
       {% csrf_token %}
 
       <label for="username">Username</label>
       {{ form.username }}
 
-      <label for="password">Password</label>
+      <label for="password">Password<i class="bx bx-lock-alt"></i></label>
       {{ form.password }}
 
-      <button type="submit">Login</button>
-
       <div class="register-link">
-        <p style="margin: 10px 0">
-          Don't have an account?
+        <p>
           <a href="{% url 'register_student' %}">Register here</a>
         </p>
-        <p style="margin: 10px 0">
-          Forgot password? <a href="{% url 'forget_password' %}">Click here</a>
+        <p>
+          <a href="{% url 'forget_password' %}">Forgot password? </a>
         </p>
       </div>
 
-      {% comment %}
-      <div class="social">
-        <div class="go"><i class="fab fa-google"></i> Google</div>
-        <div class="fb"><i class="fab fa-facebook"></i> Facebook</div>
-      </div>
-      {% endcomment %}
+      <button type="submit">
+        Login<i class="bx bx-log-in-circle" style="color: #080710"></i>
+      </button>
     </form>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const welcomeMessage = document.querySelector(".welcome-message");
+        const messages = [
+          "Welcome to Attendance System!",
+          "Please Login!",
+          "Your attendance is important!",
+          "Have a great day!",
+        ];
+
+        let index = 0;
+
+        // Function to show messages
+        function showMessage() {
+          if (index < messages.length) {
+            welcomeMessage.textContent = messages[index];
+            welcomeMessage.style.display = "block";
+
+            // Increment index for the next message
+            index++;
+
+            // Hide the message after 2 seconds and show the next one
+            setTimeout(() => {
+              welcomeMessage.style.display = "none";
+              showMessage(); // Call the function again to show the next message
+            }, 2000);
+          }
+        }
+
+        // Start showing messages
+        showMessage();
+      });
+    </script>
   </body>
 </html>
