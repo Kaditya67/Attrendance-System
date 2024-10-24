@@ -1,3 +1,4 @@
+from tkinter import CENTER
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -5,14 +6,18 @@ from django.db.models import Max
 from collections import defaultdict
 import json
 from django.urls import reverse  
-from .models import Labs, Batches, Teacher, Student, Course, Attendance, Semester, LabsBatches, HOD
-
+from .models import Labs, Batches, Teacher, Student, Course, Attendance, Semester, LabsBatches
+import openpyxl
 from .forms import TeacherUpdateForm
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors  # Corrected from colorsen to colors
+from reportlab.lib.units import inch
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.pdfgen import canvas
+from reportlab.lib.enums import TA_CENTER
 
-# views.py
-from django.shortcuts import render, get_object_or_404
-from myapp.models import Teacher, Labs
-from myapp.forms import LabForm
 
 @login_required
 def add_lab(request):
@@ -712,69 +717,199 @@ def Subject_Attendance_Details(request):
 
 
 
-@login_required
-def Class_Report(request):
-    if request.user.groups.filter(name='HOD').exists():
-        is_hod = True
-        is_principal = False
-    elif request.user.groups.filter(name='Principal').exists():
-        is_hod = False
-        is_principal = True
-    else:
-        is_hod = False
-        is_principal = False
+# Export to PDF
+def export_students_to_pdf(semester_data,semester):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="student_attendance.pdf"'
 
+    # Create the PDF object
+    pdf = SimpleDocTemplate(response, pagesize=letter, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=30)
+    elements = []
+
+    # Define the styles for the document
+    styles = getSampleStyleSheet()
+    title_style = styles['Heading1']
+    title_style.alignment = TA_CENTER
+
+    # Add title
+    elements.append(Paragraph("Student Attendance Report", title_style))
+
+    # Add semester title
+    if semester_data:
+        semester_title = semester
+        semester_heading = Paragraph(f"Semester: {semester_title}", styles['Heading2'])
+        elements.append(semester_heading)
+
+    # Define the table headers
+    data = [["Student Name", "Course", "Total Classes", "Classes Attended", "Percentage"]]
+
+    # Add student and course data to the table
+    for semester in semester_data:
+        for student in semester['student_data']:
+            student_name = f"{student['student'].user.first_name} {student['student'].user.last_name}"
+
+            for course in student['course_data']:
+                data.append([
+                    student_name,
+                    course['course'].name,
+                    course['total_count'],
+                    course['count_present'],
+                    f"{course['percentage']}%"
+                ])
+
+    # Create the table
+    table = Table(data, colWidths=[2.5 * inch, 1.8 * inch, 1.2 * inch, 1.5 * inch, 1.2 * inch])
+
+    # Add some style to the table
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  # Header background
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Header text color
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center align all text
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font bold
+        ('FONTSIZE', (0, 0), (-1, 0), 12),  # Header font size
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Header padding
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),  # Body background
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Grid lines
+        ('FONTSIZE', (0, 1), (-1, -1), 10),  # Body font size
+    ]))
+
+    # Add the table to the PDF elements
+    elements.append(table)
+
+    # Build the PDF
+    pdf.build(elements)
+
+    return response
+
+
+
+def export_students_to_excel(semester_data):
+    # Create a response object for Excel file download
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="attendance_report.xlsx"'
+
+    # Create an Excel workbook and worksheet
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Attendance Report"
+
+    # Create headers
+    headers = ["Student Name"]
+    # Get course names dynamically from the first student in semester_data (assuming all students have the same courses)
+    if semester_data and semester_data[0]['student_data']:
+        for course_data in semester_data[0]['student_data'][0]['course_data']:
+            headers.append(course_data['course'].name)
+        headers.append("Overall Attendance")  # Add an overall attendance column
+
+    # Append the headers to the worksheet
+    ws.append(headers)
+
+    # Iterate through semester_data to populate the rows
+    for semester in semester_data:
+        for student_data in semester['student_data']:
+            student = student_data['student']  # Student object
+            
+            # Get student name from the user object
+            student_name = f"{student.user.first_name} {student.user.last_name}"
+            row = [student_name]
+
+            # Iterate through courses and append attendance data
+            for course_data in student_data['course_data']:
+                attendance_info = f"{course_data['count_present']}/{course_data['total_count']} ({course_data['percentage']}%)"
+                row.append(attendance_info)
+
+            # Append overall attendance (same logic as shown in your table)
+            if student_data['total_classes'] > 0:
+                overall_attendance = f"{student_data['total_present']}/{student_data['total_classes']} ({student_data['total_present']/student_data['total_classes']*100:.2f}%)"
+            else:
+                overall_attendance = "0/0 (0%)"
+            row.append(overall_attendance)
+
+            # Append the row to the worksheet
+            ws.append(row)
+
+    # Save the workbook to the response
+    wb.save(response)
+    return response
+
+
+# Class Report View with Export Functionality
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse
+
+# Class Report View with Export Functionality
+def Class_Report(request):
     teacher = get_object_or_404(Teacher, user=request.user)
-    semesters = Semester.objects.all().filter(session_year=teacher.assigned_courses.first().semester.session_year)
-    # print(semesters)
+    semesters = Semester.objects.filter(session_year=teacher.assigned_courses.first().semester.session_year)
 
     selected_semester = request.GET.get('semester')
+    export_format = request.GET.get('format')  # Check if an export format (excel or pdf) is requested
     semester_data = []
 
-    if selected_semester:
-        semester = get_object_or_404(Semester, id=selected_semester)
-        students = Student.objects.filter(semester=semester)
-        courses = Course.objects.filter(semester=semester)
+    # If no semester is selected, return an error message or prompt
+    if not selected_semester or selected_semester == 'None':
+        # Show an error message on the page instead of throwing an error
+        return render(request, 'teachertemplates/Class_report.html', {
+            'teacher': teacher,
+            'semester_data': semester_data,
+            'semesters': semesters,
+            'selected_semester': None,
+            'error_message': 'Please select a semester before exporting the report.'
+        })
 
-        student_data = []
-        for student in students:
-            course_data = []
-            total_present = 0
-            total_classes = 0
+    # Try to convert selected_semester to integer (just in case)
+    try:
+        semester = get_object_or_404(Semester, id=int(selected_semester))
+    except (ValueError, Semester.DoesNotExist):
+        return HttpResponse("Invalid semester selected. Please select a valid semester.", status=400)
 
-            for course in courses:
-                attendances = Attendance.objects.filter(student=student, course=course)
-                total_count = attendances.count()  # Get the total count directly
-                count_present = attendances.filter(present=True).count()  # Count of present directly
-                percentage = (count_present / total_count * 100) if total_count else 0
+    # Now handle the case where a valid semester is selected
+    students = Student.objects.filter(semester=semester)
+    courses = Course.objects.filter(semester=semester)
 
-                course_data.append({
-                    'course': course,
-                    'total_count': total_count,
-                    'count_present': count_present,
-                    'percentage': round(percentage, 2),
-                })
+    student_data_list = []
+    for student in students:
+        course_data_list = []
+        total_present = 0
+        total_classes = 0
 
-                total_present += count_present
-                total_classes += total_count
+        for course in courses:
+            attendances = Attendance.objects.filter(student=student, course=course)
+            total_count = attendances.count()
+            count_present = attendances.filter(present=True).count()
+            percentage = (count_present / total_count * 100) if total_count else 0
 
-            student_data.append({
-                'student': student,
-                'course_data': course_data,
-                'total_present': total_present,
-                'total_classes': total_classes,
+            course_data_list.append({
+                'course': course,
+                'total_count': total_count,
+                'count_present': count_present,
+                'percentage': round(percentage, 2),
             })
 
-        semester_data.append({
-            'semester': semester,
-            'student_data': student_data,
+            total_present += count_present
+            total_classes += total_count
+
+        student_data_list.append({
+            'student': student,
+            'course_data': course_data_list,
+            'total_present': total_present,
+            'total_classes': total_classes,
         })
- 
-    return render(request, 'teachertemplates/class_report.html', {
+
+    semester_data.append({
+        'semester': semester,
+        'student_data': student_data_list,
+    })
+
+    # Handle export functionality
+    if export_format == 'excel':
+        return export_students_to_excel(semester_data)
+    elif export_format == 'pdf':
+        return export_students_to_pdf(semester_data,semester)
+
+    return render(request, 'teachertemplates/Class_report.html', {
         'teacher': teacher,
         'semester_data': semester_data,
         'semesters': semesters,
-        'selected_semester': selected_semester,
-        'is_hod': is_hod,
-        'is_principal':is_principal,
+        'selected_semester': selected_semester
     })

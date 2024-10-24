@@ -537,10 +537,7 @@ def PrincipalDashboard(request):
     # Render the PrincipalDashboard template and pass the department data
     return render(request, 'PrincipalDashboard.html', {'department_data': department_data, 'is_hod': is_hod, 'is_principal': is_principal})
 
-
-# View for HOD dashboard
 # views.py
-
 from django.shortcuts import render
 from .models import Year, Student, Attendance
 

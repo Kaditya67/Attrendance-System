@@ -35,7 +35,7 @@ urlpatterns = [
 
     path('StudentDashBoard/<str:student_id>/',views.StudentDashBoard,name='StudentDashBoard'),
     
-    path('PrincipalDashboard',views.PrincipalDashboard,name='PrincipalDashboard'),
+    path('PrincipalDashboard/',views.PrincipalDashboard,name='PrincipalDashboard'),
     path('HOD_Dashboard',views.HOD_Dashboard,name='HOD_Dashboard'),
 
     path('attendance-details/<str:year_code>/', views.AttendanceDetailsView.as_view(), name='attendance_details'),
