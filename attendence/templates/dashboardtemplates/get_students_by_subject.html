@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance Dashboard</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- Dropdown for Year Selection -->
+    <label for="yearSelect">Select Year:</label>
+    <select id="yearSelect">
+        <option value="">-- Select Year --</option>
+        {% for year in years %}
+            <option value="{{ year.code }}">{{ year.name }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Second Table: Subject-wise Attendance for Selected Year -->
+    <h3>Subject Attendance</h3>
+    <table id="subjectList" border="1">
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Classes Attended</th>
+                <th>Total Classes</th>
+                <th>Attendance (%)</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- This will be populated by AJAX -->
+        </tbody>
+    </table>
+
+    <!-- Third Table: Student-wise Attendance for Selected Subject -->
+    <h3>Student Attendance for Selected Subject</h3>
+    <table id="studentList" border="1">
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Attendance Status</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- This will be populated by AJAX -->
+        </tbody>
+    </table>
+
+    <!-- JavaScript for Handling Year and Subject Selection -->
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var subjectAttendanceChart; // Store the chart instance globally
+
+            // Handle year selection
+            $('#yearSelect').change(function() {
+                var yearCode = $(this).val();
+                if (yearCode) {
+                    $.ajax({
+                        url: "{% url 'get_subjects_by_year' %}",
+                        data: {
+                            'year_code': yearCode
+                        },
+                        success: function(data) {
+                            // Clear and populate subject table
+                            $('#subjectList tbody').empty();
+
+                            $.each(data.subjects, function(index, subject) {
+                                $('#subjectList tbody').append('<tr><td>' + subject.name + '</td><td>' + subject.classes_attended + '</td><td>' + subject.total_classes + '</td><td>' + subject.attendance_percentage.toFixed(1) + '%</td><td><a href="#" class="view-details" data-subject-code="' + subject.code + '">View Details</a></td></tr>');
+                            });
+                        }
+                    });
+                } else {
+                    $('#subjectList tbody').empty(); // Clear the subject list if no year is selected
+                    $('#studentList tbody').empty(); // Clear the student list
+                }
+            });
+
+            // Handle subject selection for student attendance
+            $(document).on('click', '.view-details', function(e) {
+                e.preventDefault();  // Prevent default action (navigation)
+                var subjectCode = $(this).data('subject-code');  // Get subject code from data attribute
+
+                if (subjectCode) {
+                    $.ajax({
+                        url: "{% url 'get_students_by_subject' %}",  // Django URL for fetching student attendance
+                        data: {
+                            'subject_code': subjectCode
+                        },
+                        success: function(data) {
+                            $('#studentList tbody').empty();  // Clear existing students in the third table
+
+                            $.each(data.students, function(index, student) {
+                                $('#studentList tbody').append('<tr><td>' + student.name + '</td><td>' + student.attendance_status + '</td><td><a href="/StudentDashBoard/' + student.student_id + '/">View Details</a></td></tr>');
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

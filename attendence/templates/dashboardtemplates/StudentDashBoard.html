@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 90%;
+            margin: auto;
+            padding: 20px;
+            margin-left: 250px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .chart-container {
+            display: flex; /* Use flexbox for horizontal layout */
+            justify-content: space-between; /* Space out the containers */
+            margin: 20px auto;
+            margin-top: 2%;
+        }
+
+        .chart-box {
+            width: 38%; /* Set each chart container to occupy nearly half the width */
+            background-color: white; /* Optional: Background for visual appeal */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            padding: 10px; /* Padding inside the box */
+        }
+        .chart-box1 {
+            width: 58%; /* Set each chart container to occupy nearly half the width */
+            background-color: white; /* Optional: Background for visual appeal */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            padding: 10px; /* Padding inside the box */
+        }
+
+        canvas {
+            width: 100% !important; /* Full width for canvas */
+            height: 400px !important; /* Fixed height for canvas */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 18px;
+            border-radius: 8px; /* Rounded corners for the table */
+            overflow: hidden; /* Ensures the rounded corners are applied */
+            margin-top:2%;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        table th {
+            background-color: #3498db; /* Header background color */
+            color: white; /* Header text color */
+            text-transform: uppercase; /* Uppercase text */
+            letter-spacing: 1px; /* Spacing between letters */
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f2f2f2; /* Light grey for even rows */
+        }
+
+        table tr:nth-child(odd) {
+            background-color: white; /* White for odd rows */
+        }
+
+        table tr:hover {
+            background-color: #e1f5fe; /* Light blue on hover */
+            transition: background-color 0.3s; /* Smooth transition */
+        }
+
+        .red {
+            background-color: #ff9999; /* Highlight for low attendance */
+        }
+
+        a {
+            text-decoration: none;
+            color: #3498db;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    {% include 'sidebar.html'%}
+
+    <div class="container">
+        <h1>{{ student.user.username }}'s Attendance Dashboard</h1>
+    
+        <div class="chart-container">
+            <div class="chart-box">
+                <canvas id="attendanceChart"></canvas> <!-- Pie chart for average attendance -->
+            </div>
+            <div class="chart-box1">
+                <canvas id="courseAttendanceChart"></canvas> <!-- Bar chart for course attendance -->
+            </div>
+        </div>
+    
+        <table>
+            <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Classes Attended</th>
+                <th>Total Classes</th>
+                <th>Attendance Percentage</th>
+                <th>Details</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for record in attendance_summary %}
+                <tr class="{% if record.attendance_percentage < 50 %}red{% endif %}">
+                    <td>{{ record.course__name }}</td>
+                    <td>{{ record.attended_classes }}</td>
+                    <td>{{ record.total_classes }}</td>
+                    <td>{{ record.attendance_percentage|floatformat:2 }}%</td>
+                    <td>
+                        <a href="{% url 'SubjectDetails' student_id=student.student_id course_id=record.course__id %}">
+                            View Details
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <script>
+        // Pie chart to display the student's average attendance
+        const ctxPie = document.getElementById('attendanceChart').getContext('2d');
+        const attendanceChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: ['Attended', 'Missed'],
+                datasets: [{
+                    label: 'Attendance Percentage',
+                    data: [{{ average_attendance }}, {{ missed_attendance }}],
+                    backgroundColor: ['Blue', 'grey'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
+                }
+            }
+        });
+
+        // Bar chart for attendance in each course
+        const ctxBar = document.getElementById('courseAttendanceChart').getContext('2d');
+        const courseAttendanceChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: [{% for record in attendance_summary %}'{{ record.course__name }}'{% if not forloop.last %}, {% endif %}{% endfor %}], // Course names
+                datasets: [{
+                    label: 'Classes Attended',
+                    data: [{% for record in attendance_summary %}{{ record.attended_classes }}{% if not forloop.last %}, {% endif %}{% endfor %}], // Attended classes
+                    backgroundColor: '#3498db',
+                }, {
+                    label: 'Total Classes',
+                    data: [{% for record in attendance_summary %}{{ record.total_classes }}{% if not forloop.last %}, {% endif %}{% endfor %}], // Total classes
+                    backgroundColor: '#f2f2f2',
+                    borderColor: '#3498db',
+                    borderWidth: 1,
+                    type: 'line', // Set this dataset to be a line chart
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Classes'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Courses'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

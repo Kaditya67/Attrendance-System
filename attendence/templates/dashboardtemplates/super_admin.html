@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        display: flex;
+        height: 100vh;
+        margin: 0;
+        background-color: #eaeaea; /* Light Gray Background */
+      }
+
+      .sidebar {
+        min-width: 250px;
+        max-width: 250px;
+        background-color: #2b2b2b; /* Dark Charcoal Sidebar */
+        padding-top: 20px;
+        height: 100vh;
+        position: fixed;
+        overflow-y: auto;
+        transition: all 0.3s;
+      }
+
+      .sidebar a {
+        font-weight: bold;
+        color: #b3b3b3; /* Medium Gray Text */
+        display: block;
+        padding: 10px 20px;
+        text-decoration: none;
+        transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+      }
+
+      .sidebar a.active {
+        background-color: #1f6fe5; /* Cyan for Active/Hover */
+        color: #ffffff; /* White Text */
+        border-radius: 5px;
+      }
+
+      .sidebar a:hover {
+        background-color: #a3aeae; /* Cyan for Active/Hover */
+        color: #ffffff; /* White Text */
+        border-radius: 5px;
+      }
+
+      .content {
+        margin-left: 250px; /* Same width as sidebar */
+        padding: 20px;
+        width: 100%;
+      }
+
+      .sidebar .navbar-brand {
+        color: #ffffff; /* White for branding */
+        font-size: 1.5rem;
+        margin-bottom: 30px;
+        display: block;
+        padding-left: 20px;
+      }
+
+      /* Dropdown container styles with animation */
+      .dropdown-menu {
+        display: none;
+        position: relative;
+        background-color: rgba(43, 43, 43, 0.9); /* More transparent */
+        border: none;
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 0.4s ease, background-color 0.3s ease;
+        margin-left: 10px; /* Subsection margin */
+      }
+
+      .dropdown-menu.show {
+        display: block;
+        max-height: 200px; /* Maximum height when expanded */
+        background-color: rgba(
+          43,
+          43,
+          43,
+          0.9
+        ); /* Ensures the dropdown color remains consistent */
+      }
+
+      .dropdown-menu .dropdown-item.active {
+        background-color: #1f6fe5; /* Cyan for Active/Hover */
+        color: #ffffff; /* White Text */
+      }
+
+      .dropdown-item {
+        color: #b3b3b3; /* Default color */
+      }
+
+      .dropdown-item b {
+        color: #b3b3b3; /* Dropdown item color */
+        font-size: larger;
+      }
+
+      .dropdown-item:hover {
+        background-color: #0fd7e0; /* Highlight on hover */
+        color: #ffffff; /* White text on hover */
+      }
+
+      /* Icon Styles */
+      .sidebar-icon {
+        margin-right: 10px;
+      }
+
+      /* Media query for mobile responsiveness */
+      @media (max-width: 768px) {
+        .sidebar {
+          max-width: 100%;
+          min-width: 100%;
+          position: relative;
+        }
+
+        .content {
+          margin-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <a class="navbar-brand" href="#">Attendance System</a>
+      <ul class="navbar-nav">
+        <!-- Dashboard -->
+        {% url 'HOD_Dashboard' as dashboard_url %}
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.path == dashboard_url %}active{% endif %}"
+            href="{{ dashboard_url }}"
+          >
+            <i class="bi bi-speedometer2 sidebar-icon"></i>Principal Dashboard
+          </a>
+        </li>
+        <!-- Dashboard -->
+        {% url 'HOD_Dashboard' as dashboard_url %}
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.path == dashboard_url %}active{% endif %}"
+            href="{{ dashboard_url }}"
+          >
+            <i class="bi bi-speedometer2 sidebar-icon"></i>HOD Dashboard
+          </a>
+        </li>
+        <!-- Dashboard -->
+        {% url 'Teacher_dashboard' as dashboard_url %}
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.path == dashboard_url %}active{% endif %}"
+            href="{{ dashboard_url }}"
+          >
+            <i class="bi bi-speedometer2 sidebar-icon"></i>Teacher Dashboard
+          </a>
+        </li>
+
+        <!-- Attendance Dropdown -->
+        <li class="nav-item">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            id="attendanceDropdown"
+            onclick="toggleDropdown(event)"
+          >
+            <i class="bi bi-calendar-check sidebar-icon"></i>Attendance
+          </a>
+          <ul class="dropdown-menu">
+            {% url 'Add_Attendance' as add_attendance_url %}
+            <li>
+              <a
+                class="dropdown-item {% if request.path == add_attendance_url %}active{% endif %}"
+                href="{{ add_attendance_url }}"
+              >
+                <b>-</b> Add Attendance
+              </a>
+            </li>
+            
+            {% url 'view_Attendance' as view_attendance_url %}
+            <li>
+              <a
+                class="dropdown-item {% if request.path == view_attendance_url %}active{% endif %}"
+                href="{{ view_attendance_url }}"
+              >
+                <b>-</b> View Attendance
+              </a>
+            </li>
+          </ul>
+        </li>
+        {% url 'select_course_lecture' as update_attendance_url %}
+            <li>
+              <a
+                class="dropdown-item {% if request.path == update_attendance_url %}active{% endif %}"
+                href="{{ update_attendance_url }}"
+              >
+                <b>-</b> Update Attendance
+              </a>
+            </li>
+
+        <!-- Student List -->
+        {% url 'lab_dashboard' as batch_url %}
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.path == batch_url %}active{% endif %}"
+            href="{{ batch_url }}"
+          >
+            <i class="bi bi-people sidebar-icon"></i>Manage Batches
+          </a>
+        </li>
+
+        <!-- Reports -->
+        {% url 'Class_Report' as class_report_url %}
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.path == class_report_url %}active{% endif %}"
+            href="{{ class_report_url }}"
+          >
+            <i class="bi bi-graph-up sidebar-icon"></i>Reports
+          </a>
+        </li>
+
+        <!-- Profile -->
+        {% url 'update_teacher' teacher.id as update_teacher_url %}
+
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.path == update_teacher_url %}active{% endif %}"
+            href="{{ update_teacher_url }}"
+          >
+            <i class="bi bi-pencil sidebar-icon"></i>Update Profile
+          </a>
+        </li>
+
+        <!-- Logout -->
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'logout' %}">
+            <i class="bi bi-box-arrow-right sidebar-icon"></i>Logout
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Toggle dropdown menu on click with animation
+      // Keep the dropdown open if a submenu is active
+      document.addEventListener("DOMContentLoaded", function () {
+        const activeDropdownItem = document.querySelector(
+          ".dropdown-item.active"
+        );
+        if (activeDropdownItem) {
+          const dropdownMenu = activeDropdownItem.closest(".dropdown-menu");
+          dropdownMenu.classList.add("show");
+        }
+      });
+
+      // Toggle dropdown menu on click with animation
+      function toggleDropdown(event) {
+        event.preventDefault();
+        const dropdown = event.currentTarget.nextElementSibling;
+        dropdown.classList.toggle("show");
+      }
+
+      // Hide dropdown when clicking outside
+      document.addEventListener("click", function (event) {
+        const dropdowns = document.querySelectorAll(".dropdown-menu");
+        dropdowns.forEach(function (dropdown) {
+          if (
+            !dropdown.previousElementSibling.contains(event.target) &&
+            !dropdown.contains(event.target)
+          ) {
+            dropdown.classList.remove("show");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
