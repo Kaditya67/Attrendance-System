@@ -142,7 +142,8 @@
 </head>
 <body>
 
-    {% include 'sidebar.html' %}
+    {% include 'teachertemplates/navbar.html' %}
+    <div class="content">
 
     <div class="container">
         <h1>HOD Attendance Dashboard</h1>
@@ -206,7 +207,6 @@
                         <th>Classes Attended</th>
                         <th>Total Classes</th>
                         <th>Attendance Percentage</th>
-                        
                     </tr>
                 </thead>
                 <tbody id="subjectList"></tbody>
@@ -255,7 +255,7 @@
                     $('#subjectList').empty(); // Clear existing subjects
                     $('#subjectSelect').empty().append('<option value="">-- Select Subject --</option>'); // Clear subject dropdown
                     $.each(data.subjects, function(index, subject) {
-                        $('#subjectList').append('<tr><td>' + subject.name + '</td><td>' + subject.classes_attended + '</td><td>' + subject.total_classes + '</td><td>' + subject.attendance_percentage.toFixed(1) + '%</td><td><a href="SubjectDetails">View Details</a></td></tr>');
+                        $('#subjectList').append('<tr><td>' + subject.name + '</td><td>' + subject.classes_attended + '</td><td>' + subject.total_classes + '</td><td>' + subject.attendance_percentage.toFixed(1) + '%</td></tr>');
                         $('#subjectSelect').append('<option value="' + subject.code + '">' + subject.name + '</option>');
                     });
                     $('#subjectSelect').prop('disabled', false); // Enable subject dropdown
@@ -364,7 +364,7 @@
                             var totalClasses = [];
         
                             $.each(data.subjects, function(index, subject) {
-                                $('#subjectList').append('<tr><td>' + subject.name + '</td><td>' + subject.classes_attended + '</td><td>' + subject.total_classes + '</td><td>' + subject.attendance_percentage.toFixed(1) + '%</td><td><a href="SubjectDetails"></a></td></tr>');
+                                $('#subjectList').append('<tr><td>' + subject.name + '</td><td>' + subject.classes_attended + '</td><td>' + subject.total_classes + '</td><td>' + subject.attendance_percentage.toFixed(1) + '%</td></tr>');
                                 $('#subjectSelect').append('<option value="' + subject.code + '">' + subject.name + '</option>');
         
                                 // Populate chart data

@@ -169,7 +169,7 @@ def HOD_Dashboard(request):
             'attendance_percentage': attendance_percentage,
         })
 
-    return render(request, 'dashboardtemplates/HOD_Dashboard.html', {'attendance_data': attendance_data, 'years': years})
+    return render(request, 'dashboardtemplates/hod_dashboard.html', {'attendance_data': attendance_data, 'years': years})
 
 
 
