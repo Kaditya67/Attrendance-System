@@ -113,40 +113,6 @@
                     </h2> <!-- Display average attendance -->
 
                     <!-- Top 3 Students -->
-                    <h4 style="text-align: center; margin-top: 30px;">Top 3 Attending Students</h4>
-                    <div class="table-responsive">
-                        <table class="table table-hover table-bordered" style="margin-top: 10px; border: 2px solid #ccc;">
-                            <thead class="table-light">
-                                <tr style="background-color: #f9f9f9;">
-                                    <th style="text-align: center; font-weight: bold;">Rank</th>
-                                    <th style="text-align: center; font-weight: bold;">Student Name</th>
-                                    <th style="text-align: center; font-weight: bold;">Percentage (%)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for top_student in course.top_students %}
-                                <tr {% if forloop.first %} style="background-color: #d4edda;" {% endif %}>
-                                    <!-- Highlight top student -->
-                                    <td style="text-align: center; font-size: 1.2rem;">
-                                        {% if forloop.first %}
-                                            🏅 1st
-                                        {% elif forloop.counter == 2 %}
-                                            🥈 2nd
-                                        {% elif forloop.counter == 3 %}
-                                            🥉 3rd
-                                        {% endif %}
-                                    </td>
-                                    <td style="text-align: center; font-weight: 500;">
-                                        {{ top_student.student.user.username }}
-                                    </td>
-                                    <td style="text-align: center; font-weight: bold; font-size: 1.1rem;">
-                                        {{ top_student.percentage }}%
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>  
                     <h3 style="margin: 20px 0px;text-align: center;">{{ course.course.name }} Attendance</h3>
 
                     <div class="table-container">
@@ -187,6 +153,55 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Check if top students are loaded -->
+                        {% if course.top_students %}
+                        <h4 style="text-align: center; margin-top: 30px;">Top 3 Attending Students</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered" style="margin-top: 10px; border: 2px solid #ccc;">
+                            <thead class="table-light">
+                                <tr style="background-color: #f9f9f9;">
+                                    <th style="text-align: center; font-weight: bold;">Rank</th>
+                                    <th style="text-align: center; font-weight: bold;">Roll No.</th>
+                                    <th style="text-align: center; font-weight: bold;">Student Name</th>
+                                    <th style="text-align: center; font-weight: bold;">Percentage (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for top_student in course.top_students %}
+                                <tr {% if forloop.first %} style="background-color: #d4edda;" {% endif %}>
+                                    <!-- Highlight top student -->
+                                    <td style="text-align: center; font-size: 1.2rem;">
+                                        {% if forloop.first %}
+                                            🏅 1st
+                                        {% elif forloop.counter == 2 %}
+                                            🥈 2nd
+                                        {% elif forloop.counter == 3 %}
+                                            🥉 3rd
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: center; font-weight: 500;">{{ top_student.student.roll_number }}</td>
+                                    <td style="text-align: center; font-weight: 500;">
+                                        {{ top_student.student.user.username }}
+                                    </td>
+                                    <td style="text-align: center; font-weight: bold; font-size: 1.1rem;">
+                                        {{ top_student.percentage }}%
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="load_top_students" value="true">
+                        <button type="submit" class="btn btn-primary">Load Top Students</button>
+                    </form>
+                {% endif %}
+        
+
+                    
                 </div>
                 {% endfor %}
             </div>
@@ -197,6 +212,34 @@
             <p><span class="absent">Absent:</span> The student was absent on this date.</p>
         </div>
     </div>
+    <script>
+        document.getElementById('load-top-students').addEventListener('click', function() {
+            fetch('?load_top_students=true')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.querySelector('#top-students-container tbody');
+                    tbody.innerHTML = ''; // Clear previous data
+        
+                    if (data.top_students.length > 0) {
+                        data.top_students.forEach((student, index) => {
+                            const row = `<tr ${index === 0 ? 'style="background-color: #d4edda;"' : ''}>
+                                            <td style="text-align: center; font-size: 1.2rem;">
+                                                ${index === 0 ? '🏅 1st' : index === 1 ? '🥈 2nd' : '🥉 3rd'}
+                                            </td>
+                                            <td style="text-align: center; font-weight: 500;">${student.roll_number}</td>
+                                            <td style="text-align: center; font-weight: 500;">${student.user.username}</td>
+                                            <td style="text-align: center; font-weight: bold; font-size: 1.1rem;">${student.percentage}%</td>
+                                        </tr>`;
+                            tbody.innerHTML += row;
+                        });
+                        document.getElementById('top-students-container').style.display = 'block';
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No top students data available.</td></tr>';
+                    }
+                })
+                .catch(error => console.error('Error loading top students:', error));
+        });
+        </script>
     <script>
 // Function to convert date from "Sept. 5, 2024" to "5/9/2024"
 function convertDate(dateString) {
@@ -213,7 +256,7 @@ function convertDate(dateString) {
     let year = dateParts[2];
 
     // Return the date in "5/9/2024" format (day/month/year)
-    return `${day}/${month}/${year}`;
+    return `${day}/${month}`;
 }
 
 // Apply the function on page load

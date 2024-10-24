@@ -1,3 +1,4 @@
+from tkinter import CENTER
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -9,22 +10,57 @@ from .models import Labs, Batches, Teacher, Student, Course, Attendance, Semeste
 import openpyxl
 from .forms import TeacherUpdateForm
 from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404
 from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
+from reportlab.lib import colorsen
 from reportlab.lib.units import inch
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.pdfgen import canvas
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.enums import TA_CENTER
-from tkinter import CENTER
+from django.http import HttpResponse
+
+@login_required
+def add_lab(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
+    
+    if request.method == 'POST':
+        form = LabForm(request.POST, teacher=teacher)
+        if form.is_valid():
+            form.save()
+            return redirect('lab_dashboard')  # Redirect to some relevant page after saving
+    else:
+        form = LabForm(teacher=teacher)  # Pass teacher to the form
+
+    return render(request, 'teachertemplates/add_lab.html', {'form': form, 'teacher': teacher})
+
 
 
 @login_required
 def lab_dashboard(request):
+
+    if request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
+    elif request.user.groups.filter(name='Principal').exists():
+        is_hod = False
+        is_principal = True
+    else:
+        is_hod = False
+        is_principal = False
         # Get the logged-in teacher
     teacher = get_object_or_404(Teacher, user=request.user)
     labs = teacher.assigned_labs.all()
     print(f"Assigned Labs: {labs}")
+    
+    if request.user.groups.filter(name="HOD").exists():
+        labs = Labs.objects.all()
+    print(f"Labs: {labs}")
 
     lab_data = []
 
@@ -40,6 +76,8 @@ def lab_dashboard(request):
     context = {
         'lab': lab_data,
         'labs': labs,  # Include all labs for navbar display
+        'is_hod': is_hod,
+        'is_principal': is_principal,
     }
     return render(request, 'teachertemplates/lab_dashboard.html', context)
 
@@ -52,13 +90,13 @@ def add_batches(request, lab_id):
         batch_input = request.POST.get('batch_options')  # Example: "a,b,c"
         batch_list = [batch.strip() for batch in batch_input.split(',')]  # Split by commas
         batch_instance.set_batch_options(batch_list)
-        return redirect('teachertemplates/assign_batches', lab_id=lab.id)
+        return redirect('assign_batches', lab_id=lab.id)
 
     context = {
         'lab': lab,
         'batch_options': batch_instance.get_batch_options(),  # Retrieve the current batch options
     }
-    return render(request, 'teachertemplates/assign_batches', context)
+    return render(request, 'teachertemplates/add_batches.html', context)
 
 
 def delete_batch(request, batch_id):
@@ -134,14 +172,47 @@ def lab_detail(request, lab_id):
     return render(request, 'teachertemplates/lab_detail.html', context)
 
 
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib import messages
+
 def update_teacher(request, teacher_id):
     teacher = get_object_or_404(Teacher, id=teacher_id)
+
+    if request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
+    elif request.user.groups.filter(name='Principal').exists():
+        is_hod = False
+        is_principal = True
+    else:
+        is_hod = False
+        is_principal = False
+
     
     if request.method == 'POST':
-        form = TeacherUpdateForm(request.POST, instance=teacher)
-        if form.is_valid():
-            form.save()
-            return redirect('Teacher_dashboard')  # Change this to your success URL
+        if 'update_profile' in request.POST:
+            form = TeacherUpdateForm(request.POST, instance=teacher)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Profile updated successfully!')
+                return redirect('update_teacher', teacher_id=teacher.id)  # Redirect to the same page to show message
+
+        elif 'change_password' in request.POST:
+            # Handle password change logic here
+            old_password = request.POST.get('old_password')
+            new_password1 = request.POST.get('new_password1')
+            new_password2 = request.POST.get('new_password2')
+
+            # Add your password change logic here
+            if new_password1 == new_password2 and teacher.user.check_password(old_password):
+                teacher.user.set_password(new_password1)
+                teacher.user.save()
+                messages.success(request, 'Password changed successfully!')
+                return redirect('update_teacher', teacher_id=teacher.id)  # Redirect to the same page to show message
+            else:
+                messages.error(request, 'Password change failed. Please check your inputs.')
+
     else:
         form = TeacherUpdateForm(instance=teacher)
 
@@ -150,6 +221,60 @@ def update_teacher(request, teacher_id):
         'teacher': teacher
     }
     return render(request, 'teachertemplates/update_teacher.html', context)
+
+
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect, render
+from .models import Student
+from .forms import StudentUpdateForm  # Assuming you have a form for Student similar to TeacherUpdateForm
+
+def update_student(request, student_id):
+    if request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
+    elif request.user.groups.filter(name='Principal').exists():
+        is_hod = False
+        is_principal = True
+    else:
+        is_hod = False
+        is_principal = False
+
+    student = get_object_or_404(Student, id=student_id)
+    
+    if request.method == 'POST':
+        if 'update_profile' in request.POST:
+            form = StudentUpdateForm(request.POST, instance=student)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Profile updated successfully!')
+                return redirect('update_student', student_id=student.id)  # Redirect to the same page to show message
+
+        elif 'change_password' in request.POST:
+            old_password = request.POST.get('old_password')
+            new_password1 = request.POST.get('new_password1')
+            new_password2 = request.POST.get('new_password2')
+
+            if new_password1 == new_password2 and student.user.check_password(old_password):
+                student.user.set_password(new_password1)
+                student.user.save()
+                update_session_auth_hash(request, student.user)  # Important to keep the user logged in
+                messages.success(request, 'Password changed successfully!')
+                return redirect('update_student', student_id=student.id)  # Redirect to the same page to show message
+            else:
+                messages.error(request, 'Password change failed. Please check your inputs.')
+
+    else:
+        form = StudentUpdateForm(instance=student)
+
+    context = {
+        'form': form,
+        'student': student,
+        'is_hod': is_hod,
+        'is_principal': is_principal
+    }
+    return render(request, 'update_student.html', context)
 
 
 @login_required
@@ -492,7 +617,19 @@ def submit_attendance(request):
     return redirect('Add_Attendance')
 
 
+from django.http import JsonResponse
 def Subject_Attendance_Details(request):
+
+    # if hod group exists
+    if request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
+    elif request.user.groups.filter(name='Principal').exists():
+        is_hod = False
+        is_principal = True
+    else:
+        is_hod = False
+        is_principal = False
     # Get the teacher object for the currently logged-in user
     teacher = get_object_or_404(Teacher, user=request.user)
 
@@ -559,216 +696,97 @@ def Subject_Attendance_Details(request):
 
             # Calculate the average attendance percentage for the course
             average_attendance = (total_attended_sum / (student_count * total_classes)) * 100 if student_count > 0 and total_classes > 0 else 0
-            top_students = sorted(student_data, key=lambda x: x['percentage'], reverse=True)[:3]
+            
+            # Initialize top_students as empty
+            top_students = []
+
+            # Check if the form is submitted to load top students
+            if request.method == 'POST' and 'load_top_students' in request.POST:
+                # Sort and get the top students based on attendance percentage
+                top_students = sorted(student_data, key=lambda x: x['percentage'], reverse=True)[:3]  # Get top 3
 
             course_data.append({
                 'course': course,
                 'semester': semester,
                 'students': student_data,
-                'average_attendance': round(average_attendance, 2),  # Store the average attendance percentage
-                'top_students': top_students,  # Add top students to course_data
+                'average_attendance': round(average_attendance, 2),
+                'top_students': top_students,  # Pass the top students to the template
             })
 
     return render(request, 'teachertemplates/Subject_Attedance_Details.html', {
         'teacher': teacher,
         'course_data': course_data,
-        'attendance_data': attendance_data
+        'attendance_data': attendance_data,
+        'is_hod': is_hod,
+        'is_principal':is_principal,
     })
 
 
-# Export to PDF
-def export_students_to_pdf(semester_data,semester):
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="student_attendance.pdf"'
 
-    # Create the PDF object
-    pdf = SimpleDocTemplate(response, pagesize=letter, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=30)
-    elements = []
-
-    # Define the styles for the document
-    styles = getSampleStyleSheet()
-    title_style = styles['Heading1']
-    title_style.alignment = TA_CENTER
-
-    # Add title
-    elements.append(Paragraph("Student Attendance Report", title_style))
-
-    # Add semester title
-    if semester_data:
-        semester_title = semester
-        semester_heading = Paragraph(f"Semester: {semester_title}", styles['Heading2'])
-        elements.append(semester_heading)
-
-    # Define the table headers
-    data = [["Student Name", "Course", "Total Classes", "Classes Attended", "Percentage"]]
-
-    # Add student and course data to the table
-    for semester in semester_data:
-        for student in semester['student_data']:
-            student_name = f"{student['student'].user.first_name} {student['student'].user.last_name}"
-
-            for course in student['course_data']:
-                data.append([
-                    student_name,
-                    course['course'].name,
-                    course['total_count'],
-                    course['count_present'],
-                    f"{course['percentage']}%"
-                ])
-
-    # Create the table
-    table = Table(data, colWidths=[2.5 * inch, 1.8 * inch, 1.2 * inch, 1.5 * inch, 1.2 * inch])
-
-    # Add some style to the table
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  # Header background
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Header text color
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center align all text
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font bold
-        ('FONTSIZE', (0, 0), (-1, 0), 12),  # Header font size
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Header padding
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),  # Body background
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Grid lines
-        ('FONTSIZE', (0, 1), (-1, -1), 10),  # Body font size
-    ]))
-
-    # Add the table to the PDF elements
-    elements.append(table)
-
-    # Build the PDF
-    pdf.build(elements)
-
-    return response
-
-
-
-def export_students_to_excel(semester_data):
-    # Create a response object for Excel file download
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename="attendance_report.xlsx"'
-
-    # Create an Excel workbook and worksheet
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "Attendance Report"
-
-    # Create headers
-    headers = ["Student Name"]
-    # Get course names dynamically from the first student in semester_data (assuming all students have the same courses)
-    if semester_data and semester_data[0]['student_data']:
-        for course_data in semester_data[0]['student_data'][0]['course_data']:
-            headers.append(course_data['course'].name)
-        headers.append("Overall Attendance")  # Add an overall attendance column
-
-    # Append the headers to the worksheet
-    ws.append(headers)
-
-    # Iterate through semester_data to populate the rows
-    for semester in semester_data:
-        for student_data in semester['student_data']:
-            student = student_data['student']  # Student object
-            
-            # Get student name from the user object
-            student_name = f"{student.user.first_name} {student.user.last_name}"
-            row = [student_name]
-
-            # Iterate through courses and append attendance data
-            for course_data in student_data['course_data']:
-                attendance_info = f"{course_data['count_present']}/{course_data['total_count']} ({course_data['percentage']}%)"
-                row.append(attendance_info)
-
-            # Append overall attendance (same logic as shown in your table)
-            if student_data['total_classes'] > 0:
-                overall_attendance = f"{student_data['total_present']}/{student_data['total_classes']} ({student_data['total_present']/student_data['total_classes']*100:.2f}%)"
-            else:
-                overall_attendance = "0/0 (0%)"
-            row.append(overall_attendance)
-
-            # Append the row to the worksheet
-            ws.append(row)
-
-    # Save the workbook to the response
-    wb.save(response)
-    return response
-
-
-# Class Report View with Export Functionality
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
-
-# Class Report View with Export Functionality
+@login_required
 def Class_Report(request):
+
+    if request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
+    elif request.user.groups.filter(name='Principal').exists():
+        is_hod = False
+        is_principal = True
+    else:
+        is_hod = False
+        is_principal = False
+
     teacher = get_object_or_404(Teacher, user=request.user)
-    semesters = Semester.objects.filter(session_year=teacher.assigned_courses.first().semester.session_year)
+    semesters = Semester.objects.all().filter(session_year=teacher.assigned_courses.first().semester.session_year)
+    # print(semesters)
 
     selected_semester = request.GET.get('semester')
-    export_format = request.GET.get('format')  # Check if an export format (excel or pdf) is requested
     semester_data = []
 
-    # If no semester is selected, return an error message or prompt
-    if not selected_semester or selected_semester == 'None':
-        # Show an error message on the page instead of throwing an error
-        return render(request, 'teachertemplates/class_report.html', {
-            'teacher': teacher,
-            'semester_data': semester_data,
-            'semesters': semesters,
-            'selected_semester': None,
-            'error_message': 'Please select a semester before exporting the report.'
-        })
+    if selected_semester:
+        semester = get_object_or_404(Semester, id=selected_semester)
+        students = Student.objects.filter(semester=semester)
+        courses = Course.objects.filter(semester=semester)
 
-    # Try to convert selected_semester to integer (just in case)
-    try:
-        semester = get_object_or_404(Semester, id=int(selected_semester))
-    except (ValueError, Semester.DoesNotExist):
-        return HttpResponse("Invalid semester selected. Please select a valid semester.", status=400)
+        student_data = []
+        for student in students:
+            course_data = []
+            total_present = 0
+            total_classes = 0
 
-    # Now handle the case where a valid semester is selected
-    students = Student.objects.filter(semester=semester)
-    courses = Course.objects.filter(semester=semester)
+            for course in courses:
+                attendances = Attendance.objects.filter(student=student, course=course)
+                total_count = attendances.count()  # Get the total count directly
+                count_present = attendances.filter(present=True).count()  # Count of present directly
+                percentage = (count_present / total_count * 100) if total_count else 0
 
-    student_data_list = []
-    for student in students:
-        course_data_list = []
-        total_present = 0
-        total_classes = 0
+                course_data.append({
+                    'course': course,
+                    'total_count': total_count,
+                    'count_present': count_present,
+                    'percentage': round(percentage, 2),
+                })
 
-        for course in courses:
-            attendances = Attendance.objects.filter(student=student, course=course)
-            total_count = attendances.count()
-            count_present = attendances.filter(present=True).count()
-            percentage = (count_present / total_count * 100) if total_count else 0
+                total_present += count_present
+                total_classes += total_count
 
-            course_data_list.append({
-                'course': course,
-                'total_count': total_count,
-                'count_present': count_present,
-                'percentage': round(percentage, 2),
+            student_data.append({
+                'student': student,
+                'course_data': course_data,
+                'total_present': total_present,
+                'total_classes': total_classes,
             })
 
-            total_present += count_present
-            total_classes += total_count
-
-        student_data_list.append({
-            'student': student,
-            'course_data': course_data_list,
-            'total_present': total_present,
-            'total_classes': total_classes,
+        semester_data.append({
+            'semester': semester,
+            'student_data': student_data,
         })
-
-    semester_data.append({
-        'semester': semester,
-        'student_data': student_data_list,
-    })
-
-    # Handle export functionality
-    if export_format == 'excel':
-        return export_students_to_excel(semester_data)
-    elif export_format == 'pdf':
-        return export_students_to_pdf(semester_data,semester)
-
+ 
     return render(request, 'teachertemplates/class_report.html', {
         'teacher': teacher,
         'semester_data': semester_data,
         'semesters': semesters,
-        'selected_semester': selected_semester
+        'selected_semester': selected_semester,
+        'is_hod': is_hod,
+        'is_principal':is_principal,
     })

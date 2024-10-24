@@ -133,7 +133,22 @@
     <nav class="sidebar">
       <a class="navbar-brand" href="#">Attendance System</a>
       <ul class="navbar-nav">
-        
+
+        <!-- Principal Dashboard -->
+        {% if is_principal %}
+        {% url 'PrincipalDashboard' as dashboard_url_principal %}
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.path == dashboard_url_principal %}active{% endif %}"
+            href="{{ dashboard_url_principal }}"
+          >
+            <i class="bi bi-book sidebar-icon"></i>Principal Dashboard
+          </a>
+        </li>
+        {% endif %}
+
+        <!-- HOD Dashboard -->
+         {% if is_hod %}
         {% url 'HOD_Dashboard' as dashboard_url_hod %}
         <li class="nav-item">
           <a
@@ -143,6 +158,8 @@
             <i class="bi bi-book sidebar-icon"></i>HOD Dashboard
           </a>
         </li>
+        {% endif %}
+
         {% url 'Teacher_dashboard' as dashboard_url %}
         <li class="nav-item">
           <a
@@ -233,7 +250,7 @@
 
         <!-- Logout -->
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'logout' %}">
+          <a class="nav-link" href="{% url 'logout' %}" style="color: red;">
             <i class="bi bi-box-arrow-right sidebar-icon"></i>Logout
           </a>
         </li>
