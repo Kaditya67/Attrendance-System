@@ -879,7 +879,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             auth_login(request, user)
-
+            print(user.groups)
             if user.is_superuser:
                 return redirect('/admin/')
             elif user.groups.filter(name='Principal').exists():
