@@ -1,0 +1,134 @@
+{% load static %} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            background-color: #fafafa;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .product-table {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th,
+        table td {
+            text-align: left;
+            padding: 12px;
+        }
+
+        table th {
+            background-color: #f4f4f4;
+        }
+
+        table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px; /* Space between buttons */
+        }
+    
+        .edit-button,
+        .delete-button {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            text-decoration: none; /* Remove underline for links */
+        }
+    
+        .edit-button {
+            background-color: #4CAF50; /* Green */
+        }
+    
+        .edit-button:hover {
+            background-color: #45a049; /* Darker green */
+        }
+    
+        .delete-button {
+            background-color: #f44336; /* Red */
+        }
+    
+        .delete-button:hover {
+            background-color: #e53935; /* Darker red */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        {% include 'includes/sidebar.html' %}
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <h2>Staff List</h2>
+            <div class="product-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for staff in staff %}
+                        <tr>
+                            <td>{{ staff.user.username }}</td>
+                            <td>{{ staff.assigned_department.name }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'update_staff' staff.pk %}" class="edit-button">Edit</a>
+                                    <a href="{% url 'delete_staff' staff.pk %}" class="delete-button">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2">No staff found.</td>
+                            <td colspan="1"><a href="{% url 'add_staff' %}">Add staff</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

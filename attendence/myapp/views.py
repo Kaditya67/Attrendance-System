@@ -15,7 +15,7 @@ import json
 from django.urls import reverse  
 from .models import Labs, Batches, Teacher, Student, Course, Attendance, Semester, LabsBatches
 
-from .forms import TeacherUpdateForm
+from .forms import Courses, TeacherUpdateForm
 from .forms import (
     StudentRegistrationForm, TeacherRegistrationForm,
     HODRegistrationForm, StaffRegistrationForm,
@@ -1211,3 +1211,179 @@ def course_enrollment(request):
 
     return render(request, 'course_enrollment.html', {'form': form})
 
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Course
+from .forms import CourseForm
+
+# Add Course View
+def add_course(request):
+    if request.method == 'POST':
+        form = CourseForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_courses')
+    else:
+        form = CourseForm()
+    return render(request, 'add_edit_course.html', {'form': form, 'action': 'Add'})
+
+# Edit Course View
+def edit_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    if request.method == 'POST':
+        form = CourseForm(request.POST, instance=course)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_courses')
+    else:
+        form = CourseForm(instance=course)
+    return render(request, 'add_edit_course.html', {'form': form, 'action': 'Edit'})
+
+from django.shortcuts import render, redirect
+from .models import Lecture
+from .forms import LectureForm
+
+# Schedule Lecture View
+def schedule_lecture(request):
+    if request.method == 'POST':
+        form = LectureForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('view_lectures')
+    else:
+        form = LectureForm()
+    return render(request, 'schedule_lecture.html', {'form': form})
+
+
+
+from django.shortcuts import render
+from .models import Attendance
+
+# View Attendance Report
+def view_attendance_report(request):
+    reports = Attendance.objects.all()  # Modify as needed for your reporting logic
+    return render(request, 'attendance_report.html', {'reports': reports})
+
+
+
+
+def manage_courses(request, pk=None):
+    if pk:
+        course = get_object_or_404(Course, pk=pk)
+    else:
+        course = None
+
+    if request.method == 'POST':
+        if 'delete' in request.POST:  # Handle deletion
+            if course:
+                course.delete()
+            return redirect('course_list')
+        else:  # Handle add/update
+            form = Courses(request.POST, instance=course)
+            if form.is_valid():
+                form.save()
+                return redirect('course_list')
+    else:
+        form = Courses(instance=course)
+
+    courses = Course.objects.all()
+    return render(request, 'ui prototype/manage_courses.html', {'form': form, 'courses': courses, 'course': course})
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import Teacher
+from .forms import TeacherForm  # Ensure this form is created
+
+def manage_teacher(request, pk=None):
+    # Handle adding or updating a teacher
+    if pk:
+        teacher = get_object_or_404(Teacher, pk=pk)
+        form = TeacherForm(instance=teacher)
+        
+        if request.method == 'POST':
+            form = TeacherForm(request.POST, instance=teacher)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Teacher updated successfully.")
+                return redirect('teacher_list')  # Redirect to the teacher list after success
+    else:
+        form = TeacherForm()
+        if request.method == 'POST':
+            form = TeacherForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Teacher added successfully.")
+                return redirect('teacher_list')
+
+    return render(request, 'ui prototype/manage_teacher.html', {
+        'form': form,
+        'teacher': teacher if pk else None,
+        'pk': pk,
+    })
+
+# View for deleting a teacher
+def delete_teacher(request, pk):
+    teacher = get_object_or_404(Teacher, pk=pk)
+    
+    if request.method == 'POST':
+        teacher.delete()
+        messages.success(request, "Teacher deleted successfully.")
+        return redirect('teacher_list')
+
+    return render(request, 'ui prototype/confirm_delete_teacher.html', {'teacher': teacher})
+
+from django.views.generic import ListView
+from .models import Teacher
+from django.contrib import messages
+from .forms import StaffForm 
+
+class TeacherListView(ListView):
+    model = Teacher
+    template_name = 'ui prototype/teacher_list.html'  # Adjust this as necessary
+    context_object_name = 'teachers'
+
+def manage_staff(request, pk=None):
+    if pk:
+        staff = get_object_or_404(Staff, pk=pk)
+        form = StaffForm(instance=staff)
+        if request.method == 'POST':
+            form = StaffForm(request.POST, instance=staff)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Staff updated successfully.")
+                return redirect('staff_list')
+    else:
+        form = StaffForm()
+        if request.method == 'POST':
+            form = StaffForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Staff added successfully.")
+                return redirect('staff_list')
+
+    return render(request, 'ui prototype/manage_staff.html', {
+        'form': form,
+        'staff': staff if pk else None,
+        'pk': pk,
+    })
+
+# Delete staff
+def delete_staff(request, pk):
+    staff = get_object_or_404(Staff, pk=pk)
+    print("########################",staff)
+    if request.method == 'POST':
+        staff.delete()
+        messages.success(request, "Staff deleted successfully.")
+        return redirect('staff_list')
+
+    return render(request, 'ui prototype/confirm_delete_staff.html', {'staff': staff})
+
+# List view for staff
+from django.views.generic import ListView
+
+class StaffListView(ListView):
+    model = Staff
+    template_name = 'ui prototype/staff_list.html'
+    context_object_name = 'staff'
+    
