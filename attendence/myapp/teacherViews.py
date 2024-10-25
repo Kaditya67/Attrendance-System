@@ -717,11 +717,11 @@ def Subject_Attendance_Details(request):
 
 
 # Export to PDF
-def export_students_to_pdf(semester_data,semester):
+def export_students_to_pdf(semester_data, semester): 
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="student_attendance.pdf"'
+    response['Content-Disposition'] = 'attachment; filename="subjectwise_attendance_report.pdf"'
 
-    # Create the PDF object
+    # Create the PDF document
     pdf = SimpleDocTemplate(response, pagesize=letter, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=30)
     elements = []
 
@@ -731,7 +731,7 @@ def export_students_to_pdf(semester_data,semester):
     title_style.alignment = TA_CENTER
 
     # Add title
-    elements.append(Paragraph("Student Attendance Report", title_style))
+    elements.append(Paragraph("Subject-wise Attendance Report", title_style))
 
     # Add semester title
     if semester_data:
@@ -739,45 +739,48 @@ def export_students_to_pdf(semester_data,semester):
         semester_heading = Paragraph(f"Semester: {semester_title}", styles['Heading2'])
         elements.append(semester_heading)
 
-    # Define the table headers
-    data = [["Student Name", "Course", "Total Classes", "Classes Attended", "Percentage"]]
+    # Loop through each subject (course) and compile a table for each
+    for course in semester_data[0]['student_data'][0]['course_data']:
+        course_name = course['course'].name
+        elements.append(Paragraph(f"Subject: {course_name}", styles['Heading3']))
 
-    # Add student and course data to the table
-    for semester in semester_data:
-        for student in semester['student_data']:
-            student_name = f"{student['student'].user.first_name} {student['student'].user.last_name}"
+        # Define table headers
+        data = [["Student Name", "Total Classes", "Classes Attended", "Percentage"]]
 
-            for course in student['course_data']:
+        # Populate table with student attendance data for the specific course
+        for student_data in semester_data[0]['student_data']:
+            student = student_data['student']
+            student_name = f"{student.user.first_name} {student.user.last_name}"
+            
+            # Find attendance info for the specific course
+            course_info = next((c for c in student_data['course_data'] if c['course'].name == course_name), None)
+            if course_info:
                 data.append([
                     student_name,
-                    course['course'].name,
-                    course['total_count'],
-                    course['count_present'],
-                    f"{course['percentage']}%"
+                    course_info['total_count'],
+                    course_info['count_present'],
+                    f"{course_info['percentage']}%"
                 ])
 
-    # Create the table
-    table = Table(data, colWidths=[2.5 * inch, 1.8 * inch, 1.2 * inch, 1.5 * inch, 1.2 * inch])
+        # Create the table for this subject
+        table = Table(data, colWidths=[2.5 * inch, 1.5 * inch, 1.5 * inch, 1.2 * inch])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  
+            ('FONTSIZE', (0, 0), (-1, 0), 12),  
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),  
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),  
+            ('FONTSIZE', (0, 1), (-1, -1), 10),  
+        ]))
 
-    # Add some style to the table
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  # Header background
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Header text color
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center align all text
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font bold
-        ('FONTSIZE', (0, 0), (-1, 0), 12),  # Header font size
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Header padding
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),  # Body background
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Grid lines
-        ('FONTSIZE', (0, 1), (-1, -1), 10),  # Body font size
-    ]))
+        elements.append(table)
+        elements.append(Paragraph("<br/><br/>", styles['Normal']))
 
-    # Add the table to the PDF elements
-    elements.append(table)
-
-    # Build the PDF
+    # Build and return the PDF
     pdf.build(elements)
-
     return response
 
 
@@ -785,51 +788,43 @@ def export_students_to_pdf(semester_data,semester):
 def export_students_to_excel(semester_data):
     # Create a response object for Excel file download
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename="attendance_report.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="attendance_report_by_subject.xlsx"'
 
     # Create an Excel workbook and worksheet
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Attendance Report"
 
-    # Create headers
-    headers = ["Student Name"]
-    # Get course names dynamically from the first student in semester_data (assuming all students have the same courses)
-    if semester_data and semester_data[0]['student_data']:
-        for course_data in semester_data[0]['student_data'][0]['course_data']:
-            headers.append(course_data['course'].name)
-        headers.append("Overall Attendance")  # Add an overall attendance column
+    # Define a row for each course
+    if semester_data:
+        for semester in semester_data:
+            for course in Course.objects.filter(semester=semester['semester']):
+                # Add headers per course
+                ws.append([f"Course: {course.name}"])
+                headers = ["Student Name", "Total Classes", "Classes Attended", "Percentage"]
+                ws.append(headers)
 
-    # Append the headers to the worksheet
-    ws.append(headers)
+                # Populate data for each student in this course
+                for student_data in semester['student_data']:
+                    student = student_data['student']
+                    student_name = f"{student.user.first_name} {student.user.last_name}"
 
-    # Iterate through semester_data to populate the rows
-    for semester in semester_data:
-        for student_data in semester['student_data']:
-            student = student_data['student']  # Student object
-            
-            # Get student name from the user object
-            student_name = f"{student.user.first_name} {student.user.last_name}"
-            row = [student_name]
+                    # Get the attendance data for this specific course
+                    course_data = next((cd for cd in student_data['course_data'] if cd['course'] == course), None)
+                    if course_data:
+                        total_count = course_data['total_count']
+                        count_present = course_data['count_present']
+                        percentage = course_data['percentage']
+                        row = [student_name, total_count, count_present, f"{percentage}%"]
+                        ws.append(row)
 
-            # Iterate through courses and append attendance data
-            for course_data in student_data['course_data']:
-                attendance_info = f"{course_data['count_present']}/{course_data['total_count']} ({course_data['percentage']}%)"
-                row.append(attendance_info)
-
-            # Append overall attendance (same logic as shown in your table)
-            if student_data['total_classes'] > 0:
-                overall_attendance = f"{student_data['total_present']}/{student_data['total_classes']} ({student_data['total_present']/student_data['total_classes']*100:.2f}%)"
-            else:
-                overall_attendance = "0/0 (0%)"
-            row.append(overall_attendance)
-
-            # Append the row to the worksheet
-            ws.append(row)
+                # Add a blank row after each course for clarity
+                ws.append([])
 
     # Save the workbook to the response
     wb.save(response)
     return response
+
 
 
 # Class Report View with Export Functionality
