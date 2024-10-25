@@ -615,12 +615,12 @@ from django.http import JsonResponse
 def Subject_Attendance_Details(request):
 
     # if hod group exists
-    if request.user.groups.filter(name='HOD').exists():
-        is_hod = True
-        is_principal = False
-    elif request.user.groups.filter(name='Principal').exists():
+    if request.user.groups.filter(name='Principal').exists():
         is_hod = False
         is_principal = True
+    elif request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
     else:
         is_hod = False
         is_principal = False

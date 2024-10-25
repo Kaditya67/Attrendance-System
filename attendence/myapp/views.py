@@ -491,12 +491,12 @@ def PrincipalDashboard(request):
     departments = Department.objects.all()
     department_data = []
 
-    if request.user.groups.filter(name='HOD').exists():
-        is_hod = True
-        is_principal = False
-    elif request.user.groups.filter(name='Principal').exists():
+    if request.user.groups.filter(name='Principal').exists():
         is_hod = False
         is_principal = True
+    elif request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
     else:
         is_hod = False
         is_principal = False
@@ -549,15 +549,16 @@ def HOD_Dashboard(request):
     if not request.user.groups.filter(name='HOD').exists():
         return redirect('no_permission')
     
-    if request.user.groups.filter(name='HOD').exists():
-        is_hod = True
-        is_principal = False
-    elif request.user.groups.filter(name='Principal').exists():
+    if request.user.groups.filter(name='Principal').exists():
         is_hod = False
         is_principal = True
+    elif request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
     else:
         is_hod = False
         is_principal = False
+        
     teacher =  get_object_or_404(Teacher, user=request.user)
     
     # Fetch all years
