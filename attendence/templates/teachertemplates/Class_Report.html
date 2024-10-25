@@ -171,6 +171,7 @@
         }
     
     </style>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
     {% load custom_filters %}
@@ -188,10 +189,10 @@
         {% endif %}
         
         <div class="container">
-            <h1>Common Summary Attendance Dashboard</h1>
+            <h3 style="text-align: center;">Common Summary Attendance Dashboard</h3>
         
             <form method="GET" action="{% url 'Class_Report' %}">
-                <label for="semester" style="font-size: 2rem;padding: 1rem;">Select Semester:</label>
+                <label for="semester" style="font-size: 1.5rem;padding: 1rem;">Select Semester:</label>
                 <select name="semester" id="semester" onchange="this.form.submit()">
                     <option value="">--Select Semester--</option>
                     {% for semester in semesters %}
@@ -201,16 +202,16 @@
                     {% endfor %}
                 </select>
             </form>
-        
+            
             {% if semester_data %}
             <div>
                 <h3 style="margin: 20px 0px;">Semester: {{ semester_data.0.semester }}</h3>
                 <div class="export-buttons">
                     <a href="?semester={{ selected_semester }}&format=excel" class="btn btn-excel">
-                        <i class="fas fa-file-excel"></i> Export to Excel
+                        <i class='bx bx-spreadsheet' style="color: green;"></i> Export to Excel
                     </a>
                     <a href="?semester={{ selected_semester }}&format=pdf" class="btn btn-pdf">
-                        <i class="fas fa-file-pdf"></i> Export to PDF
+                        <i class='bx bxs-file-pdf' style="color: red;"></i> Export to PDF
                     </a>
                 </div>
                 <table>

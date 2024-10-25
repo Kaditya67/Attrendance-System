@@ -888,6 +888,13 @@ def update_attendance(request, pk):
 
 
 # User Management Views
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.models import Group
+from django.contrib.auth import login as auth_login
+from .forms import StudentRegistrationForm
+from .models import Semester
+
 def register_user(request, form_class, group_name, template_name, success_redirect):
     if request.method == 'POST':
         form = form_class(request.POST)
@@ -912,15 +919,15 @@ def register_user(request, form_class, group_name, template_name, success_redire
     all_semesters = Semester.objects.all()
     return render(request, template_name, {'form': form, 'semesters': all_semesters})
 
-
 def register_student(request):
     return register_user(
         request, 
         StudentRegistrationForm, 
         'Student', 
         'register_student.html', 
-        'student_dashboard'
+        'StudentDashBoard'
     )
+
 
 def register_teacher(request):
     return register_user(request, TeacherRegistrationForm, 'Teacher', 'register_teacher.html', 'dash_teacher')
