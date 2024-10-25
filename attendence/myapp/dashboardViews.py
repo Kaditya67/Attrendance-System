@@ -72,7 +72,7 @@ def StudentDashBoard(request, student_id):
     # Calculate missed attendance percentage
     missed_attendance = 100 - average_attendance
 
-    return render(request, 'dashboardtemplates/StudentDashBoard.html', {
+    return render(request, 'StudentDashBoard.html', {
         'student': student,
         'attendance_summary': attendance_data,
         'average_attendance': average_attendance,  # Pass the average attendance to the template
