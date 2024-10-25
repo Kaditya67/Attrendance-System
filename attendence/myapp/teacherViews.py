@@ -7,7 +7,7 @@ import json
 from django.urls import reverse  
 from .models import Labs, Batches, Teacher, Student, Course, Attendance, Semester, LabsBatches
 import openpyxl
-from .forms import TeacherUpdateForm
+from .forms import LabForm, TeacherUpdateForm
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
