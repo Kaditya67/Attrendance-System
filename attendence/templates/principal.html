@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Principal Dashboard</title>
-<<<<<<< HEAD
-=======
     <!-- Include Bootstrap CSS (optional for additional styling) -->
     <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
->>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -234,20 +231,6 @@
             font-size: 16px;
             color: #555555; /* Medium Gray for Text */
         }
-<<<<<<< HEAD
-
-        .chart-container {
-            width: 70%;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            color:white;
-            margin-top:10px;
-        }
-=======
->>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
         
         
     </style>
@@ -275,277 +258,6 @@
 <div class="content" id="mainContent">
     <h2>Principal Dashboard</h2>
 
-<<<<<<< HEAD
-    <!-- Chart for department-wise attendance comparison -->
-       <!-- Chart Type Selection -->
-       <form id="chartTypeForm" method="GET">
-        <label for="chartType">Choose Chart Type:</label>
-        <select id="chartType" name="chart_type" onchange="this.form.submit()">
-            <option value="year" {% if chart_type == 'year' %}selected{% endif %}>Year</option>
-            <option value="month" {% if chart_type == 'month' %}selected{% endif %}>Month</option>
-        </select>
-    </form>
-
-
-    <!-- Chart for department-wise attendance comparison -->
-    <div class="chart-container">
-        <canvas id="departmentAttendanceChart" style="height: 400px;"></canvas>
-    </div>
-
-    
-    
-
-
-</div>
-
- <!-- Filters and Search -->
- <form id="filterForm" method="GET">
-    <div class="filter-container">
-        <select id="departmentFilter" name="department">
-            <option value="">Select Department</option>
-            <!-- Add department options here -->
-        </select>
-        <select id="semesterFilter" name="semester">
-            <option value="">Select Semester</option>
-            <!-- Add semester options here -->
-        </select>
-        <select id="statusFilter" name="status">
-            <option value="">Select Status</option>
-            <!-- Add status options here -->
-        </select>
-        <select id="honorsMinorsFilter" name="honors_minors">
-            <option value="">Select Honors/Minors</option>
-            <!-- Add honors/minors options here -->
-        </select>
-    </div>
-
-    <div class="search-container">
-        <input type="text" id="search" name="search" placeholder="Search students..." value="">
-        <button type="submit">Search</button>
-    </div>
-</form>
-
-<!-- Student Information Table -->
-<table id="studentTable">
-    <thead>
-        <tr>
-            <th>S.No</th>
-            <th>Name</th>
-            <th>Department</th>
-            <th>Semester</th>
-            <th>Status</th>
-            <th>Honors/Minors</th>
-            <th>Attendance</th>
-
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Sample Data Rows -->
-        <tr>
-            <td>1</td>
-            <td>John Doe</td>
-            <td>Computer Science</td>
-            <td>Semester 4</td>
-            <td>Active</td>
-            <td>Data Science</td>
-            <td>85%</td>
-
-        </tr>
-        <tr>
-            <td>2</td>
-            <td>Jane Smith</td>
-            <td>Electronics</td>
-            <td>Semester 3</td>
-            <td>Inactive</td>
-            <td>Embedded Systems</td>
-            <td>78%</td>
-
-        </tr>
-        <!-- Add more rows as needed -->
-        
-          
-        
-    </tbody>
-</table>
-</div>
-
-<!-- JavaScript for Sidebar -->
-<script>
-function openNav() {
-    document.getElementById("mySidebar").style.width = "250px";
-    document.getElementById("mainContent").style.marginLeft = "250px";
-}
-
-function closeNav() {
-    document.getElementById("mySidebar").style.width = "0";
-    document.getElementById("mainContent").style.marginLeft = "0";
-}
-
-document.getElementById('filterForm').addEventListener('change', function() {
-    fetchFilteredData();
-});
-
-document.getElementById('search').addEventListener('keyup', function() {
-    fetchFilteredData();
-});
-
-function fetchFilteredData() {
-    const form = document.getElementById('filterForm');
-    const formData = new FormData(form);
-
-    fetch(window.location.href, {
-        method: 'GET',
-        body: new URLSearchParams(formData).toString()
-    })  
-    .then(response => response.text())
-    .then(html => {
-        document.getElementById('studentTable').innerHTML = html;
-    });
-}   
-</script>
-
-<!-- Include Chart.js from CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Dummy data for department attendance
-    const departmentNames = ['Computer Science', 'IT', 'EXTC', 'Mechanical'];
-    const departmentAttendance = [85, 78, 92, 88]; // Percentage attendance for each department
-
-    // Function to generate gradient based on color
-    function createGradient(ctx, colorStart, colorEnd) {
-        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, colorStart);
-        gradient.addColorStop(1, colorEnd);
-        return gradient;
-    }
-
-    // Setup canvas context
-    const ctx = document.getElementById('departmentAttendanceChart').getContext('2d');
-
-    // Create gradients dynamically
-    const gradients = [
-        createGradient(ctx, 'rgba(75, 192, 192, 1)', 'rgba(75, 192, 192, 0.1)'),
-        createGradient(ctx, 'rgba(255, 159, 64, 1)', 'rgba(255, 159, 64, 0.1)'),
-        createGradient(ctx, 'rgba(153, 102, 255, 1)', 'rgba(153, 102, 255, 0.1)'),
-        createGradient(ctx, 'rgba(54, 162, 235, 1)', 'rgba(54, 162, 235, 0.1)')
-    ];
-
-    // Chart.js setup with improved interactivity and styling
-    const attendanceChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: departmentNames,
-            datasets: [{
-                label: 'Average Attendance (%)',
-                data: departmentAttendance,
-                backgroundColor: gradients,
-                borderColor: [
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(54, 162, 235, 1)'
-                ],
-                borderWidth: 2,
-                hoverBackgroundColor: gradients.map(gradient => gradient),
-                hoverBorderColor: [
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(54, 162, 235, 1)'
-                ]
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        font: {
-                            size: 14
-                        },
-                        color: '#333'
-                    },
-                    grid: {
-                        color: 'rgba(200, 200, 200, 0.2)'
-                    }
-                },
-                x: {
-                    ticks: {
-                        font: {
-                            size: 14
-                        },
-                        color: '#333'
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top',
-                    labels: {
-                        color: '#333',
-                        font: {
-                            size: 16,
-                            family: "'Arial', sans-serif"
-                        }
-                    }
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleFont: { size: 16, weight: 'bold' },
-                    bodyFont: { size: 14 },
-                    bodySpacing: 6,
-                    padding: 12,
-                    cornerRadius: 8,
-                    displayColors: false,
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
-                            if (context.raw !== null) {
-                                label += context.raw + '%';
-                            }
-                            return label;
-                        }
-                    }
-                }
-            },
-            layout: {
-                padding: {
-                    left: 20,
-                    right: 20,
-                    top: 20,
-                    bottom: 20
-                }
-            },
-            responsive: true,
-            maintainAspectRatio: false, // Ensure the height is customized
-            animation: {
-                duration: 1500,
-                easing: 'easeInOutBounce'
-            },
-            hover: {
-                mode: 'index',
-                intersect: false,
-                animationDuration: 500
-            },
-            onClick: function(evt, elements) {
-                if (elements.length > 0) {
-                    const index = elements[0].index;
-                    const department = departmentNames[index];
-                    const attendance = departmentAttendance[index];
-                    alert(`${department} Department has an average attendance of ${attendance}%`);
-                }
-            }
-        }
-    });
-</script>
-
-
-=======
     <!-- Metrics Section -->
 <!-- New Section for Metrics -->
 <div class="metrics-container">
@@ -662,7 +374,6 @@ function fetchFilteredData() {
     </table>
 </div>
 
->>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
 <!-- JavaScript for Sidebar -->
 <script>
     function openNav() {
@@ -674,8 +385,6 @@ function fetchFilteredData() {
         document.getElementById("mySidebar").style.width = "0";
         document.getElementById("mainContent").style.marginLeft = "0";
     }
-<<<<<<< HEAD
-=======
 
     document.getElementById('filterForm').addEventListener('change', function() {
         fetchFilteredData();
@@ -698,7 +407,6 @@ function fetchFilteredData() {
             document.getElementById('studentTable').innerHTML = html;
         });
     }   
->>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
 </script>
 
 </body>

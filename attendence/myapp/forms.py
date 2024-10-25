@@ -7,6 +7,75 @@ from .models import Student, Department, Teacher, HOD, Staff, Principal, Course,
 from django.contrib.auth import authenticate
 
 from django import forms
+from django.contrib.auth.forms import PasswordChangeForm
+from .models import Teacher
+
+# forms.py
+from django import forms
+from myapp.models import Labs, Semester
+
+# forms.py
+from django import forms
+from django.db import models  # Add this import
+from myapp.models import Labs, Semester
+
+class LabForm(forms.ModelForm):
+    class Meta:
+        model = Labs
+        fields = ['code', 'name', 'semester', 'index']
+        widgets = {
+            'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter course code'}),
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter course name'}),
+            'semester': forms.Select(attrs={'class': 'form-control'}),
+            'index': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter index'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        # Pop the teacher object if provided
+        teacher = kwargs.pop('teacher', None)
+        super(LabForm, self).__init__(*args, **kwargs)
+        
+        # Filter semesters based on the teacher's department
+        if teacher:
+            department = teacher.department
+            self.fields['semester'].queryset = Semester.objects.filter(session_year__department=department)
+
+        # Set the next available index
+        max_index = Labs.objects.aggregate(max_index=models.Max('index'))['max_index']
+        self.fields['index'].initial = (max_index + 1) if max_index is not None else 0
+
+
+from django import forms
+from .models import Student
+
+class StudentUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['roll_number', 'semester', 'mobile_no', 'email', 'address']  # Add other fields as needed
+
+
+
+class TeacherProfileForm(forms.ModelForm):
+    class Meta:
+        model = Teacher
+        fields = ['mobile_no', 'email', 'experience']  # Add other fields as needed
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    class Meta:
+        model = Teacher.user
+        fields = ['old_password', 'new_password1', 'new_password2']
+
+
+from django import forms
+from .models import Teacher
+
+class TeacherUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Teacher
+        fields = ['mobile_no', 'email', 'experience']
+
+
+from django import forms
 from .models import Attendance
 
 class AttendanceForm(forms.ModelForm):
@@ -59,7 +128,6 @@ class StudentRegistrationForm(forms.ModelForm):
     last_name = forms.CharField(max_length=30)
     email = forms.EmailField(validators=[EmailValidator(message="Enter a valid email address ending with @dbit.in")])
     mobile_no = forms.CharField(max_length=15, required=False)
-    department = forms.ModelChoiceField(queryset=Department.objects.all(), widget=forms.Select(attrs={'onchange': 'updateSemesters()'}))
     # department = forms.ModelChoiceField(queryset=Department.objects.all(), widget=forms.Select(attrs={'onchange': 'updateSemesters()'}))
     roll_number = forms.CharField(max_length=10)
     student_id = forms.CharField(max_length=20, required=True, label="Student ID")  # Added student_id
@@ -73,7 +141,6 @@ class StudentRegistrationForm(forms.ModelForm):
         model = Student
         fields = [
             'username', 'first_name', 'last_name', 'email', 'mobile_no',
-            'department', 'roll_number', 'student_id', 'address', 
             # 'department', 
             'roll_number', 'student_id', 'address', 
             'password', 'confirm_password', 'semester'
@@ -369,19 +436,6 @@ class CourseManagementForm(forms.ModelForm):
         fields = ['code', 'name', 'department', 'year']
 
 
-from django import forms
-from .models import Lecture, Course, Semester, Program
-
-class LectureSchedulingForm(forms.ModelForm):
-    course = forms.ModelChoiceField(queryset=Course.objects.all(), label='Select Course')
-    semester = forms.ModelChoiceField(queryset=Semester.objects.all(), label='Select Semester')
-    program = forms.ModelChoiceField(queryset=Program.objects.all(), label='Select Program')
-    date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), label='Date')
-    time_slot = forms.ChoiceField(choices=Lecture.TIME_SLOT_CHOICES, label='Time Slot')
-
-    class Meta:
-        model = Lecture
-        fields = ['course', 'semester', 'program', 'date', 'time_slot']
 # from django import forms
 # from .models import Lecture, Course, Semester, Program
 

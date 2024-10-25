@@ -64,7 +64,7 @@
       select:focus,
       input[type="date"]:focus,
       input[type="text"]:focus {
-        border-color: #3498db;
+        border-color: #2b2b2b;
         outline: none;
       }
 
@@ -83,7 +83,7 @@
       }
 
       table th {
-        background-color: #3498db;
+        background-color: #2b2b2b;
         color: #fff;
         font-weight: 500;
       }
@@ -103,7 +103,7 @@
       }
 
       .button {
-        background-color: #3498db;
+        background-color: #2b2b2b;
         color: white;
         padding: 12px 20px;
         font-size: 18px;
@@ -154,7 +154,7 @@
 
       a {
         text-decoration: none;
-        color: #3498db;
+        color: #2b2b2b;
         font-weight: 500;
       }
 
@@ -185,7 +185,7 @@
         {% if messages %}
         <div class="messages">
           {% for message in messages %}
-          <p class="{{ message.tags }}">{{ message }}</p>
+          <p class="{{ message.tags }}"><b>Note:</b> {{ message }}</p>
           {% endfor %}
         </div>
         {% endif %}

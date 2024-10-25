@@ -33,8 +33,6 @@
             margin-bottom: 15px;
         }
     </style>
-<<<<<<< HEAD
-=======
     <script>
         function toggleCheckboxes(source, className) {
             const checkboxes = document.querySelectorAll(`.${className}`);
@@ -43,7 +41,6 @@
             });
         }
     </script>
->>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
 </head>
 <body>
     <div class="container">
@@ -52,18 +49,6 @@
             <form method="post">
                 {% csrf_token %}
                 
-<<<<<<< HEAD
-                <!-- Course Selection -->
-                <div class="form-group">
-                    {{ form.course.label_tag }}
-                    {{ form.course }}
-                </div>
-
-                <!-- Date Selection -->
-                <div class="form-group">
-                    {{ form.date.label_tag }}
-                    {{ form.date }}
-=======
                 <!-- Time Slot and Lab Batch -->
                 <div class="form-group">
                     <label for="time_slot">Select Time Slot:</label>
@@ -91,7 +76,6 @@
                 <div class="form-check">
                     <input type="checkbox" id="all-absent" class="form-check-input" onclick="toggleCheckboxes(this, 'attendance-checkbox')">
                     <label class="form-check-label" for="all-absent">All Absent</label>
->>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
                 </div>
 
                 <!-- Table of Students -->
@@ -105,24 +89,6 @@
                         </tr>
                     </thead>
                     <tbody>
-<<<<<<< HEAD
-                        {% for student in students %}
-                            <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td>{{ student.user.username }}</td>
-                                <td>{{ student.roll_number }}</td>
-                                <td>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" id="student-{{ student.id }}-present" name="student_{{ student.id }}" value="Present">
-                                        <label class="form-check-label" for="student-{{ student.id }}-present">Present</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" id="student-{{ student.id }}-absent" name="student_{{ student.id }}" value="Absent">
-                                        <label class="form-check-label" for="student-{{ student.id }}-absent">Absent</label>
-                                    </div>
-                                </td>
-                            </tr>
-=======
                         {% for data in course_data %}
                             {% for student in data.students %}
                                 <tr>
@@ -134,7 +100,6 @@
                                     </td>
                                 </tr>
                             {% endfor %}
->>>>>>> c22b95e10b9996e1ebc994b1a1dbe55c94ce1b4d
                         {% endfor %}
                     </tbody>
                 </table>
