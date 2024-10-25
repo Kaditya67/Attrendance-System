@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
-from .forms import (StudentRegistrationForm, TeacherRegistrationForm,
+from .forms import (Courses, StudentRegistrationForm, TeacherRegistrationForm,
                     HODRegistrationForm, StaffRegistrationForm,
                     PrincipalRegistrationForm, UserLoginForm, AttendanceForm,
                     CourseEnrollmentForm, CourseManagementForm, LectureSchedulingForm, 
@@ -859,10 +859,10 @@ def view_teacher_details(request):
 def hod_dashboard(request):
     return render(request,'hod_dashboard.html')
 
-@login_required
-def manage_teachers(request):
-    if not (request.user.groups.filter(name='HOD').exists() or request.user.groups.filter(name='Principal').exists()):
-        return render(request, 'principal.html', {'students': students})
+# @login_required
+# def manage_teachers(request):
+#     if not (request.user.groups.filter(name='HOD').exists() or request.user.groups.filter(name='Principal').exists()):
+#         return render(request, 'principal.html', {'students': students})
 
 @login_required
 def hod_dashboard(request):
@@ -1264,6 +1264,127 @@ def view_attendance_report(request):
 
 
 
+
+def manage_courses(request, pk=None):
+    if pk:
+        course = get_object_or_404(Course, pk=pk)
+    else:
+        course = None
+
+    if request.method == 'POST':
+        if 'delete' in request.POST:  # Handle deletion
+            if course:
+                course.delete()
+            return redirect('course_list')
+        else:  # Handle add/update
+            form = Courses(request.POST, instance=course)
+            if form.is_valid():
+                form.save()
+                return redirect('course_list')
+    else:
+        form = Courses(instance=course)
+
+    courses = Course.objects.all()
+    return render(request, 'ui prototype/manage_courses.html', {'form': form, 'courses': courses, 'course': course})
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import Teacher
+from .forms import TeacherForm  # Ensure this form is created
+
+def manage_teacher(request, pk=None):
+    # Handle adding or updating a teacher
+    if pk:
+        teacher = get_object_or_404(Teacher, pk=pk)
+        form = TeacherForm(instance=teacher)
+        
+        if request.method == 'POST':
+            form = TeacherForm(request.POST, instance=teacher)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Teacher updated successfully.")
+                return redirect('teacher_list')  # Redirect to the teacher list after success
+    else:
+        form = TeacherForm()
+        if request.method == 'POST':
+            form = TeacherForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Teacher added successfully.")
+                return redirect('teacher_list')
+
+    return render(request, 'ui prototype/manage_teacher.html', {
+        'form': form,
+        'teacher': teacher if pk else None,
+        'pk': pk,
+    })
+
+# View for deleting a teacher
+def delete_teacher(request, pk):
+    teacher = get_object_or_404(Teacher, pk=pk)
+    
+    if request.method == 'POST':
+        teacher.delete()
+        messages.success(request, "Teacher deleted successfully.")
+        return redirect('teacher_list')
+
+    return render(request, 'ui prototype/confirm_delete_teacher.html', {'teacher': teacher})
+
+from django.views.generic import ListView
+from .models import Teacher
+from django.contrib import messages
+from .forms import StaffForm 
+
+class TeacherListView(ListView):
+    model = Teacher
+    template_name = 'ui prototype/teacher_list.html'  # Adjust this as necessary
+    context_object_name = 'teachers'
+
+def manage_staff(request, pk=None):
+    if pk:
+        staff = get_object_or_404(Staff, pk=pk)
+        form = StaffForm(instance=staff)
+        if request.method == 'POST':
+            form = StaffForm(request.POST, instance=staff)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Staff updated successfully.")
+                return redirect('staff_list')
+    else:
+        form = StaffForm()
+        if request.method == 'POST':
+            form = StaffForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Staff added successfully.")
+                return redirect('staff_list')
+
+    return render(request, 'ui prototype/manage_staff.html', {
+        'form': form,
+        'staff': staff if pk else None,
+        'pk': pk,
+    })
+
+# Delete staff
+def delete_staff(request, pk):
+    staff = get_object_or_404(Staff, pk=pk)
+    print("########################",staff)
+    if request.method == 'POST':
+        staff.delete()
+        messages.success(request, "Staff deleted successfully.")
+        return redirect('staff_list')
+
+    return render(request, 'ui prototype/confirm_delete_staff.html', {'staff': staff})
+
+# List view for staff
+from django.views.generic import ListView
+
+class StaffListView(ListView):
+    model = Staff
+    template_name = 'ui prototype/staff_list.html'
+    context_object_name = 'staff'
+    
 # from django.shortcuts import render, redirect
 # from django.contrib import messages
 # from django.contrib.auth import login as auth_login, logout as auth_logout

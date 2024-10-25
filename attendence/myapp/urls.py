@@ -89,7 +89,23 @@ urlpatterns = [
     path('index/', views.index, name='index'),
     path('demo/', views.demo_dash, name='demo_dash'),
     path('view_grades/', views.view_grades, name='view_grades'),
-    path('manage_teachers/', views.manage_teachers, name='manage_teachers'),
+    # path('manage_teachers/', views.manage_teachers, name='manage_teachers'),
+
+    path('courses/', views.manage_courses, name='course_list'),  # This can be used for listing and managing courses
+    path('courses/manage/', views.manage_courses, name='manage_courses'),  # Optional: can be the same as above
+    path('courses/add/', views.manage_courses, name='add_course'),  # Optional: can also be handled in manage_courses
+    path('courses/update/<int:pk>/', views.manage_courses, name='update_course'),  # This is handled by the same view
+    path('courses/delete/<int:pk>/',views. manage_courses, name='delete_course'),  # This is handled by the same view
+
+    path('manage_teacher/', views.manage_teacher, name='add_teacher'),  # For adding a teacher
+    path('manage_teacher/<int:pk>/', views.manage_teacher, name='update_teacher'),  # For updating a teacher
+    path('delete_teacher/<int:pk>/', views.delete_teacher, name='delete_teacher'),  # For deleting a teacher
+    path('teachers/', views.TeacherListView.as_view(), name='teacher_list'),  # For listing all teachers
+
+    path('manage_staff/', views.manage_staff, name='add_staff'),  # For adding staff
+    path('manage_staff/<int:pk>/', views.manage_staff, name='update_staff'),  # For updating staff
+    path('delete_staff/<int:pk>/', views.delete_staff, name='delete_staff'),  # For deleting staff
+    path('staff/', views.StaffListView.as_view(), name='staff_list'),  # Staff list view
 ]
 
 

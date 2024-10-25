@@ -485,3 +485,55 @@ class LectureForm(forms.ModelForm):
     class Meta:
         model = Lecture
         fields = ['program', 'course', 'semester', 'date', 'time_slot']
+
+
+class Courses(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = ['code', 'name', 'semester']
+
+
+from django import forms
+from .models import Lecture, Course, Program, Semester
+
+class TeacherForm(forms.ModelForm):
+    class Meta:
+        model = Teacher
+        fields = [
+            'user',            # User instance (you may want to create a user separately)
+            'department',      # ForeignKey to Department
+            'courses_taught',  # ManyToManyField for Courses Taught
+            'faculty_id',      # Faculty ID field
+            'mobile_no',       # Mobile number field
+            'email',           # Email field
+            'experience',      # Experience field
+        ]
+        widgets = {
+            'courses_taught': forms.CheckboxSelectMultiple(),  # Use checkboxes for multiple selection
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super(TeacherForm, self).__init__(*args, **kwargs)
+        self.fields['user'].required = True  # Ensure user is required
+        self.fields['department'].required = True  # Ensure department is required
+
+    def clean_mobile_no(self):
+        mobile_no = self.cleaned_data.get('mobile_no')
+        if mobile_no and not mobile_no.isdigit():
+            raise forms.ValidationError("Mobile number should contain only digits.")
+        return mobile_no
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and '@' not in email:
+            raise forms.ValidationError("Please enter a valid email address.")
+        return email
+
+from .models import Staff
+class StaffForm(forms.ModelForm):
+    class Meta:
+        model = Staff
+        fields = ['user', 'position', 'assigned_department', 'staff_id']  
+    
+#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#
+
