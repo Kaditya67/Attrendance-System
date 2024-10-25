@@ -26,6 +26,7 @@ urlpatterns = [
     # path('SubjectDetails',views.SubjectDetails,name='SubjectDetails'),
     
     path('teacher_dashboard',teacherViews.Subject_Attendance_Details,name='Teacher_dashboard'),
+    path('subject_attendance/', teacherViews.Subject_Attendance_Details, name='subject_attendance'),
 
     #to do
     path('update_Attendance',views.update_Attendance,name='update_Attendance'), 
