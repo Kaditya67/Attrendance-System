@@ -5,14 +5,19 @@ from django.db.models import Max
 from collections import defaultdict
 import json
 from django.urls import reverse  
-from .models import Labs, Batches, Teacher, Student, Course, Attendance, Semester, LabsBatches, HOD
+from .models import Labs, Batches, Teacher, Student, Course, Attendance, Semester, LabsBatches
+import openpyxl
+from .forms import LabForm, TeacherUpdateForm
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.pdfgen import canvas
+from reportlab.lib.enums import TA_CENTER
+from tkinter import CENTER
 
-from .forms import TeacherUpdateForm
-
-# views.py
-from django.shortcuts import render, get_object_or_404
-from myapp.models import Teacher, Labs
-from myapp.forms import LabForm
 
 @login_required
 def add_lab(request):
@@ -605,48 +610,184 @@ def submit_attendance(request):
 
     return redirect('Add_Attendance')
 
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.lib.units import inch
 
-from django.http import JsonResponse
+# PDF Export Function with colors and formatting
+def export_subject_attendance_pdf(course_data):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="subject_attendance_report.pdf"'
+
+    # Create the PDF document
+    pdf = SimpleDocTemplate(response, pagesize=letter, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=30)
+    elements = []
+
+    # Define the styles for the document
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        name="TitleStyle",
+        parent=styles["Heading1"],
+        alignment=TA_CENTER,
+        textColor=colors.darkblue,  # Title color
+        fontSize=18
+    )
+    subtitle_style = ParagraphStyle(
+        name="SubtitleStyle",
+        parent=styles["Heading3"],
+        alignment=TA_LEFT,
+        textColor=colors.darkgreen,  # Subtitle color (for course names)
+        fontSize=14
+    )
+    table_header_style = ParagraphStyle(
+        name="TableHeaderStyle",
+        parent=styles["Heading2"],
+        textColor=colors.whitesmoke,
+        alignment=TA_CENTER,
+        fontSize=12,
+        backColor=colors.grey
+    )
+
+    # Add title
+    elements.append(Paragraph("Subject-wise Attendance Report", title_style))
+
+    for course in course_data:
+        # Add Course Title
+        elements.append(Paragraph(f"Course: {course['course'].name}", subtitle_style))
+
+        # Define table headers
+        data = [["Student Name", "Total Classes", "Classes Attended", "Percentage"]]
+
+        # Populate table with student attendance data for the course
+        for student in course['students']:
+            student_name = f"{student['student'].user.first_name} {student['student'].user.last_name}"
+            data.append([
+                student_name,
+                len(student['attendance']),
+                student['total_attended'],
+                f"{student['percentage']}%"
+            ])
+
+        # Create and style the table
+        table = Table(data, colWidths=[2.5 * inch, 1.5 * inch, 1.5 * inch, 1.2 * inch])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  # Header background color
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Header text color
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center align text
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font
+            ('FONTSIZE', (0, 0), (-1, 0), 12),  # Header font size
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Header padding
+            ('BACKGROUND', (0, 1), (-1, -1), colors.lightblue),  # Row background color
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Grid color
+            ('FONTSIZE', (0, 1), (-1, -1), 10),  # Row font size
+            ('BACKGROUND', (0, 2), (-1, -1), colors.lightyellow),  # Alternating row colors
+        ]))
+
+        elements.append(table)
+        elements.append(Paragraph("<br/><br/>", styles['Normal']))
+
+    # Build and return the PDF
+    pdf.build(elements)
+    return response
+
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment
+
+# Excel Export Function with colors and formatting
+def export_subject_attendance_excel(course_data):
+    # Create a response object for Excel file download
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="subject_attendance_report.xlsx"'
+
+    # Create an Excel workbook and worksheet
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Subject Attendance Report"
+
+    # Styles for headers and rows
+    header_font = Font(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="808080", end_color="808080", fill_type="solid")  # Grey fill
+    row_fill1 = PatternFill(start_color="ADD8E6", end_color="ADD8E6", fill_type="solid")  # Light blue row
+    row_fill2 = PatternFill(start_color="FFFACD", end_color="FFFACD", fill_type="solid")  # Light yellow row
+
+    alignment = Alignment(horizontal="center", vertical="center")
+
+    # Add data for each course
+    for course in course_data:
+        # Add Course Title
+        ws.append([f"Course: {course['course'].name}"])
+
+        # Add headers
+        headers = ["Student Name", "Total Classes", "Classes Attended", "Percentage"]
+        ws.append(headers)
+
+        # Apply header styles
+        for col in range(1, len(headers) + 1):
+            ws.cell(row=ws.max_row, column=col).font = header_font
+            ws.cell(row=ws.max_row, column=col).fill = header_fill
+            ws.cell(row=ws.max_row, column=col).alignment = alignment
+
+        # Add student attendance data
+        for idx, student in enumerate(course['students']):
+            student_name = f"{student['student'].user.first_name} {student['student'].user.last_name}"
+            total_classes = len(student['attendance'])
+            total_attended = student['total_attended']
+            percentage = student['percentage']
+            row = [student_name, total_classes, total_attended, f"{percentage}%"]
+
+            ws.append(row)
+
+            # Apply alternating row colors
+            fill = row_fill1 if idx % 2 == 0 else row_fill2
+            for col in range(1, len(row) + 1):
+                ws.cell(row=ws.max_row, column=col).fill = fill
+                ws.cell(row=ws.max_row, column=col).alignment = alignment
+
+        # Add a blank row after each course for clarity
+        ws.append([])
+
+    # Save the workbook to the response
+    wb.save(response)
+    return response
+
+
+# Modify your original `Subject_Attendance_Details` view to handle export functionality
 def Subject_Attendance_Details(request):
-
-    # if hod group exists
-    if request.user.groups.filter(name='HOD').exists():
-        is_hod = True
-        is_principal = False
-    elif request.user.groups.filter(name='Principal').exists():
+    # Check for HOD or Principal
+    if request.user.groups.filter(name='Principal').exists():
         is_hod = False
         is_principal = True
+    elif request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
     else:
         is_hod = False
         is_principal = False
-    # Get the teacher object for the currently logged-in user
-    teacher = get_object_or_404(Teacher, user=request.user)
 
-    # Get all courses taught by the teacher
+    # Get the teacher and courses
+    teacher = get_object_or_404(Teacher, user=request.user)
     courses = teacher.assigned_courses.all()
 
     course_data = []
-    attendance_data = {}  # Initialize a dictionary to hold attendance data for each course
+    attendance_data = {}
 
     for course in courses:
         semester = course.semester
-
         students_in_semester = Student.objects.filter(semester=semester).distinct()
-
         sample_student = students_in_semester.first()
+
         if sample_student:
             attendance_records = Attendance.objects.filter(course=course, student=sample_student).values('date', 'count').order_by('date')
-
             attendance_data[course.name] = []
             for record in attendance_records:
-                attendance_data[course.name].append({
-                    'date': record['date'],
-                    'count': record['count']
-                })
+                attendance_data[course.name].append({'date': record['date'], 'count': record['count']})
 
             student_data = []
-            total_attended_sum = 0  # To sum total attended counts for average calculation
-            student_count = 0  # To count the number of students
+            total_attended_sum = 0
+            student_count = 0
 
             for student in students_in_semester:
                 total_attended = 0
@@ -655,126 +796,241 @@ def Subject_Attendance_Details(request):
                 for date_record in attendance_data[course.name]:
                     date = date_record['date']
                     count = date_record['count']
-
                     attendance_instance = Attendance.objects.filter(course=course, student=student, date=date, count=count).first()
-                    
                     is_present = attendance_instance.present if attendance_instance else None
                     attendance_records.append({
                         'date': date,
                         'latest_notes': attendance_instance.notes if attendance_instance else None,
                         'present': is_present,
                     })
-
                     if is_present:
                         total_attended += 1
 
-                # Calculate percentage attendance for the student
                 percentage = (total_attended / total_classes) * 100 if total_classes > 0 else 0
-
-                # Add student attendance data including total_attended and percentage
                 student_data.append({
                     'student': student,
                     'attendance': attendance_records,
                     'total_attended': total_attended,
-                    'percentage': round(percentage, 2),  # Round the percentage to 2 decimal places
+                    'percentage': round(percentage, 2),
                 })
-
-                # Accumulate total attended counts and increment student count
                 total_attended_sum += total_attended
                 student_count += 1
 
-            # Calculate the average attendance percentage for the course
             average_attendance = (total_attended_sum / (student_count * total_classes)) * 100 if student_count > 0 and total_classes > 0 else 0
-            
-            # Initialize top_students as empty
-            top_students = []
-
-            # Check if the form is submitted to load top students
-            if request.method == 'POST' and 'load_top_students' in request.POST:
-                # Sort and get the top students based on attendance percentage
-                top_students = sorted(student_data, key=lambda x: x['percentage'], reverse=True)[:3]  # Get top 3
+            top_students = sorted(student_data, key=lambda x: x['percentage'], reverse=True)[:3]
 
             course_data.append({
                 'course': course,
                 'semester': semester,
                 'students': student_data,
                 'average_attendance': round(average_attendance, 2),
-                'top_students': top_students,  # Pass the top students to the template
+                'top_students': top_students,
             })
 
-    return render(request, 'teachertemplates/Subject_Attedance_Details.html', {
+    # Export functionality
+    export_format = request.GET.get('format')
+    if export_format == 'pdf':
+        return export_subject_attendance_pdf(course_data)
+    elif export_format == 'excel':
+        return export_subject_attendance_excel(course_data)
+
+    return render(request, 'teachertemplates\Subject_Attedance_Details.html', {
         'teacher': teacher,
         'course_data': course_data,
         'attendance_data': attendance_data,
         'is_hod': is_hod,
-        'is_principal':is_principal,
+        'is_principal': is_principal,
     })
 
 
+# Export to PDF
+def export_students_to_pdf(semester_data, semester): 
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="subjectwise_attendance_report.pdf"'
 
-@login_required
+    # Create the PDF document
+    pdf = SimpleDocTemplate(response, pagesize=letter, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=30)
+    elements = []
+
+    # Define the styles for the document
+    styles = getSampleStyleSheet()
+    title_style = styles['Heading1']
+    title_style.alignment = TA_CENTER
+
+    # Add title
+    elements.append(Paragraph("Subject-wise Attendance Report", title_style))
+
+    # Add semester title
+    if semester_data:
+        semester_title = semester
+        semester_heading = Paragraph(f"Semester: {semester_title}", styles['Heading2'])
+        elements.append(semester_heading)
+
+    # Loop through each subject (course) and compile a table for each
+    for course in semester_data[0]['student_data'][0]['course_data']:
+        course_name = course['course'].name
+        elements.append(Paragraph(f"Subject: {course_name}", styles['Heading3']))
+
+        # Define table headers
+        data = [["Student Name", "Total Classes", "Classes Attended", "Percentage"]]
+
+        # Populate table with student attendance data for the specific course
+        for student_data in semester_data[0]['student_data']:
+            student = student_data['student']
+            student_name = f"{student.user.first_name} {student.user.last_name}"
+            
+            # Find attendance info for the specific course
+            course_info = next((c for c in student_data['course_data'] if c['course'].name == course_name), None)
+            if course_info:
+                data.append([
+                    student_name,
+                    course_info['total_count'],
+                    course_info['count_present'],
+                    f"{course_info['percentage']}%"
+                ])
+
+        # Create the table for this subject
+        table = Table(data, colWidths=[2.5 * inch, 1.5 * inch, 1.5 * inch, 1.2 * inch])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  
+            ('FONTSIZE', (0, 0), (-1, 0), 12),  
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),  
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),  
+            ('FONTSIZE', (0, 1), (-1, -1), 10),  
+        ]))
+
+        elements.append(table)
+        elements.append(Paragraph("<br/><br/>", styles['Normal']))
+
+    # Build and return the PDF
+    pdf.build(elements)
+    return response
+
+
+
+def export_students_to_excel(semester_data):
+    # Create a response object for Excel file download
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="attendance_report_by_subject.xlsx"'
+
+    # Create an Excel workbook and worksheet
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Attendance Report"
+
+    # Define a row for each course
+    if semester_data:
+        for semester in semester_data:
+            for course in Course.objects.filter(semester=semester['semester']):
+                # Add headers per course
+                ws.append([f"Course: {course.name}"])
+                headers = ["Student Name", "Total Classes", "Classes Attended", "Percentage"]
+                ws.append(headers)
+
+                # Populate data for each student in this course
+                for student_data in semester['student_data']:
+                    student = student_data['student']
+                    student_name = f"{student.user.first_name} {student.user.last_name}"
+
+                    # Get the attendance data for this specific course
+                    course_data = next((cd for cd in student_data['course_data'] if cd['course'] == course), None)
+                    if course_data:
+                        total_count = course_data['total_count']
+                        count_present = course_data['count_present']
+                        percentage = course_data['percentage']
+                        row = [student_name, total_count, count_present, f"{percentage}%"]
+                        ws.append(row)
+
+                # Add a blank row after each course for clarity
+                ws.append([])
+
+    # Save the workbook to the response
+    wb.save(response)
+    return response
+
+
+
+# Class Report View with Export Functionality
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse
+
+# Class Report View with Export Functionality
 def Class_Report(request):
-    if request.user.groups.filter(name='HOD').exists():
-        is_hod = True
-        is_principal = False
-    elif request.user.groups.filter(name='Principal').exists():
-        is_hod = False
-        is_principal = True
-    else:
-        is_hod = False
-        is_principal = False
-
     teacher = get_object_or_404(Teacher, user=request.user)
-    semesters = Semester.objects.all().filter(session_year=teacher.assigned_courses.first().semester.session_year)
-    # print(semesters)
+    semesters = Semester.objects.filter(session_year=teacher.assigned_courses.first().semester.session_year)
 
     selected_semester = request.GET.get('semester')
+    export_format = request.GET.get('format')  # Check if an export format (excel or pdf) is requested
     semester_data = []
 
-    if selected_semester:
-        semester = get_object_or_404(Semester, id=selected_semester)
-        students = Student.objects.filter(semester=semester)
-        courses = Course.objects.filter(semester=semester)
+    # If no semester is selected, return an error message or prompt
+    if not selected_semester or selected_semester == 'None':
+        # Show an error message on the page instead of throwing an error
+        return render(request, 'teachertemplates/class_report.html', {
+            'teacher': teacher,
+            'semester_data': semester_data,
+            'semesters': semesters,
+            'selected_semester': None,
+            'error_message': 'Please select a semester before exporting the report.'
+        })
 
-        student_data = []
-        for student in students:
-            course_data = []
-            total_present = 0
-            total_classes = 0
+    # Try to convert selected_semester to integer (just in case)
+    try:
+        semester = get_object_or_404(Semester, id=int(selected_semester))
+    except (ValueError, Semester.DoesNotExist):
+        return HttpResponse("Invalid semester selected. Please select a valid semester.", status=400)
 
-            for course in courses:
-                attendances = Attendance.objects.filter(student=student, course=course)
-                total_count = attendances.count()  # Get the total count directly
-                count_present = attendances.filter(present=True).count()  # Count of present directly
-                percentage = (count_present / total_count * 100) if total_count else 0
+    # Now handle the case where a valid semester is selected
+    students = Student.objects.filter(semester=semester)
+    courses = Course.objects.filter(semester=semester)
 
-                course_data.append({
-                    'course': course,
-                    'total_count': total_count,
-                    'count_present': count_present,
-                    'percentage': round(percentage, 2),
-                })
+    student_data_list = []
+    for student in students:
+        course_data_list = []
+        total_present = 0
+        total_classes = 0
 
-                total_present += count_present
-                total_classes += total_count
+        for course in courses:
+            attendances = Attendance.objects.filter(student=student, course=course)
+            total_count = attendances.count()
+            count_present = attendances.filter(present=True).count()
+            percentage = (count_present / total_count * 100) if total_count else 0
 
-            student_data.append({
-                'student': student,
-                'course_data': course_data,
-                'total_present': total_present,
-                'total_classes': total_classes,
+            course_data_list.append({
+                'course': course,
+                'total_count': total_count,
+                'count_present': count_present,
+                'percentage': round(percentage, 2),
             })
 
-        semester_data.append({
-            'semester': semester,
-            'student_data': student_data,
+            total_present += count_present
+            total_classes += total_count
+
+        student_data_list.append({
+            'student': student,
+            'course_data': course_data_list,
+            'total_present': total_present,
+            'total_classes': total_classes,
         })
- 
+
+    semester_data.append({
+        'semester': semester,
+        'student_data': student_data_list,
+    })
+
+    # Handle export functionality
+    if export_format == 'excel':
+        return export_students_to_excel(semester_data)
+    elif export_format == 'pdf':
+        return export_students_to_pdf(semester_data,semester)
+
     return render(request, 'teachertemplates/class_report.html', {
         'teacher': teacher,
         'semester_data': semester_data,
         'semesters': semesters,
-        'selected_semester': selected_semester,
-        'is_hod': is_hod,
-        'is_principal':is_principal,
+        'selected_semester': selected_semester
     })

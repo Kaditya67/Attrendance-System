@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Details for {{ year }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9; /* Soft White */
+            color: #333333; /* Dark Gray */
+            margin: 0;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #007BFF; /* Bright Blue */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: 8px; /* Rounded corners for the table */
+            overflow: hidden; /* Ensures the rounded corners are applied */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            background-color: white; /* White background for the table */
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        table th {
+            background-color: #007BFF; /* Bright Blue for header */
+            color: white; /* White text for header */
+            text-transform: uppercase; /* Uppercase text */
+            letter-spacing: 1px; /* Spacing between letters */
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f9f9f9; /* Light gray for even rows */
+        }
+
+        table tr:nth-child(odd) {
+            background-color: white; /* White for odd rows */
+        }
+
+        table tr:hover {
+            background-color: #e1f5fe; /* Light blue on hover */
+            transition: background-color 0.3s; /* Smooth transition */
+        }
+
+        a {
+            text-decoration: none;
+            color: #007BFF; /* Bright Blue */
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 16px; /* Larger font size */
+            padding: 10px 15px; /* Padding for the link */
+            border: 1px solid #007BFF; /* Border matching the link color */
+            border-radius: 5px; /* Rounded corners */
+            transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+        }
+
+        a:hover {
+            background-color: #007BFF; /* Darker blue background on hover */
+            color: white; /* White text on hover */
+        }
+    </style>
+</head>
+<body>
+
+<h1>Attendance Details for {{ year }}</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Student Name</th>
+            <th>Student ID</th>
+            <th>Average Attendance (%)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in student_data %}
+        <tr>
+            <td>{{ student.name }}</td>
+            <td>{{ student.student_id }}</td>
+            <td>{{ student.average_attendance|floatformat:1 }}%</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">No students found for this year.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'HOD_Dashboard' %}?department={{ department.name|urlencode }}">Back to HOD Dashboard</a>
+
+
+</body>
+</html>
+    

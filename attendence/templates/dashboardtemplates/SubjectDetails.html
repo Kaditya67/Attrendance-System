@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject Attendance Details</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            width: 90%;
+            margin: 40px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 1rem;
+            text-align: center;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: center;
+        }
+
+        table th {
+            background-color: #3498db;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        table tr:hover {
+            background-color: #eaeaea;
+        }
+
+        table td {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .status-present {
+            background-color: #27ae60;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            padding: 8px;
+        }
+
+        .status-absent {
+            background-color: #e74c3c;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            padding: 8px;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #2980b9;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #3498db;
+            color: white;
+        }
+
+        /* Add transition effect for hover states */
+        table th, table td {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>{{ course.name }} Attendance Details</h1>
+    
+        <table>
+            <thead>
+            <tr>
+                <th>#</th> <!-- Serial number column -->
+                <th>Date</th>
+                <th>Topics Covered</th> <!-- New column for topics covered -->
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for record in attendance_records %}
+            <tr>
+                <td>{{ forloop.counter }}</td> <!-- Serial number -->
+                <td>{{ record.date }}</td>
+                <td>{{ record.notes|default:"No topics available" }}</td> <!-- Fetch and display notes -->
+                <td class="{% if record.present %}status-present{% else %}status-absent{% endif %}">
+                    {% if record.present %}Present{% else %}Absent{% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No attendance records found for this subject.</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    
+        <div class="back-link">
+            <a href="javascript:history.back()">Back to Dashboard</a>
+        </div>
+    </div>
+
+</body>
+</html>

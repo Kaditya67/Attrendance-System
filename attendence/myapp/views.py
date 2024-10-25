@@ -491,12 +491,12 @@ def PrincipalDashboard(request):
     departments = Department.objects.all()
     department_data = []
 
-    if request.user.groups.filter(name='HOD').exists():
-        is_hod = True
-        is_principal = False
-    elif request.user.groups.filter(name='Principal').exists():
+    if request.user.groups.filter(name='Principal').exists():
         is_hod = False
         is_principal = True
+    elif request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
     else:
         is_hod = False
         is_principal = False
@@ -537,10 +537,7 @@ def PrincipalDashboard(request):
     # Render the PrincipalDashboard template and pass the department data
     return render(request, 'PrincipalDashboard.html', {'department_data': department_data, 'is_hod': is_hod, 'is_principal': is_principal})
 
-
-# View for HOD dashboard
 # views.py
-
 from django.shortcuts import render
 from .models import Year, Student, Attendance
 
@@ -552,15 +549,16 @@ def HOD_Dashboard(request):
     if not request.user.groups.filter(name='HOD').exists():
         return redirect('no_permission')
     
-    if request.user.groups.filter(name='HOD').exists():
-        is_hod = True
-        is_principal = False
-    elif request.user.groups.filter(name='Principal').exists():
+    if request.user.groups.filter(name='Principal').exists():
         is_hod = False
         is_principal = True
+    elif request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
     else:
         is_hod = False
         is_principal = False
+        
     teacher =  get_object_or_404(Teacher, user=request.user)
     
     # Fetch all years
@@ -891,6 +889,13 @@ def update_attendance(request, pk):
 
 
 # User Management Views
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.models import Group
+from django.contrib.auth import login as auth_login
+from .forms import StudentRegistrationForm
+from .models import Semester
+
 def register_user(request, form_class, group_name, template_name, success_redirect):
     if request.method == 'POST':
         form = form_class(request.POST)
@@ -915,15 +920,15 @@ def register_user(request, form_class, group_name, template_name, success_redire
     all_semesters = Semester.objects.all()
     return render(request, template_name, {'form': form, 'semesters': all_semesters})
 
-
 def register_student(request):
     return register_user(
         request, 
         StudentRegistrationForm, 
         'Student', 
         'register_student.html', 
-        'student_dashboard'
+        'StudentDashBoard'
     )
+
 
 def register_teacher(request):
     return register_user(request, TeacherRegistrationForm, 'Teacher', 'register_teacher.html', 'dash_teacher')
@@ -944,7 +949,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             auth_login(request, user)
-
+            print(user.groups)
             if user.is_superuser:
                 return redirect('/admin/')
             elif user.groups.filter(name='Principal').exists():

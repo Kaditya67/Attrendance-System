@@ -133,41 +133,34 @@
     <nav class="sidebar">
       <a class="navbar-brand" href="#">Attendance System</a>
       <ul class="navbar-nav">
-
-        <!-- Principal Dashboard -->
-        {% if is_principal %}
-        {% url 'PrincipalDashboard' as dashboard_url_principal %}
+        <!-- Dashboard -->
+        {% url 'HOD_Dashboard' as dashboard_url %}
         <li class="nav-item">
           <a
-            class="nav-link {% if request.path == dashboard_url_principal %}active{% endif %}"
-            href="{{ dashboard_url_principal }}"
+            class="nav-link {% if request.path == dashboard_url %}active{% endif %}"
+            href="{{ dashboard_url }}"
           >
-            <i class="bi bi-book sidebar-icon"></i>Principal Dashboard
+            <i class="bi bi-speedometer2 sidebar-icon"></i>Principal Dashboard
           </a>
         </li>
-        {% endif %}
-
-        <!-- HOD Dashboard -->
-         {% if is_hod %}
-        {% url 'HOD_Dashboard' as dashboard_url_hod %}
+        <!-- Dashboard -->
+        {% url 'HOD_Dashboard' as dashboard_url %}
         <li class="nav-item">
           <a
-            class="nav-link {% if request.path == dashboard_url_hod %}active{% endif %}"
-            href="{{ dashboard_url_hod }}"
+            class="nav-link {% if request.path == dashboard_url %}active{% endif %}"
+            href="{{ dashboard_url }}"
           >
-            <i class="bi bi-book sidebar-icon"></i>HOD Dashboard
+            <i class="bi bi-speedometer2 sidebar-icon"></i>HOD Dashboard
           </a>
         </li>
-        {% endif %}
-
-        
+        <!-- Dashboard -->
         {% url 'Teacher_dashboard' as dashboard_url %}
         <li class="nav-item">
           <a
             class="nav-link {% if request.path == dashboard_url %}active{% endif %}"
             href="{{ dashboard_url }}"
           >
-            <i class="bi bi-speedometer2 sidebar-icon"></i>Dashboard
+            <i class="bi bi-speedometer2 sidebar-icon"></i>Teacher Dashboard
           </a>
         </li>
 
@@ -201,8 +194,9 @@
                 <b>-</b> View Attendance
               </a>
             </li>
-
-            {% url 'select_course_lecture' as update_attendance_url %}
+          </ul>
+        </li>
+        {% url 'select_course_lecture' as update_attendance_url %}
             <li>
               <a
                 class="dropdown-item {% if request.path == update_attendance_url %}active{% endif %}"
@@ -211,9 +205,6 @@
                 <b>-</b> Update Attendance
               </a>
             </li>
-          </ul>
-        </li>
-        
 
         <!-- Student List -->
         {% url 'lab_dashboard' as batch_url %}
@@ -251,7 +242,7 @@
 
         <!-- Logout -->
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'logout' %}" style="color: red;">
+          <a class="nav-link" href="{% url 'logout' %}">
             <i class="bi bi-box-arrow-right sidebar-icon"></i>Logout
           </a>
         </li>
