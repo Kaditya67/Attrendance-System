@@ -47,4 +47,4 @@ def HOD_Dashboard(request):
             'attendance_percentage': attendance_percentage,
         })
 
-    return render(request, 'HOD_Dashboard.html', {'attendance_data': attendance_data, 'years': years, 'teacher': teacher, 'is_hod': is_hod, 'is_principal': is_principal})
+    return render(request, 'hodtemplates/hod_dashboard.html', {'attendance_data': attendance_data, 'years': years, 'teacher': teacher, 'is_hod': is_hod, 'is_principal': is_principal})
