@@ -9,29 +9,27 @@ from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Max
-from collections import defaultdict
-import json
-from django.urls import reverse  
-from .models import Labs, Batches, Teacher, Student, Course, Attendance, Semester, LabsBatches
+from django.db.models import Max 
+import json 
+from .models import Labs, Teacher, Student, Course, Attendance, Semester, LabsBatches
 
-from .forms import Courses, TeacherUpdateForm
+from .forms import Courses
 from .forms import (
     StudentRegistrationForm, TeacherRegistrationForm,
     HODRegistrationForm, StaffRegistrationForm,
     PrincipalRegistrationForm, UserLoginForm, AttendanceForm,
-    CourseEnrollmentForm, CourseManagementForm,
-    AttendanceReportForm, PasswordResetForm,
-    StudentUpdateForm  # Only if used in update_student
+    CourseEnrollmentForm, 
+    AttendanceReportForm,
+    StudentUpdateForm  
 )
 from .models import (
-    Student, Teacher, HOD, Staff, Principal, Department, Semester,
-    Course, LabsBatches, HonorsMinors, Attendance
+    Student, Teacher, HOD, Staff, Department, Semester,
+    Course, LabsBatches, Attendance
 )
 
 import plotly.graph_objects as go
 import plotly.io as pio
-from .models import TIME_SLOT_CHOICES  # Only if used in attendance
+from .models import TIME_SLOT_CHOICES  
 
 # View for updating attendance
 from django.shortcuts import render, get_object_or_404, redirect
@@ -39,6 +37,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Teacher, Attendance, Course
 from django.db.models import Max
+
+from myapp.principalViews import PrincipalDashboard
+from myapp.hodViews import HOD_Dashboard
+
 
 @login_required
 def update_Attendance(request):
@@ -155,40 +157,22 @@ def select_batch_and_students(request, lab_id):
 
     return render(request, 'select_batch.html', {'lab': lab, 'batch_options': batch_options, 'students': students})
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Student
-from .forms import StudentUpdateForm
 
-@login_required
-def update_student_profile(request):
-    # Get the current student's profile
-    student = get_object_or_404(Student, user=request.user)
-
-    if request.method == 'POST':
-        form = StudentUpdateForm(request.POST, instance=student)
-        if form.is_valid():
-            form.save()
-            return redirect('StudentDashBoard', student_id=student.student_id)
-    else:
-        form = StudentUpdateForm(instance=student)
-
-    return render(request, 'student/update_profile.html', {'form': form})
-
-# @login_required
-# def update_Attendance(request):
-#     if request.method == 'POST':
-#         # Logic for updating attendance
-#         return HttpResponse("Attendance updated successfully.")
-#     else:
-#         return render(request, 'teachertemplates/Update_Attedance.html')
-
+from myapp.studentViews import update_student_profile,StudentDashBoard
 # View for adding attendance
-from .models import LabsBatches  # Import your LabsBatches model
+from .models import LabsBatches 
 
 @login_required
 def Add_Attendance(request):
-    
+    if request.user.groups.filter(name='HOD').exists():
+        is_hod = True
+        is_principal = False
+    elif request.user.groups.filter(name='Principal').exists():
+        is_hod = False
+        is_principal = True
+    else:
+        is_hod = False
+        is_principal = False
     teacher = get_object_or_404(Teacher, user=request.user)
     
     # Get all courses taught by the teacher
@@ -288,75 +272,6 @@ def fetch_students(request):
     
     return redirect('Add_Attendance')
 
-
-# def Submit_Attendance(request):
-#     if request.method == "POST":
-#         subject_id = request.POST.get('subject')
-#         date = request.POST.get('date')
-#         lab_batch_id = request.POST.get('lab_batch') or None  # Set to None if empty
-#         common_notes = request.POST.get('common_notes', '')  # Default to empty string if not provided
-#         absent_students = request.POST.get('absent_students', '').split(',')  # Get absent student IDs
-
-#         course = Course.objects.get(id=subject_id)
-#         time_slot = get_current_time_slot()  # Automatically determine the time slot
-        
-#         attendance_created = 0  # To track how many records were created
-
-#         print(f'Course: {course}, Date: {date}, Lab Batch ID: {lab_batch_id}, Common Notes: {common_notes}, subject_id: {subject_id}')
-
-
-#         for key in request.POST:
-#             if key.startswith('attendance_'):
-#                 student_id = key.split('_')[1]  # Extract student ID from key
-#                 attendance_status = request.POST[key]  # Get the attendance status
-
-#                 print(f'Processing student_id: {student_id}, attendance_status: {attendance_status}')  # Log student ID and status
-
-#                 student = Student.objects.get(id=int(student_id))
-#                 present = (attendance_status == 'Present')  # Check if status is 'Present'
-
-#                 # Create or update attendance record
-#                 attendance_record, created = Attendance.objects.update_or_create(
-#                     student=student,
-#                     course=course,
-#                     date=date,
-#                     time_slot=time_slot,
-#                     defaults={
-#                         'lab_batch_id': lab_batch_id,
-#                         'present': present,
-#                         'notes': common_notes,  # Store common notes
-#                     }
-#                 )
-                
-#                 attendance_created += 1  # Count the number of created or updated records
-
-#         # Now create records for absent students
-#         for student_id in absent_students:
-#             if student_id:  # Ensure student_id is not empty
-#                 student = Student.objects.get(id=int(student_id))
-#                 # Create absence record
-#                 Attendance.objects.update_or_create(
-#                     student=student,
-#                     course=course,
-#                     date=date,
-#                     defaults={
-#                         'lab_batch_id': lab_batch_id,
-#                         'present': False,  # Mark as absent
-#                         'notes': common_notes,
-#                     }
-#                 )
-#                 attendance_created += 1  # Count the absent record
-
-#         # Provide feedback based on the outcome
-#         if attendance_created > 0:
-#             messages.success(request, f"{attendance_created} attendance records submitted successfully!")
-#         else:
-#             messages.warning(request, "No attendance records were created.")
-
-#         return redirect('Add_Attendance')
-
-#     return redirect('Add_Attendance')
-
 @login_required
 def submit_attendance(request):
     if request.method == "POST":
@@ -437,159 +352,6 @@ def SubjectDetails(request, student_id, course_id):
 @login_required
 def Subject_Attendance_Details(request):
     return render(request, 'teachertemplates/Subject_Attedance_Details.html')
-
-# View for student dashboard
-from django.db.models import Count
-from django.db.models import Avg
-
-def StudentDashBoard(request, student_id):
-    student = get_object_or_404(Student, student_id=student_id)
-
-    # Calculate attendance summary, including course ID
-    attendance_summary = Attendance.objects.filter(student=student).values('course__name', 'course__id').annotate(
-        total_classes=Count('id'),
-        attended_classes=Count('id', filter=Q(present=True))
-    )
-
-    # Prepare attendance data
-    attendance_data = []
-    total_attendance_percentage = 0
-    for record in attendance_summary:
-        total_classes = record['total_classes']
-        attended_classes = record['attended_classes']
-        attendance_percentage = (attended_classes / total_classes * 100) if total_classes > 0 else 0
-        record['attendance_percentage'] = attendance_percentage
-        total_attendance_percentage += attendance_percentage
-        attendance_data.append(record)
-
-    # Calculate the average attendance percentage across all courses
-    if len(attendance_data) > 0:
-        average_attendance = total_attendance_percentage / len(attendance_data)
-    else:
-        average_attendance = 0
-
-    # Calculate missed attendance percentage
-    missed_attendance = 100 - average_attendance
-
-    return render(request, 'StudentDashBoard.html', {
-        'student': student,
-        'attendance_summary': attendance_data,
-        'average_attendance': average_attendance,  # Pass the average attendance to the template
-        'missed_attendance': missed_attendance,    # Pass the missed attendance to the template
-    })
-
-
-# View for principal dashboard
-from django.shortcuts import render
-from django.db.models import Count, Q
-from .models import Department, Student, Attendance
-
-from django.shortcuts import render
-from .models import Department, Student, Attendance
-
-def PrincipalDashboard(request):
-    departments = Department.objects.all()
-    department_data = []
-
-    if request.user.groups.filter(name='Principal').exists():
-        is_hod = False
-        is_principal = True
-    elif request.user.groups.filter(name='HOD').exists():
-        is_hod = True
-        is_principal = False
-    else:
-        is_hod = False
-        is_principal = False
-
-    for department in departments:
-        # Get the total number of students in this department
-        total_students = Student.objects.filter(semester__session_year__department=department).count()
-
-        # Get all attendance records for students in this department
-        attendance_records = Attendance.objects.filter(student__semester__session_year__department=department)
-
-        # Count distinct courses based on attendance records for this department
-        total_class_entries = attendance_records.values('course').distinct().count()
-
-        # Calculate total number of classes attended for this department
-        total_present = attendance_records.filter(present=True).count()
-
-        # Use the same formula for calculating the total number of classes based on attendance
-        if total_students > 0:
-            total_classes_score = round((total_class_entries / total_students) * 10)  # Round to the nearest whole number
-        else:
-            total_classes_score = 0.0
-
-        # Calculate overall attendance percentage for the department
-        if attendance_records.count() > 0:  # Only calculate if there are attendance records
-            overall_attendance_percentage = (total_present / attendance_records.count()) * 100
-        else:
-            overall_attendance_percentage = 0.0  # No attendance records, so 0%
-
-        # Append department data to the list for rendering
-        department_data.append({
-            'name': department.name,  # Department name
-            'total_classes': total_classes_score,  # Use the rounded total classes score
-            'total_students': total_students,  # Number of students in the department
-            'attendance_percentage': round(overall_attendance_percentage, 2),  # Rounded to 2 decimal places
-        })
-
-    # Render the PrincipalDashboard template and pass the department data
-    return render(request, 'PrincipalDashboard.html', {'department_data': department_data, 'is_hod': is_hod, 'is_principal': is_principal})
-
-# views.py
-from django.shortcuts import render
-from .models import Year, Student, Attendance
-
-from django.shortcuts import render
-from django.http import JsonResponse
-from .models import Year, Student, Attendance
-
-def HOD_Dashboard(request):
-    if not request.user.groups.filter(name='HOD').exists():
-        return redirect('no_permission')
-    
-    if request.user.groups.filter(name='Principal').exists():
-        is_hod = False
-        is_principal = True
-    elif request.user.groups.filter(name='HOD').exists():
-        is_hod = True
-        is_principal = False
-    else:
-        is_hod = False
-        is_principal = False
-        
-    teacher =  get_object_or_404(Teacher, user=request.user)
-    
-    # Fetch all years
-    years = Year.objects.all()
-    attendance_data = []
-
-    for year in years:
-        # Fetch all students in this year
-        students = Student.objects.filter(semester__year=year.name)
-        total_students = students.count()
-
-        # Calculate overall attendance for this year
-        total_attended_classes = 0
-        total_classes = 0
-
-        for student in students:
-            # Count total classes and attended classes for each student
-            total_classes += student.attendances.count()  # Total classes for each student
-            total_attended_classes += student.attendances.filter(present=True).count()  # Attended classes
-
-        # Calculate attendance percentage
-        attendance_percentage = (total_attended_classes / total_classes * 100) if total_classes > 0 else 0
-
-        attendance_data.append({
-            'code': year.name,
-            'name': year.get_name_display(),
-            'total_students': total_students,
-            'attendance_percentage': attendance_percentage,
-        })
-
-    return render(request, 'HOD_Dashboard.html', {'attendance_data': attendance_data, 'years': years, 'teacher': teacher, 'is_hod': is_hod, 'is_principal': is_principal})
 
 
 from django.http import JsonResponse
@@ -720,31 +482,9 @@ class AttendanceDetailsView(View):
 
         return render(request, 'attendance_details.html', context)
 
-
-from django.http import JsonResponse
-from django.shortcuts import render
-from .models import Year, Semester, Course
-
 def subject_attendance(request):
     years = Year.objects.all()
     return render(request, 'subject_attendance.html', {'years': years})
-
-# def get_subjects_by_year(request):
-#     year_code = request.GET.get('year_code')
-#     semester_objects = Semester.objects.filter(year=year_code)
-    
-#     # Fetch all courses for the retrieved semesters
-#     subjects = []
-#     for semester in semester_objects:
-#         subjects.extend(semester.courses.all())  # Fetch all courses related to each semester
-
-#     # Create a list of course names to return as JSON
-#     subject_names = [{'code': course.code, 'name': course.name} for course in subjects]
-#     return JsonResponse({'subjects': subject_names})
-
-
-from django.shortcuts import render, redirect
-from .models import Semester, Course
 
 def add_course(request, semester_id):
     semester = Semester.objects.get(id=semester_id)  # Get the semester instance
@@ -889,12 +629,6 @@ def update_attendance(request, pk):
 
 
 # User Management Views
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.contrib.auth.models import Group
-from django.contrib.auth import login as auth_login
-from .forms import StudentRegistrationForm
-from .models import Semester
 
 def register_user(request, form_class, group_name, template_name, success_redirect):
     if request.method == 'POST':
@@ -926,7 +660,7 @@ def register_student(request):
         StudentRegistrationForm, 
         'Student', 
         'register_student.html', 
-        'StudentDashBoard'
+        'login'
     )
 
 
@@ -943,7 +677,32 @@ def register_principal(request):
     return register_user(request, PrincipalRegistrationForm, 'Principal', 'register_principal.html', 'principal_dashboard')
 
 
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login as auth_login
+
 def login_view(request):
+    # Check if the user is already authenticated (logged in)
+    if request.user.is_authenticated:
+        # If the user is already logged in, redirect to the appropriate dashboard
+        user = request.user
+        if user.is_superuser:
+            return redirect('/admin/')
+        elif user.groups.filter(name='Principal').exists():
+            return redirect('PrincipalDashboard')
+        elif user.groups.filter(name='HOD').exists():
+            return redirect('HOD_Dashboard')
+        elif user.groups.filter(name='Teacher').exists():
+            return redirect('Teacher_dashboard')
+        elif user.groups.filter(name='Student').exists():
+            try:
+                student = Student.objects.get(user=user)
+                return redirect('StudentDashBoard', student_id=student.student_id)
+            except Student.DoesNotExist:
+                return redirect('dashboard')
+        else:
+            return redirect('dashboard')
+
     if request.method == 'POST':
         form = UserLoginForm(request.POST)
         if form.is_valid():
@@ -964,7 +723,6 @@ def login_view(request):
                     return redirect('StudentDashBoard', student_id=student.student_id)
                 except Student.DoesNotExist:
                     return redirect('dashboard')
-                # return redirect('student_dashboard')
             else:
                 return redirect('dashboard')
     else:

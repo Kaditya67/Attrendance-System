@@ -616,7 +616,6 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.units import inch
-
 # PDF Export Function with colors and formatting
 def export_subject_attendance_pdf(course_data):
     response = HttpResponse(content_type='application/pdf')
@@ -754,7 +753,7 @@ def export_subject_attendance_excel(course_data):
     return response
 
 
-# Modify your original `Subject_Attendance_Details` view to handle export functionality
+# Modify your original Subject_Attendance_Details view to handle export functionality
 def Subject_Attendance_Details(request):
     # Check for HOD or Principal
     if request.user.groups.filter(name='Principal').exists():
