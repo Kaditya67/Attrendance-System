@@ -83,7 +83,7 @@
     </style>
 </head>
 <body>
-    {% include 'sidebar.html' %}
+    {% include 'studenttemplates/sidebar.html' %}
     <div class="content">
         <div class="container">
             {% if messages %}
@@ -96,7 +96,7 @@
                     {% endfor %}
                 </div>
             {% endif %}
-            <h1 style="text-align: center">Update Profile: {{ student.user.username }}</h1>
+            <h3 style="text-align: center">Update Profile: {{ student.user.username }}</h3>
 
             <!-- Profile Update Form -->
             <form method="POST" action="{% url 'update_student' student.id %}">

@@ -720,6 +720,7 @@ def Subject_Attendance_Details(request):
 
     course_data = []
     attendance_data = {}
+    defaulters_by_course = {}  # Dictionary to store defaulters by course
 
     for course in courses:
         semester = course.semester
@@ -733,6 +734,7 @@ def Subject_Attendance_Details(request):
                 attendance_data[course.name].append({'date': record['date'], 'count': record['count']})
 
             student_data = []
+            student_percentages = []  # New array to store students and their percentages
             total_attended_sum = 0
             student_count = 0
 
@@ -760,20 +762,35 @@ def Subject_Attendance_Details(request):
                     'total_attended': total_attended,
                     'percentage': round(percentage, 2),
                 })
+                
+                # Add the student and their percentage to the new array
+                student_percentages.append({
+                    'student': student,
+                    'percentage': round(percentage, 2),
+                })
+
                 total_attended_sum += total_attended
                 student_count += 1
 
             average_attendance = (total_attended_sum / (student_count * total_classes)) * 100 if student_count > 0 and total_classes > 0 else 0
+            # Determine the top 3 students based on percentage
             top_students = sorted(student_data, key=lambda x: x['percentage'], reverse=True)[:3]
+
+            # Identify defaulters (students with attendance below 75%) for each course
+            defaulters = [item for item in student_percentages if item['percentage'] < 75]
 
             course_data.append({
                 'course': course,
                 'semester': semester,
                 'students': student_data,
                 'average_attendance': round(average_attendance, 2),
-                'top_students': top_students,
+                'student_percentages': student_percentages,  # Include the new array
+                'top_students': top_students,  # Keep the top students
             })
-
+            
+            # Store defaulters for this specific course
+            defaulters_by_course[course.name] = defaulters 
+            
     # Export functionality
     export_format = request.GET.get('format')
     if export_format == 'pdf':
@@ -781,13 +798,15 @@ def Subject_Attendance_Details(request):
     elif export_format == 'excel':
         return export_subject_attendance_excel(course_data)
 
-    return render(request, 'teachertemplates\Subject_Attedance_Details.html', {
+    return render(request, 'teachertemplates/teacher_Dashboard.html', {
         'teacher': teacher,
         'course_data': course_data,
         'attendance_data': attendance_data,
+        'defaulters_by_course': defaulters_by_course,  # Add defaulters by course to context
         'is_hod': is_hod,
         'is_principal': is_principal,
     })
+
 
 
 # Export to PDF

@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Subject-wise Date-wise Attendance</title>
+    <title>Subject-wise Attendance</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
+            max-width: 100%;
         }
 
         .container {
@@ -84,6 +87,81 @@
         .table-container::-webkit-scrollbar-track {
             background-color: #f1f1f1;
         }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px; /* Add space between buttons */
+            justify-content: center;
+        }
+
+        /* CSS for print visibility */
+        @media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #defaultersTable, #defaultersTable * {
+        visibility: visible;
+    }
+
+    /* Set the defaulters table container to take full screen */
+    #defaultersTable {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Make sure the container takes up full screen width */
+    .container {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Ensure the table and heading are on the same page */
+    h1, h2, h3, h4 {
+        text-align: center;
+        page-break-before: avoid; /* Prevent a page break before headings */
+        page-break-after: avoid;  /* Prevent a page break after headings */
+    }
+
+    /* Ensure the table doesn't break between pages */
+    table {
+        width: 100%;
+        page-break-inside: auto; /* Allow the table to break into multiple pages if necessary, but don't force it */
+        page-break-before: avoid;
+        page-break-after: avoid;
+    }
+
+    /* Prevent page break between rows */
+    tr {
+        page-break-inside: avoid; /* Avoid breaking rows across pages */
+    }
+
+    /* Prevent page break between table header and body */
+    thead {
+        display: table-header-group;
+    }
+
+    tbody {
+        display: table-row-group;
+    }
+
+    /* Reduce extra space after headings */
+    h1, h2, h3, h4 {
+        margin-bottom: 10px;
+    }
+
+    /* Adjust margins and padding to reduce extra space */
+    .table-responsive {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+}
+
     </style>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
@@ -203,7 +281,8 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                    </div>
+                    </div>                 
+
                 {% else %}
                     <form method="post">
                         {% csrf_token %}
@@ -211,48 +290,72 @@
                         <button type="submit" class="btn btn-primary">Load Top Students</button>
                     </form>
                 {% endif %}
-        
-
-                    
+          
                 </div>
                 {% endfor %}
             </div>
 
+            
+
             <!-- Legend for Attendance -->
-            <h3></h3>
+            <hr>
             <p><span class="present">Present:</span> The student attended the class on this date.</p>
             <p><span class="absent">Absent:</span> The student was absent on this date.</p>
+
+
+            <!-- Get defaulters -->
+                <div class="text-center mt-4">
+                    <button id="getDefaultersBtn" class="btn btn-danger" onclick="showDefaulters()">
+                        Get Defaulters
+                    </button>
+                </div>
+
+            <!-- Defaulters Table for All Courses (Initially Hidden) -->
+            <div id="defaultersTable" class="table-responsive" style="display: none;">
+                <h4 style="text-align: center; margin-top: 40px; font-weight: bold; font-size: 1.8rem;">Defaulters by Course (Below 75%)</h4>
+                <table class="table table-hover table-bordered" style="margin-top: 20px; border: 2px solid #ccc;">
+                    <thead class="table-light">
+                        <tr style="background-color: #f9f9f9;">
+                            <th style="text-align: center; font-weight: bold; padding: 12px;">Roll No.</th>
+                            <th style="text-align: center; font-weight: bold; padding: 12px;">Student Name</th>
+                            <th style="text-align: center; font-weight: bold; padding: 12px;">Attendance Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course, defaulters in defaulters_by_course.items %}
+                            {% if defaulters %}
+                                <tr><td colspan="3" style="text-align: center; font-size: 1.5rem; font-weight: bold; padding-top: 20px; padding-bottom: 10px; background-color: #f0f0f0; border-top: 2px solid #ccc;">{{ course }}</td></tr>
+                                {% for defaulter in defaulters %}
+                                    <tr>
+                                        <td style="text-align: center; font-size: 1rem; padding: 10px;">{{ defaulter.student.roll_number }}</td>
+                                        <td style="text-align: center; font-size: 1rem; padding: 10px;">{{ defaulter.student.user.username }}</td>
+                                        <td style="text-align: center; font-weight: bold; font-size: 1rem; padding: 10px; color: #d9534f;">
+                                            {{ defaulter.percentage }}%
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Button to Print Defaulters Table -->
+            <div class="text-center mt-4">
+                <button class="btn btn-primary" onclick="printDefaulters()">
+                    <i class="fas fa-print"></i> Print Defaulters
+                </button>
+            </div>
+            
         </div>
     </div>
+
     <script>
-        document.getElementById('load-top-students').addEventListener('click', function() {
-            fetch('?load_top_students=true')
-                .then(response => response.json())
-                .then(data => {
-                    const tbody = document.querySelector('#top-students-container tbody');
-                    tbody.innerHTML = ''; // Clear previous data
-        
-                    if (data.top_students.length > 0) {
-                        data.top_students.forEach((student, index) => {
-                            const row = `<tr ${index === 0 ? 'style="background-color: #d4edda;"' : ''}>
-                                            <td style="text-align: center; font-size: 1.2rem;">
-                                                ${index === 0 ? '🏅 1st' : index === 1 ? '🥈 2nd' : '🥉 3rd'}
-                                            </td>
-                                            <td style="text-align: center; font-weight: 500;">${student.roll_number}</td>
-                                            <td style="text-align: center; font-weight: 500;">${student.user.username}</td>
-                                            <td style="text-align: center; font-weight: bold; font-size: 1.1rem;">${student.percentage}%</td>
-                                        </tr>`;
-                            tbody.innerHTML += row;
-                        });
-                        document.getElementById('top-students-container').style.display = 'block';
-                    } else {
-                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No top students data available.</td></tr>';
-                    }
-                })
-                .catch(error => console.error('Error loading top students:', error));
-        });
-        </script>
-    <script>
+        function printDefaulters() {
+            showDefaulters();
+            window.print(); // Will open print dialog to print the page
+        }
+
 // Function to convert date from "Sept. 5, 2024" to "5/9/2024"
 function convertDate(dateString) {
     const monthConversion = {
@@ -279,6 +382,16 @@ document.addEventListener("DOMContentLoaded", function() {
         cell.textContent = convertedDate;
     });
 });
+ 
+// Function to show defaulters table and hide the button
+function showDefaulters() {
+    // Hide the Get Defaulters button
+    document.getElementById("getDefaultersBtn").style.display = "none";
+    
+    // Show the defaulters table
+    document.getElementById("defaultersTable").style.display = "block";
+}
+ 
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>

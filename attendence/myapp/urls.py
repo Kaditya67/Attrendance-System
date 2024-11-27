@@ -31,7 +31,7 @@ urlpatterns = [
     path('submit_attendance/', teacherViews.submit_attendance, name='submit_attendance'),
     # path('SubjectDetails',views.SubjectDetails,name='SubjectDetails'),
     
-    path('teacher_dashboard',teacherViews.Subject_Attendance_Details,name='Teacher_dashboard'),
+    path('teacher_dashboard',teacherViews.Subject_Attendance_Details,name='Teacher_dashboard'), 
     path('subject_attendance/', teacherViews.Subject_Attendance_Details, name='subject_attendance'),
 
     #to do

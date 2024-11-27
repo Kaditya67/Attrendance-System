@@ -123,7 +123,7 @@ def SubjectDetails(request, student_id, course_id):
     attendance_records = Attendance.objects.filter(student=student, course=course).order_by('date')
     
     # Pass the attendance records to the template
-    return render(request, 'dashboardtemplates/SubjectDetails.html', { 
+    return render(request, 'studenttemplates/SubjectDetails.html', { 
         'student': student,
         'course': course,
         'attendance_records': attendance_records,

@@ -55,11 +55,15 @@
             padding-left: 20px;
         }
 
+        .sidebar .navbar-brand:hover{
+            background: none;
+        }
+
         .navbar-nav {
             padding-left: 0; /* Remove default padding from navbar */
         }
 
-        .nav-item{
+        .navbar-nav .nav-item{
             margin-bottom: 5px;
         }
 
@@ -78,7 +82,7 @@
 </head>
 <body>
     <div class="sidebar" id="sidebar">
-        <a class="navbar-brand" href="#" style="font-size: 1.4rem;">Attendance System</a>
+        <a class="navbar-brand" href="{% url 'StudentDashBoard' student.student_id %}" style="font-size: 1.4rem;">Attendance System</a>
         <ul class="navbar-nav">
             <!-- Student Dashboard -->
             {% url 'StudentDashBoard' student.student_id as student_dashboard_url %}

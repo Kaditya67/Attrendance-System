@@ -82,7 +82,7 @@
             margin-top: 20px;
         }
 
-        a {
+        .back-link a{
             text-decoration: none;
             color: #2980b9;
             font-size: 1.2rem;
@@ -93,7 +93,7 @@
             transition: all 0.3s ease;
         }
 
-        a:hover {
+        .back-link a:hover {
             background-color: #3498db;
             color: white;
         }
@@ -105,7 +105,8 @@
     </style>
 </head>
 <body>
-
+    {% include 'studenttemplates/sidebar.html' %}
+    <div class="content">
     <div class="container">
         <h1>{{ course.name }} Attendance Details</h1>
     
@@ -139,6 +140,7 @@
         <div class="back-link">
             <a href="javascript:history.back()">Back to Dashboard</a>
         </div>
+    </div>
     </div>
 
 </body>
