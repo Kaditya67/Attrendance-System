@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject Attendance by Year</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<h1>Subject Attendance</h1>
+
+<!-- Year Selection -->
+<label for="yearSelect">Select Year:</label>
+<select id="yearSelect">
+    <option value="">-- Select Year --</option>
+    {% for year in years %}
+    <option value="{{ year.name }}">{{ year.get_name_display }}</option>
+    {% endfor %}
+</select>
+
+<!-- Subject List -->
+<h2>Subjects for Selected Year:</h2>
+<table id="subjectTable" style="width: 100%; border-collapse: collapse;">
+    <thead>
+        <tr>
+            <th>Course Code</th>
+            <th>Course Name</th>
+        </tr>
+    </thead>
+    <tbody id="subjectList"></tbody>
+</table>
+
+<script>
+$(document).ready(function(){
+    $('#yearSelect').change(function(){
+        var yearCode = $(this).val();
+        if(yearCode) {
+            $.ajax({
+                url: "{% url 'get_subjects_by_year' %}",
+                data: {
+                    'year_code': yearCode
+                },
+                success: function(data) {
+                    $('#subjectList').empty(); // Clear existing subjects
+                    $.each(data.subjects, function(index, subject){
+                        $('#subjectList').append('<tr><td>' + subject.code + '</td><td>' + subject.name + '</td></tr>');
+                    });
+                }
+            });
+        } else {
+            $('#subjectList').empty(); // Clear the subject list if no year is selected
+        }
+    });
+});
+</script>
+
+</body>
+</html>
