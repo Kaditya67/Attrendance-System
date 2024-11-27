@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Student, Attendance
+from django.views import View
+from .models import Course, Department, Student, Attendance, Year
 from django.db.models import Count, Q
 from .forms import StudentUpdateForm
 
@@ -109,3 +110,56 @@ def update_student(request, student_id):
         'is_principal': is_principal
     }
     return render(request, 'studenttemplates/update_student.html', context)
+
+
+def SubjectDetails(request, student_id, course_id):
+    # Fetch the student using the student_id
+    student = get_object_or_404(Student, student_id=student_id)
+    
+    # Fetch the course using the course_id
+    course = get_object_or_404(Course, id=course_id)
+    
+    # Retrieve the attendance records for this student and course
+    attendance_records = Attendance.objects.filter(student=student, course=course).order_by('date')
+    
+    # Pass the attendance records to the template
+    return render(request, 'dashboardtemplates/SubjectDetails.html', { 
+        'student': student,
+        'course': course,
+        'attendance_records': attendance_records,
+    })
+
+
+class AttendanceDetailsView(View):
+    def get(self, request, year_code):
+        # Fetch the year based on the year_code (should be 'FE', 'SE', etc.)
+        year = get_object_or_404(Year, name=year_code)
+        
+        # Fetch the IT department
+        it_department = get_object_or_404(Department, name='Information Technology')
+        
+        # Fetch all students in this year who belong to the IT department
+        students = Student.objects.filter(semester__year=year_code, semester__session_year__department=it_department)
+        student_data = []
+
+        for student in students:
+            total_classes = student.attendances.count()
+            attended_classes = student.attendances.filter(present=True).count()
+
+            # Calculate average attendance
+            average_attendance = (attended_classes / total_classes * 100) if total_classes > 0 else 0
+
+            student_data.append({
+                'name': student.user.username,
+                'average_attendance': average_attendance,
+                'student_id': student.student_id,
+            })
+
+        context = {
+            'year': year.get_name_display(),
+            'student_data': student_data,
+        }
+
+        return render(request, 'dashboardtemplates/attendance_details.html', context)
+    
+

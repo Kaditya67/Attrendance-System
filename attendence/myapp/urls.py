@@ -1,4 +1,10 @@
 from django.urls import path
+
+from . import studentViews
+
+from . import principalViews
+
+from . import hodViews
 from . import views
 from . import teacherViews
 
@@ -32,17 +38,17 @@ urlpatterns = [
     path('update_Attendance',views.update_Attendance,name='update_Attendance'), 
     path('fetch_students/', views.fetch_students, name='fetch_students'),
     path('submit_attendance/', views.submit_attendance, name='submit_attendance'),
-    path('SubjectDetails/<str:student_id>/<int:course_id>/', views.SubjectDetails, name='SubjectDetails'),
+    path('SubjectDetails/<str:student_id>/<int:course_id>/', studentViews.SubjectDetails, name='SubjectDetails'),
 
-    path('StudentDashBoard/<str:student_id>/',views.StudentDashBoard,name='StudentDashBoard'),
+    path('StudentDashBoard/<str:student_id>/',studentViews.StudentDashBoard,name='StudentDashBoard'),
     
-    path('PrincipalDashboard/',views.PrincipalDashboard,name='PrincipalDashboard'),
-    path('HOD_Dashboard',views.HOD_Dashboard,name='HOD_Dashboard'),
+    path('PrincipalDashboard/',principalViews.PrincipalDashboard,name='PrincipalDashboard'),
+    path('HOD_Dashboard',hodViews.HOD_Dashboard,name='HOD_Dashboard'),
 
-    path('attendance-details/<str:year_code>/', views.AttendanceDetailsView.as_view(), name='attendance_details'),
+    path('attendance-details/<str:year_code>/', studentViews.AttendanceDetailsView.as_view(), name='attendance_details'),
     path('subject_attendance/', views.subject_attendance, name='subject_attendance'),
     path('get-subjects/', views.get_subjects_by_year, name='get_subjects_by_year'),
-    path('get_students_by_subject/', views.get_students_by_subject, name='get_students_by_subject'),
+    path('get_students_by_subject/', hodViews.get_students_by_subject, name='get_students_by_subject'),
     path('add_course/<int:semester_id>/', views.add_course, name='add_course'),
     path('get_subjects_by_year/', views.get_subjects_by_year, name='get_subjects_by_year'), 
     
@@ -65,7 +71,7 @@ urlpatterns = [
     path('register/principal/', views.register_principal, name='register_principal'),
     
     # Student Update
-    path('update/student/', views.update_student, name='update_student'),
+    path('update/student/', studentViews.update_student, name='update_student'),
 
     # Dashboards
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
