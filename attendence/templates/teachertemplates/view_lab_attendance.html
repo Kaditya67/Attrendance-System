@@ -110,6 +110,10 @@
         background-color: #fff3cd; /* Light yellow background */
         color: #856404; /* Dark yellow text */
     }
+
+    .hidden {
+      display: none;
+    }
     </style>
     <script>
       function validateForm(event) {
@@ -129,7 +133,7 @@
     {% include 'teachertemplates/navbar.html' %}
     <div class="content">
       <div class="container">
-        <h1 style="text-align: center;">View Lab Attendance</h1>
+        <h1 style="text-align: center;" {% if selected_lab %}class="hidden"{% endif %}>View Lab Attendance</h1>
         {% if messages %}
             <ul class="messages">
                 {% for message in messages %}
@@ -138,7 +142,7 @@
             </ul>
             {% endif %}
         <!-- Lab Selection Form -->
-        <form method="POST" action="{% url 'view_lab_Attendance' %}" onsubmit="validateForm(event)" style="margin-top: 20px; background-color: #f9f9f9; border-radius: 8px; padding: 20px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
+        <form method="POST" action="{% url 'view_lab_Attendance' %}" onsubmit="validateForm(event)" style="margin-top: 20px; background-color: #f9f9f9; border-radius: 8px; padding: 20px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);" {% if selected_lab %}class="hidden"{% endif %}>
           {% csrf_token %}
           <div class="form-group" style="margin-bottom: 15px;">
             <label for="lab" style="font-weight: bold; color: #333;">Select Lab:</label>
@@ -160,30 +164,32 @@
         </form>
 
         {% if selected_lab %}
-          <h2 style="margin-top: 20px;text-align: center;">Lab Attendance for {{ selected_lab.name }}</h2>
-          <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Total Present Students</th>
-                    <th>Note</th>
-                    <th>Batch</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for record in lab_attendance_summary %}
-                <tr>
-                    <td>{{ record.0 }}</td>
-                    <td>{{ record.1 }}</td>
-                    <td>{{ record.2 }}</td>
-                    <td>{{ record.3 }}</td>
-                    <td>
-                      <form method="GET" action="{% url 'edit_lab_attendance' lab_id=selected_lab.id date=record.0|date:'Y-m-d' batch=record.3 %}">
+        <h1 style="text-align: center;margin-bottom:10px">View & Edit {{ selected_lab.name }} Attendance</h1> 
+        <table>
+          <thead>
+              <tr>
+                  <th>Date</th>
+                  <th>Session</th>
+                  <th>Batch</th>
+                  <th>Total Present Students</th>
+                  <th>Notes</th>
+                  <th>Edit</th>  
+              </tr>
+          </thead>
+          <tbody>
+              {% for record in lab_attendance_summary %}
+              <tr>
+                  <td>{{ record.date }}</td>
+                  <td>{{ record.session }}</td>
+                  <td>{{ record.batch }}</td>
+                  <td>{{ record.total_present }}</td>
+                  <td>{{ record.notes }}</td>
+                  <td>
+                    <form method="GET" action="{% url 'edit_lab_attendance' lab_id=selected_lab.id date=record.date|date:'Y-m-d' batch=record.batch session_number=record.session %}">
                         <button type="submit" class="button">Edit</button>
                     </form>
-                    </td>
-                </tr>
+                  </td>
+              </tr>
                 {% endfor %}
             </tbody>
         </table>

@@ -23,7 +23,7 @@ urlpatterns = [
     #to do
     path('attendance/select/', teacherViews.select_course_lecture, name='select_course_lecture'),
     path('attendance/edit/<int:subject_id>/<str:date>/<int:lecture_number>/', teacherViews.edit_attendance, name='edit_attendance'),
-    path('attendance_lab/edit/<int:lab_id>/<str:date>/<str:batch>/', teacherViews.edit_lab_attendance, name='edit_lab_attendance'),
+    path('attendance_lab/edit/<int:lab_id>/<str:date>/<int:session_number>/<str:batch>/', teacherViews.edit_lab_attendance, name='edit_lab_attendance'),
 
     path('update_Attendance',teacherViews.update_Attendance,name='update_Attendance'), 
     path('update_lab_Attendance',teacherViews.update_lab_Attendance,name='update_lab_Attendance'), 

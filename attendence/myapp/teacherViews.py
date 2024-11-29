@@ -51,11 +51,11 @@ def lab_dashboard(request):
         # Get the logged-in teacher
     teacher = get_object_or_404(Teacher, user=request.user)
     labs = teacher.assigned_labs.all()
-    print(f"Assigned Labs: {labs}")
+    # print(f"Assigned Labs: {labs}")
     
     if request.user.groups.filter(name="HOD").exists():
         labs = Labs.objects.all()
-    print(f"Labs: {labs}")
+    # print(f"Labs: {labs}")
 
     lab_data = []
 
@@ -66,7 +66,7 @@ def lab_dashboard(request):
             'lab_semester': lab.semester,
             'lab_index': lab.index,
         })
-    print(f"Lab Data: {lab_data}")
+    # print(f"Lab Data: {lab_data}")
 
     context = {
         'lab': lab_data,
@@ -133,7 +133,7 @@ def lab_detail(request, lab_id):
     lab = get_object_or_404(Labs, id=lab_id)
     batches = lab.batches.all()  # Get all batches for the lab
     students = Student.objects.filter(semester=lab.semester) 
-    print(students)
+    # print(students)
 
     index = lab.index
 
@@ -146,7 +146,7 @@ def lab_detail(request, lab_id):
         match_students = []
         for student in students:
             if(student.batches[str(index)] == batch):
-                print(f'Batch: {batch}, Student: {student}')
+                # print(f'Batch: {batch}, Student: {student}')
                 match_students.append({
                     'batch': batch,
                     'student': student
@@ -157,7 +157,7 @@ def lab_detail(request, lab_id):
             'match_students':match_students
         })
     
-    print(f"Students and Batches {batch_student_data}")
+    # print(f"Students and Batches {batch_student_data}")
         
     context = {
         'lab': lab,
@@ -693,7 +693,7 @@ def Add_Lab_Attendance(request):
     labs = teacher.assigned_labs.all()
 
     if request.method == 'POST':
-        print("Received POST request for Add_Lab_Attendance",request.POST)
+        # print("Received POST request for Add_Lab_Attendance",request.POST)
         lab_id = request.POST.get('lab')
         lab = get_object_or_404(Labs, id=lab_id)
 
@@ -711,7 +711,7 @@ def Add_Lab_Attendance(request):
             'lab': lab.name,
             'batches': deserialized_batches,
         }
-        print("Context:", context)
+        # print("Context:", context)
 
         return render(request, 'teachertemplates/add_lab_attendance.html', context)
     
@@ -747,7 +747,7 @@ def get_labs_data_for_teacher(teacher):
 def fetch_lab_students(request):
     teacher = get_object_or_404(Teacher, user=request.user)
     if request.method == 'POST':
-        print("Received POST request for fetch_lab_students :",request.POST)
+        # print("Received POST request for fetch_lab_students :",request.POST)
         labName = request.POST.get('lab')
         lab_batch = request.POST.get('lab_batch')
         date = request.POST.get('date')
@@ -871,10 +871,14 @@ from django.contrib import messages
 from django.shortcuts import render, get_object_or_404
 from .models import Teacher, Labs, LabAttendance
 
+from collections import defaultdict
+from django.contrib import messages
+from django.shortcuts import render, get_object_or_404, redirect
+
 @login_required
 def view_lab_attendance(request):
     teacher = get_object_or_404(Teacher, user=request.user)
-    labs = teacher.assigned_labs.all()  # Assuming the teacher has assigned labs, similar to assigned_courses
+    labs = teacher.assigned_labs.all()  # Assuming the teacher has assigned labs
 
     selected_lab = None
     lab_attendance_summary = []
@@ -890,30 +894,41 @@ def view_lab_attendance(request):
             messages.warning(request, "No lab attendance records found for the selected lab.")
             return redirect('view_lab_Attendance')
 
-        # Summarize lab attendance records by date and count
-        summary = defaultdict(lambda: [0, '', 0])  # [total present, common notes, count]
-        for record in lab_attendance_records:
-            # Only aggregate if the current count is greater than the previously saved count for that date
-            summary[(record.date, record.lab_batch)][0] += record.present  # Total present
-            summary[(record.date, record.lab_batch)][1] = record.notes  # Get notes
-            summary[(record.date, record.lab_batch)][2] = record.lab_batch  # Use the last batch found
+        # Summarize lab attendance records by date, count, and batch
+        summary = defaultdict(lambda: {'total_present': 0, 'notes': '', 'batch': None})
 
-        # Convert the summary to a list for rendering
+        for record in lab_attendance_records:
+            key = (record.date, record.count, record.lab_batch)
+            summary[key]['total_present'] += 1 if record.present else 0
+            summary[key]['notes'] = record.notes  # Assume latest note is kept
+            summary[key]['batch'] = record.lab_batch
+
+        # Convert summary to a list for rendering
         lab_attendance_summary = [
-            (date, total_present, notes, lab_batch) 
-            for (date, lab_batch), (total_present, notes, _) in summary.items()
+            {
+                'date': key[0],
+                'session': key[1],
+                'batch': key[2],
+                'total_present': value['total_present'],
+                'notes': value['notes'],
+            }
+            for key, value in summary.items()
         ]
+
+        # Sort the summary by date and session (optional)
+        lab_attendance_summary.sort(key=lambda x: (x['date'], x['session']))
 
     context = {
         'labs': labs,
         'lab_attendance_summary': lab_attendance_summary,
         'selected_lab': selected_lab,
-        'teacher': teacher
+        'teacher': teacher,
     }
     return render(request, 'teachertemplates/view_lab_attendance.html', context)
 
+
 @login_required
-def edit_lab_attendance(request, lab_id, date, batch):
+def edit_lab_attendance(request, lab_id, date,session_number, batch):
     teacher = get_object_or_404(Teacher, user=request.user)
     labs = teacher.assigned_labs.all()  # Fetch the labs assigned to the teacher
 
@@ -921,7 +936,7 @@ def edit_lab_attendance(request, lab_id, date, batch):
     lab = get_object_or_404(Labs, id=lab_id)
 
     # Fetch attendance records for the selected lab, date, and batch
-    lab_attendance_records = LabAttendance.objects.filter(lab=lab, date=date, lab_batch=batch)
+    lab_attendance_records = LabAttendance.objects.filter(lab=lab, date=date, lab_batch=batch,count=session_number)
 
     if not lab_attendance_records.exists():
         messages.warning(request, "No attendance records found for the selected lab and batch.")
