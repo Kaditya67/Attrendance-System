@@ -227,6 +227,48 @@
           </a>
         </li>
 
+        <li class="nav-item">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            id="attendanceDropdown"
+            onclick="toggleDropdown(event)"
+          >
+            <i class="bi bi-calendar-check sidebar-icon"></i>Attendance
+          </a>
+          <ul class="dropdown-menu">
+            {% url 'Add_Lab_Attendance' as add_lab_attendance_url %}
+            <li>
+              <a
+                class="dropdown-item {% if request.path == add_lab_attendance_url %}active{% endif %}"
+                href="{{ add_lab_attendance_url }}"
+              >
+                <b>-</b> Add Lab Attendance
+              </a>
+            </li>
+            
+            {% url 'view_Attendance' as view_attendance_url %}
+            <li>
+              <a
+                class="dropdown-item {% if request.path == view_attendance_url %}active{% endif %}"
+                href="{{ view_attendance_url }}"
+              >
+                <b>-</b> View Attendance
+              </a>
+            </li>
+
+            {% url 'select_course_lecture' as update_attendance_url %}
+            <li>
+              <a
+                class="dropdown-item {% if request.path == update_attendance_url %}active{% endif %}"
+                href="{{ update_attendance_url }}"
+              >
+                <b>-</b> Update Attendance
+              </a>
+            </li>
+          </ul>
+        </li>
+
         <!-- Reports -->
         {% url 'Class_Report' as class_report_url %}
         <li class="nav-item">

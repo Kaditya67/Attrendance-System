@@ -380,6 +380,40 @@ class Attendance(models.Model):
         ]
         unique_together = ('student', 'course', 'date', 'lab_batch')  # Unique constraint
 
+from django.db import models
+
+class LabAttendance(models.Model):
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name='lab_attendances',
+        verbose_name="Student"
+    )
+    lab = models.ForeignKey(
+        Labs,
+        on_delete=models.CASCADE,
+        related_name='lab_attendances',
+        verbose_name="Lab"
+    )
+    lab_batch = models.TextField(verbose_name="Lab Batch", null=True, blank=True)
+    date = models.DateField(verbose_name="Date")
+    time_slot = models.CharField(max_length=20, choices=TIME_SLOT_CHOICES, verbose_name="Time Slot", null=True, blank=True)
+    present = models.BooleanField(default=False, verbose_name="Present")
+    notes = models.TextField(blank=True, null=True, verbose_name="Notes")
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
+
+    def __str__(self):
+        return f"LabAttendance: {self.student.user.username} - {self.lab.name} - {self.date} - {'Present' if self.present else 'Absent'}"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['date']),
+            models.Index(fields=['present']),
+            models.Index(fields=['date', 'time_slot']),
+            models.Index(fields=['lab_batch']),
+        ]
+        unique_together = ('student', 'lab', 'date', 'lab_batch')  # Ensures unique attendance for a lab session
 
 
 class SemesterCGPA(models.Model):

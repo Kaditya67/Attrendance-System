@@ -26,9 +26,12 @@ urlpatterns = [
 
     path('update_Attendance',teacherViews.update_Attendance,name='update_Attendance'), 
     path('fetch_students/', teacherViews.fetch_students, name='fetch_students'),
+    path('fetch_lab_students/', teacherViews.fetch_lab_students, name='fetch_lab_students'),
     path('Add_Attendance',teacherViews.Add_Attendance,name='Add_Attendance'),
+    path('Add_Lab_Attendance',teacherViews.Add_Lab_Attendance,name='Add_Lab_Attendance'),
     path('view_Attendance',teacherViews.view_attendance,name='view_Attendance'),
     path('submit_attendance/', teacherViews.submit_attendance, name='submit_attendance'),
+    path('submit_lab_attendance/', teacherViews.submit_lab_attendance, name='submit_lab_attendance'),
     # path('SubjectDetails',views.SubjectDetails,name='SubjectDetails'),
     
     path('teacher_dashboard',teacherViews.Subject_Attendance_Details,name='Teacher_dashboard'), 

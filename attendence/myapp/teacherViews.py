@@ -558,6 +558,157 @@ def submit_attendance(request):
 
     return redirect('Add_Attendance')
 
+@login_required
+def Add_Lab_Attendance(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
+
+    labs_data = []
+    labs = teacher.assigned_labs.all()
+
+    for lab in labs:
+        lab_batches = Batches.objects.filter(lab=lab).values_list('batch_options', flat=True)
+        
+        # Deserialize `batch_options` if it contains JSON
+        deserialized_batches = []
+        for batch in lab_batches: 
+            try:
+                deserialized_batches.extend(json.loads(batch))   
+            except json.JSONDecodeError:
+                deserialized_batches.append(batch)   
+         
+        labs_data.append({
+            'lab': lab.name,
+            'batches': deserialized_batches,
+        })
+    
+    context = {
+        'teacher': teacher,
+        'labs_data': labs_data
+    }
+
+    return render(request, 'teachertemplates/add_lab_attendance.html', context)
+
+def get_labs_data_for_teacher(teacher):
+    labs_data = []
+    labs = teacher.assigned_labs.all()
+
+    for lab in labs:
+        lab_batches = Batches.objects.filter(lab=lab).values_list('batch_options', flat=True)
+        
+        # Deserialize `batch_options` if it contains JSON
+        deserialized_batches = []
+        for batch in lab_batches: 
+            try:
+                deserialized_batches.extend(json.loads(batch))   
+            except json.JSONDecodeError:
+                deserialized_batches.append(batch)   
+         
+        labs_data.append({
+            'lab': lab.name,
+            'batches': deserialized_batches,
+        })
+    return labs_data
+
+@login_required
+def fetch_lab_students(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
+    if request.method == 'POST':
+        # print("Received POST request for fetch_lab_students :",request.POST)
+        labName = request.POST.get('lab')
+        lab_batch = request.POST.get('lab_batch')
+        date = request.POST.get('date')
+
+        # Get the selected lab batch
+        lab = Labs.objects.get(name=labName)
+        Semester = lab.semester
+        temp_students = Student.objects.filter(semester=Semester)
+
+        # Filter students according to batch
+        Students = []
+        for student in temp_students:
+            if student.batches[str(lab.index)] == lab_batch:
+                Students.append(student)
+        students = Students
+        
+        # print("Students : ",students)
+        context={
+            'students': students,
+            'selected_lab': lab.name,
+            'selected_lab_batch': lab_batch,
+            'selected_date': date,
+            'labs_data': get_labs_data_for_teacher(teacher)
+        }
+
+        # print("Context : ",context)
+
+        return render(request, 'teachertemplates/add_lab_attendance.html', context)
+
+    return redirect('Add_Lab_Attendance')
+
+
+@login_required
+def submit_lab_attendance(request):
+    if request.method == 'POST':
+        lab_name = request.POST.get('lab')  # Lab name from the form
+        lab_batch = request.POST.get('lab_batch')  # Batch name
+        date = request.POST.get('date')  # Attendance date
+        common_notes = request.POST.get('common_notes', '')  # Optional notes
+        absent_students = request.POST.get('absent_students', '').split(',')  # IDs of absent students
+
+        print(f"Request Post : ",request.POST)
+        # Validate lab and batch
+        try:
+            lab = Labs.objects.get(name=lab_name)
+            print(lab)
+        except Labs.DoesNotExist:
+            messages.error(request, "Invalid lab selected.")
+            return redirect('Add_Lab_Attendance')
+
+        try:
+            semester = lab.semester
+            temp_students = Student.objects.filter(semester=semester)
+            students_in_batch=[]
+            for student in temp_students:
+                if student.batches[str(lab.index)] == lab_batch:
+                    students_in_batch.append(student)
+        except Exception as e:
+            messages.error(request, f"Error fetching batch: {str(e)}")
+            return redirect('Add_Lab_Attendance')
+
+        # Ensure students exist for the selected batch
+        if not students_in_batch[0]:
+            messages.warning(request, f"No students found for {lab_name}, batch {lab_batch}.")
+            return redirect('Add_Lab_Attendance')
+
+        # Prepare attendance records
+        attendance_records = []
+        for student in students_in_batch:
+            student_id = str(student.id)
+            is_present = request.POST.get(f'attendance_{student_id}') == 'Present'
+            is_absent = student_id in absent_students
+
+            # Create attendance record
+            attendance_records.append(
+                Attendance(
+                    student=student,
+                    course=lab.course,
+                    lab_batch=lab_batch,
+                    date=date,
+                    present=is_present and not is_absent,
+                    notes=common_notes
+                )
+            )
+
+        # Bulk create attendance records
+        Attendance.objects.bulk_create(attendance_records)
+        messages.success(request, f"Attendance records for {len(attendance_records)} students submitted successfully!")
+
+        return redirect('Add_Lab_Attendance')
+
+    # Redirect to the attendance form if the request is not POST
+    return redirect('Add_Lab_Attendance')
+
+
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
