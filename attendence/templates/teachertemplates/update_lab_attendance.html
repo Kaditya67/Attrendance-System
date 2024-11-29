@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Update Attendance</title>
+    <title>Update Lab Attendance</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
       body {
@@ -161,6 +161,10 @@
       a:hover {
         text-decoration: underline;
       }
+
+      .hidden {
+        display: none;
+      }
     </style>
     <script>
       document.addEventListener("DOMContentLoaded", function() {
@@ -172,14 +176,14 @@
 
         // Set the current date as the maximum value (no future dates allowed)
         dateInput.max = today;
-    });
+      });
     </script>
   </head>
   <body>
     {% include 'teachertemplates/navbar.html' %}
     <div class="content">
       <div class="container">
-        <h1>Update Attendance</h1>
+        <h1 {% if selected_lab %}class="hidden"{% endif %}>Update Lab Attendance</h1>
 
         <!-- Display success/warning messages -->
         {% if messages %}
@@ -189,63 +193,82 @@
           {% endfor %}
         </div>
         {% endif %}
-
-        <!-- Step 1: Select Subject and Date -->
-        <form method="POST" action="">
+        
+        <!-- Step 0: Select Lab  -->
+        <form method="POST" action="" {% if selected_lab %}class="hidden"{% endif %}>
           {% csrf_token %}
-          <input type="hidden" name="fetch" value="1" />
-          <!-- Subject Name -->
-          <label for="subject">Subject:</label>
-          <select id="subject" name="subject" required>
-            {% for course in courses %}
-            <option value="{{ course.id }}">{{ course.name }}</option>
+          <label for="lab">Select Lab:</label>
+          <select id="lab" name="lab" required>
+            {% for lab in labs %}
+            <option value="{{ lab.id }}">{{ lab.name }}</option>
             {% endfor %}
           </select>
-
-          <!-- Date -->
-          <label for="date">Date:</label>
-          <input type="date" id="date" name="date" required />
-
-          <!-- Submit Button to Fetch Attendance Records -->
-          <button type="submit" class="button">Fetch Attendance Records</button>
+          <button type="submit" class="button" name="batch" style="margin-top:10px">Select Batch</button>
         </form>
-
-        <!-- Step 2: If records are fetched, show the lecture dropdown -->
-        {% if lecture_numbers %}
-        <form method="POST" action="" style="padding-top:2px ;padding-bottom: 4px;">
+    
+        <!-- Step 1: Batch and Date Selection -->
+        {% if batches %}
+        <form method="POST" action="" {% if selected_date %}class="hidden"{% endif %}>
           {% csrf_token %}
-          <!-- Subject and Date -->
-          <input type="hidden" name="subject" value="{{ selected_course.id }}" />
-          <input type="hidden" name="date" value="{{ selected_date }}" />
+          <input type="hidden" name="lab" value="{{ selected_lab.id }}">
+          <h1>{{ selected_lab.name }} Attendance</h1>
 
-          <!-- Lecture Number Selection -->
-          <label for="lecture_number">Select Lecture:</label>
-          <select id="lecture_number" name="lecture_number" required>
-            {% for number in lecture_numbers %}
-            <option value="{{ number }}">Lecture {{ number }}</option>
+          <label for="batch">Select Batch:</label>
+          <select id="batch" name="lab_batch" required>
+            {% for batch in batches %}
+            <option value="{{ batch }}">{{ batch }}</option>
             {% endfor %}
           </select>
-
-          <!-- Submit Button to Load Attendance for the Selected Lecture -->
-          <button type="submit" class="button" style="margin-top:5px ;">Load Attendance for Lecture</button>
+    
+          <label for="date">Select Date:</label>
+          <input type="date" id="date" name="date" required>
+          <button type="submit" class="button" name="fetch">Fetch Students</button>
         </form>
         {% endif %}
 
-        <!-- Step 3: Display and Update Attendance -->
-        {% if attendance_records %}
+        <!-- Step 2: If records are fetched, show the session dropdown -->
+        {% if lab_sessions %}
+        <form method="POST" action="" style="padding-top:2px ;padding-bottom: 4px;">
+          {% csrf_token %}
+
+          <h1>{{ selected_lab.name }} Attendance</h1>
+          <div class="info-message" style="margin: 20px; text-align: center;"> 
+            <p>Batch: <strong>{{ batch }}</strong></p>
+          </div>
+          <!-- Lab and Date -->
+          <input type="hidden" name="lab" value="{{ selected_lab.id }}" />
+          <input type="hidden" name="date" value="{{ selected_date }}" />
+          <input type="hidden" name="batch" value="{{ batch }}" />
+
+          <!-- Lab Session Selection -->
+          <label for="session_number">Select Session:</label>
+          <select id="session_number" name="session_number" required>
+            {% for number in lab_sessions %}
+            <option value="{{ number }}">Session {{ number }}</option>
+            {% endfor %}
+          </select>
+
+          <!-- Submit Button to Load Attendance for the Selected Session -->
+          <button type="submit" class="button" style="margin-top:5px;">Load Attendance for Session</button>
+        </form>
+        {% endif %}
+
+        <!-- Step 3: Display and Update Lab Attendance -->
+        {% if lab_attendance_records %}
         <form method="POST" action="">
           {% csrf_token %}
-          
-
-          <input type="hidden" name="subject" value="{{ selected_course.id }}" />
+          <input type="hidden" name="lab" value="{{ selected_lab.id }}" />
           <input type="hidden" name="date" value="{{ selected_date }}" />
-          <input type="hidden" name="lecture_number" value="{{ lecture_number }}" />
+          <input type="hidden" name="session_number" value="{{ session_number }}" />
+          <input type="hidden" name="batch" value="{{ batch }}" />
 
-          <div class="info-message" style="margin: 20px; text-align: center;">
-            <p>You're updating attendance for the course: <strong>{{ selected_course.name }}</strong> (ID: {{ selected_course.id }})</p>
+          <h1>{{ selected_lab.name }} Attendance</h1>
+
+          <div class="info-message" style="margin: 20px; text-align: center;"> 
             <p>Date of attendance: <strong>{{ selected_date }}</strong></p>
-            <p>Lecture Number: <strong>{{ lecture_number }}</strong></p>
-        </div>
+            <p>Session Number: <strong>{{ session_number }}</strong></p>
+            <p>Batch: <strong>{{ batch }}</strong></p>
+          </div>
 
           <table>
             <thead>
@@ -255,11 +278,10 @@
               </tr>
             </thead>
             <tbody>
-              {% for record in attendance_records %}
+              {% for record in lab_attendance_records %}
               <tr>
                 <td>
-                  {{ record.student.user.first_name }}
-                  {{ record.student.user.last_name }}
+                  {{ record.student.user.first_name }} {{ record.student.user.last_name }}
                 </td>
                 <td>
                   <label>

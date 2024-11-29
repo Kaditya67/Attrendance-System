@@ -400,6 +400,7 @@ class LabAttendance(models.Model):
     time_slot = models.CharField(max_length=20, choices=TIME_SLOT_CHOICES, verbose_name="Time Slot", null=True, blank=True)
     present = models.BooleanField(default=False, verbose_name="Present")
     notes = models.TextField(blank=True, null=True, verbose_name="Notes")
+    count = models.IntegerField(default=0, verbose_name="Count", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
 
@@ -413,7 +414,7 @@ class LabAttendance(models.Model):
             models.Index(fields=['date', 'time_slot']),
             models.Index(fields=['lab_batch']),
         ]
-        unique_together = ('student', 'lab', 'date', 'lab_batch')  # Ensures unique attendance for a lab session
+        unique_together = ('student', 'lab', 'date', 'lab_batch','count')  # Ensures unique attendance for a lab session
 
 
 class SemesterCGPA(models.Model):

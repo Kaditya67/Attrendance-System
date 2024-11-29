@@ -426,6 +426,135 @@ def edit_attendance(request, subject_id, date, lecture_number):
 
     return render(request, 'teachertemplates/edit_attendance.html', context)
 
+@login_required
+def update_lab_Attendance(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
+    labs = teacher.assigned_labs.all()  # Assuming 'assigned_labs' is a related name for labs assigned to the teacher.
+
+    if request.method == 'POST':
+        # Step 4: Update attendance records
+        if 'update_attendance' in request.POST:
+            # print("Update :",request.POST)
+            lab_id = request.POST.get('lab')
+            date = request.POST.get('date')
+            session_number = request.POST.get('session_number')
+            batch = request.POST.get('batch')
+
+            lab = get_object_or_404(Labs, id=lab_id)
+            lab_attendance_records = LabAttendance.objects.filter(
+                lab=lab,
+                date=date,
+                count=session_number,
+                lab_batch = batch
+            )
+
+            attendance_updated = 0
+
+            for record in lab_attendance_records:
+                student_id = record.student.id
+                attendance_status = request.POST.get(f'attendance_{student_id}', None)
+
+                if attendance_status is not None:
+                    record.present = (attendance_status == 'Present')
+                    record.save()
+                    attendance_updated += 1
+
+            if attendance_updated > 0:
+                messages.success(request, f"{attendance_updated} attendance records updated successfully!")
+                return redirect('Add_Lab_Attendance')
+            else:
+                messages.warning(request, "No attendance records were updated.")
+
+            return redirect('update_lab_Attendance')
+
+        # Step 2: Load attendance for a specific session
+        elif 'session_number' in request.POST:
+            # print("Step 2 :",request.POST)
+            lab_id = request.POST.get('lab')
+            date = request.POST.get('date')
+            session_number = request.POST.get('session_number')
+            batch  = request.POST.get('batch')
+
+            lab = get_object_or_404(Labs, id=lab_id)
+            # print(request.POST)
+
+            # Fetch attendance records for the specific session
+            lab_attendance_records = LabAttendance.objects.filter(lab=lab,date=date,count=session_number,
+            lab_batch=batch)
+            # print(lab_attendance_records)
+
+            if not lab_attendance_records.exists():
+                messages.warning(request, "No attendance records found for the selected session.")
+                return redirect('update_lab_Attendance')
+
+            context = {
+                'labs': labs,
+                'selected_lab': lab,
+                'selected_date': date,
+                'session_number': session_number,
+                'batch': batch,
+                'lab_attendance_records': lab_attendance_records,
+            }
+            return render(request, 'teachertemplates/Update_Lab_Attendance.html', context)
+
+        # Step 3: Fetch attendance records for the selected lab, batch, and date
+        elif 'fetch' in request.POST:
+            # print("Step 3 :",request.POST)
+            lab_id = request.POST.get('lab')
+            batch = request.POST.get('lab_batch')  # Correct key name
+
+            # print(lab_id,batch)
+            date = request.POST.get('date')
+
+            lab = get_object_or_404(Labs, id=lab_id)
+
+            # Fetch attendance records
+            lab_attendance_records = LabAttendance.objects.filter(lab=lab, lab_batch=batch, date=date)
+
+            if not lab_attendance_records.exists():
+                messages.warning(request, "No attendance records found for the selected batch and date.")
+                return redirect('update_lab_Attendance')
+
+            # Get the maximum session count for the attendance records
+            max_count = lab_attendance_records.aggregate(Max('count'))['count__max'] or 0
+            lab_sessions = list(range(1, max_count + 1))
+
+            context = {
+                'labs': labs,
+                'selected_lab': lab,
+                'selected_date': date,
+                'batch': batch,
+                'lab_sessions': lab_sessions,
+            }
+            return render(request, 'teachertemplates/Update_Lab_Attendance.html', context)
+        
+        
+        # Step 1: Fetch batches based on the selected lab
+        elif 'batch' in request.POST:
+            lab_id = request.POST.get('lab')
+            lab = get_object_or_404(Labs, id=lab_id)
+
+            lab_batches = Batches.objects.filter(lab=lab).values_list('batch_options', flat=True)
+
+            # Deserialize `batch_options` if stored as JSON
+            deserialized_batches = []
+            for batch in lab_batches:
+                try:
+                    deserialized_batches.extend(json.loads(batch))
+                except json.JSONDecodeError:
+                    deserialized_batches.append(batch)
+
+            context = {
+                'labs': labs,
+                'selected_lab': lab,
+                'batches': deserialized_batches,
+            }
+            return render(request, 'teachertemplates/Update_Lab_Attendance.html', context)
+
+    # Default GET request to render the page with the lab dropdown
+    else:
+        context = {'labs': labs}
+        return render(request, 'teachertemplates/Update_Lab_Attendance.html', context)
 
 @login_required
 def Add_Attendance(request):
@@ -505,15 +634,15 @@ def fetch_students(request):
 @login_required
 def submit_attendance(request):
     if request.method == "POST":
-        print("Received POST request for submit_attendance")
+        # print("Received POST request for submit_attendance")
         subject_id = request.POST.get('subject')
         date = request.POST.get('date')
         common_notes = request.POST.get('common_notes', '')
         absent_students = request.POST.get('absent_students', '').split(',')
         
-        print(f"Subject ID: {subject_id}, Date: {date}, Common Notes: {common_notes}, Absent Students: {absent_students}")
+        # print(f"Subject ID: {subject_id}, Date: {date}, Common Notes: {common_notes}, Absent Students: {absent_students}")
         course = Course.objects.get(id=subject_id)
-        print(f"Course: {course}")
+        # print(f"Course: {course}")
         # Retrieve current attendance records
         existing_attendance_records = Attendance.objects.filter(course=course, date=date)
         common_count = existing_attendance_records.last().count + 1 if existing_attendance_records.exists() else 1
@@ -561,29 +690,34 @@ def submit_attendance(request):
 @login_required
 def Add_Lab_Attendance(request):
     teacher = get_object_or_404(Teacher, user=request.user)
-
-    labs_data = []
     labs = teacher.assigned_labs.all()
 
-    for lab in labs:
+    if request.method == 'POST':
+        print("Received POST request for Add_Lab_Attendance",request.POST)
+        lab_id = request.POST.get('lab')
+        lab = get_object_or_404(Labs, id=lab_id)
+
         lab_batches = Batches.objects.filter(lab=lab).values_list('batch_options', flat=True)
-        
-        # Deserialize `batch_options` if it contains JSON
+
+        # Deserialize `batch_options` if stored as JSON
         deserialized_batches = []
-        for batch in lab_batches: 
+        for batch in lab_batches:
             try:
-                deserialized_batches.extend(json.loads(batch))   
+                deserialized_batches.extend(json.loads(batch))
             except json.JSONDecodeError:
-                deserialized_batches.append(batch)   
-         
-        labs_data.append({
+                deserialized_batches.append(batch)
+
+        context = {
             'lab': lab.name,
             'batches': deserialized_batches,
-        })
+        }
+        print("Context:", context)
+
+        return render(request, 'teachertemplates/add_lab_attendance.html', context)
     
     context = {
         'teacher': teacher,
-        'labs_data': labs_data
+        'labs': labs,
     }
 
     return render(request, 'teachertemplates/add_lab_attendance.html', context)
@@ -613,7 +747,7 @@ def get_labs_data_for_teacher(teacher):
 def fetch_lab_students(request):
     teacher = get_object_or_404(Teacher, user=request.user)
     if request.method == 'POST':
-        # print("Received POST request for fetch_lab_students :",request.POST)
+        print("Received POST request for fetch_lab_students :",request.POST)
         labName = request.POST.get('lab')
         lab_batch = request.POST.get('lab_batch')
         date = request.POST.get('date')
@@ -662,8 +796,8 @@ def submit_lab_attendance(request):
         absent_students = request.POST.get('absent_students', '').split(',')  # IDs of absent students
 
         # Print for debugging
-        print(f"Request Post : ", request.POST)
-
+        # print(f"Request Post : ", request.POST)
+        
         # Validate lab and batch
         try:
             lab = Labs.objects.get(name=lab_name)
@@ -695,6 +829,9 @@ def submit_lab_attendance(request):
             messages.warning(request, f"No students found for {lab_name}, batch {lab_batch}.")
             return redirect('Add_Lab_Attendance')
 
+
+        existing_attendance_records = LabAttendance.objects.filter(lab=lab,lab_batch=lab_batch, date=date)
+        common_count = existing_attendance_records.last().count + 1 if existing_attendance_records.exists() else 1
         # Prepare lab attendance records
         lab_attendance_records = []
         for student in students_in_batch:
@@ -710,6 +847,7 @@ def submit_lab_attendance(request):
                     lab_batch=lab_batch,
                     date=date,
                     present=is_present and not is_absent,
+                    count=common_count,
                     notes=common_notes
                 )
             )

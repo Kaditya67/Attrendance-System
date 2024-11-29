@@ -26,6 +26,7 @@ urlpatterns = [
     path('attendance_lab/edit/<int:lab_id>/<str:date>/<str:batch>/', teacherViews.edit_lab_attendance, name='edit_lab_attendance'),
 
     path('update_Attendance',teacherViews.update_Attendance,name='update_Attendance'), 
+    path('update_lab_Attendance',teacherViews.update_lab_Attendance,name='update_lab_Attendance'), 
     path('fetch_students/', teacherViews.fetch_students, name='fetch_students'),
     path('fetch_lab_students/', teacherViews.fetch_lab_students, name='fetch_lab_students'),
     path('Add_Attendance',teacherViews.Add_Attendance,name='Add_Attendance'),
