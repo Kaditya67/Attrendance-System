@@ -175,7 +175,7 @@
         <!-- Attendance Dropdown -->
         <li class="nav-item">
           <a
-            class="nav-link dropdown-toggle"
+            class="dropdown-toggle"
             href="#"
             id="attendanceDropdown"
             onclick="toggleDropdown(event)"
@@ -189,7 +189,7 @@
                 class="dropdown-item {% if request.path == add_attendance_url %}active{% endif %}"
                 href="{{ add_attendance_url }}"
               >
-                <b>-</b> Add Attendance
+                <b style="margin-left:15px">-</b> Add Attendance
               </a>
             </li>
             
@@ -199,7 +199,7 @@
                 class="dropdown-item {% if request.path == view_attendance_url %}active{% endif %}"
                 href="{{ view_attendance_url }}"
               >
-                <b>-</b> View Attendance
+                <b style="margin-left:15px">-</b> View Attendance
               </a>
             </li>
 
@@ -209,7 +209,7 @@
                 class="dropdown-item {% if request.path == update_attendance_url %}active{% endif %}"
                 href="{{ update_attendance_url }}"
               >
-                <b>-</b> Update Attendance
+                <b style="margin-left:15px">-</b> Update Attendance
               </a>
             </li>
           </ul>
@@ -229,12 +229,12 @@
 
         <li class="nav-item">
           <a
-            class="nav-link dropdown-toggle"
+            class="dropdown-toggle"
             href="#"
             id="attendanceDropdown"
             onclick="toggleDropdown(event)"
           >
-            <i class="bi bi-calendar-check sidebar-icon"></i>Attendance
+            <i class="bi bi-node-plus sidebar-icon"></i>lab Attendance
           </a>
           <ul class="dropdown-menu">
             {% url 'Add_Lab_Attendance' as add_lab_attendance_url %}
@@ -243,7 +243,7 @@
                 class="dropdown-item {% if request.path == add_lab_attendance_url %}active{% endif %}"
                 href="{{ add_lab_attendance_url }}"
               >
-                <b>-</b> Add Lab Attendance
+                <b style="margin-left:15px">-</b> Add Lab Attendance
               </a>
             </li>
             
@@ -253,7 +253,7 @@
                 class="dropdown-item {% if request.path == view_lab_Attendance_url %}active{% endif %}"
                 href="{{ view_lab_Attendance_url }}"
               >
-                <b>-</b> View Lab Attendance
+                <b style="margin-left:15px">-</b> View Lab Attendance
               </a>
             </li>
 
@@ -263,7 +263,7 @@
                 class="dropdown-item {% if request.path == update_attendance_url %}active{% endif %}"
                 href="{{ update_attendance_url }}"
               >
-                <b>-</b> Update Lab Attendance
+                <b style="margin-left:15px">-</b> Update Lab Attendance
               </a>
             </li>
           </ul>
