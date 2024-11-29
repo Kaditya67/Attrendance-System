@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Edit Attendance</title>
+    <title>Edit Lab Attendance</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
       rel="stylesheet"
@@ -104,8 +104,8 @@
     {% include 'teachertemplates/navbar.html' %}
     <div class="content">
       <div class="container">
-        <h2>Edit Attendance for Course: {{ selected_course.name }}</h2>
-        <p>Date: {{ selected_date }} | Lecture Number: {{ lecture_number }}</p>
+        <h2>Edit Lab Attendance for Lab: {{ selected_lab.name }}</h2>
+        <p>Date: {{ selected_date }} | Batch: {{ batch }}</p>
 
         <form method="POST">
           {% csrf_token %}
@@ -117,7 +117,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for record in attendance_records %}
+              {% for record in lab_attendance_records %}
               <tr>
                 <td>{{ record.student.user.get_full_name }}</td>
                 <td
@@ -143,7 +143,7 @@
             <button
               type="button"
               class="button back"
-              onclick="window.location.href='{% url 'view_Attendance' %}'"
+              onclick="window.location.href='{% url 'view_lab_Attendance' %}'"
             >
               Cancel
             </button>

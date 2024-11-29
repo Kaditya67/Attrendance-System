@@ -247,13 +247,13 @@
               </a>
             </li>
             
-            {% url 'view_Attendance' as view_attendance_url %}
+            {% url 'view_lab_Attendance' as view_lab_Attendance_url %}
             <li>
               <a
-                class="dropdown-item {% if request.path == view_attendance_url %}active{% endif %}"
-                href="{{ view_attendance_url }}"
+                class="dropdown-item {% if request.path == view_lab_Attendance_url %}active{% endif %}"
+                href="{{ view_lab_Attendance_url }}"
               >
-                <b>-</b> View Attendance
+                <b>-</b> View Lab Attendance
               </a>
             </li>
 
@@ -263,7 +263,7 @@
                 class="dropdown-item {% if request.path == update_attendance_url %}active{% endif %}"
                 href="{{ update_attendance_url }}"
               >
-                <b>-</b> Update Attendance
+                <b>-</b> Update Lab Attendance
               </a>
             </li>
           </ul>

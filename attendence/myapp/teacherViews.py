@@ -728,6 +728,95 @@ def submit_lab_attendance(request):
     # Redirect to the attendance form if the request is not POST
     return redirect('Add_Lab_Attendance')
 
+from collections import defaultdict
+from django.contrib import messages
+from django.shortcuts import render, get_object_or_404
+from .models import Teacher, Labs, LabAttendance
+
+@login_required
+def view_lab_attendance(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
+    labs = teacher.assigned_labs.all()  # Assuming the teacher has assigned labs, similar to assigned_courses
+
+    selected_lab = None
+    lab_attendance_summary = []
+
+    if request.method == 'POST':
+        lab_id = request.POST.get('lab')
+        selected_lab = get_object_or_404(Labs, id=lab_id)
+
+        # Fetch all lab attendance records for the selected lab
+        lab_attendance_records = LabAttendance.objects.filter(lab=selected_lab)
+
+        if not lab_attendance_records.exists():
+            messages.warning(request, "No lab attendance records found for the selected lab.")
+            return redirect('view_lab_Attendance')
+
+        # Summarize lab attendance records by date and count
+        summary = defaultdict(lambda: [0, '', 0])  # [total present, common notes, count]
+        for record in lab_attendance_records:
+            # Only aggregate if the current count is greater than the previously saved count for that date
+            summary[(record.date, record.lab_batch)][0] += record.present  # Total present
+            summary[(record.date, record.lab_batch)][1] = record.notes  # Get notes
+            summary[(record.date, record.lab_batch)][2] = record.lab_batch  # Use the last batch found
+
+        # Convert the summary to a list for rendering
+        lab_attendance_summary = [
+            (date, total_present, notes, lab_batch) 
+            for (date, lab_batch), (total_present, notes, _) in summary.items()
+        ]
+
+    context = {
+        'labs': labs,
+        'lab_attendance_summary': lab_attendance_summary,
+        'selected_lab': selected_lab,
+        'teacher': teacher
+    }
+    return render(request, 'teachertemplates/view_lab_attendance.html', context)
+
+@login_required
+def edit_lab_attendance(request, lab_id, date, batch):
+    teacher = get_object_or_404(Teacher, user=request.user)
+    labs = teacher.assigned_labs.all()  # Fetch the labs assigned to the teacher
+
+    # Fetch the selected lab
+    lab = get_object_or_404(Labs, id=lab_id)
+
+    # Fetch attendance records for the selected lab, date, and batch
+    lab_attendance_records = LabAttendance.objects.filter(lab=lab, date=date, lab_batch=batch)
+
+    if not lab_attendance_records.exists():
+        messages.warning(request, "No attendance records found for the selected lab and batch.")
+        return redirect('select_lab')  # Redirect to lab selection page if no records found
+
+    if request.method == 'POST':
+        attendance_updated = 0
+        for record in lab_attendance_records:
+            student_id = record.student.id
+            attendance_status = request.POST.get(f'attendance_{student_id}', None)
+
+            if attendance_status is not None:
+                record.present = (attendance_status == 'Present')
+                record.save()
+                attendance_updated += 1
+
+        if attendance_updated > 0:
+            messages.success(request, f"{attendance_updated} attendance records updated successfully!")
+            return redirect('view_lab_Attendance')  # Redirect to lab selection page after update
+        else:
+            messages.warning(request, "No attendance records were updated.")
+
+    context = {
+        'labs': labs,
+        'lab_attendance_records': lab_attendance_records,
+        'selected_lab': lab,
+        'selected_date': date,
+        'batch': batch,
+        'teacher': teacher
+    }
+
+    return render(request, 'teachertemplates/edit_lab_attendance.html', context)
+
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter

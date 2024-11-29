@@ -23,6 +23,7 @@ urlpatterns = [
     #to do
     path('attendance/select/', teacherViews.select_course_lecture, name='select_course_lecture'),
     path('attendance/edit/<int:subject_id>/<str:date>/<int:lecture_number>/', teacherViews.edit_attendance, name='edit_attendance'),
+    path('attendance_lab/edit/<int:lab_id>/<str:date>/<str:batch>/', teacherViews.edit_lab_attendance, name='edit_lab_attendance'),
 
     path('update_Attendance',teacherViews.update_Attendance,name='update_Attendance'), 
     path('fetch_students/', teacherViews.fetch_students, name='fetch_students'),
@@ -30,6 +31,7 @@ urlpatterns = [
     path('Add_Attendance',teacherViews.Add_Attendance,name='Add_Attendance'),
     path('Add_Lab_Attendance',teacherViews.Add_Lab_Attendance,name='Add_Lab_Attendance'),
     path('view_Attendance',teacherViews.view_attendance,name='view_Attendance'),
+    path('view_lab_Attendance',teacherViews.view_lab_attendance,name='view_lab_Attendance'),
     path('submit_attendance/', teacherViews.submit_attendance, name='submit_attendance'),
     path('submit_lab_attendance/', teacherViews.submit_lab_attendance, name='submit_lab_attendance'),
     # path('SubjectDetails',views.SubjectDetails,name='SubjectDetails'),
