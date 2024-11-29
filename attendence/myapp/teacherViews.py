@@ -646,52 +646,67 @@ def fetch_lab_students(request):
     return redirect('Add_Lab_Attendance')
 
 
+
+from django.contrib import messages
+from django.shortcuts import redirect
+from .models import Labs, Student, LabAttendance
+from datetime import datetime
+
 @login_required
 def submit_lab_attendance(request):
     if request.method == 'POST':
         lab_name = request.POST.get('lab')  # Lab name from the form
         lab_batch = request.POST.get('lab_batch')  # Batch name
-        date = request.POST.get('date')  # Attendance date
+        date_str = request.POST.get('date')  # Attendance date (string)
         common_notes = request.POST.get('common_notes', '')  # Optional notes
         absent_students = request.POST.get('absent_students', '').split(',')  # IDs of absent students
 
-        print(f"Request Post : ",request.POST)
+        # Print for debugging
+        print(f"Request Post : ", request.POST)
+
         # Validate lab and batch
         try:
             lab = Labs.objects.get(name=lab_name)
-            print(lab)
         except Labs.DoesNotExist:
             messages.error(request, "Invalid lab selected.")
             return redirect('Add_Lab_Attendance')
 
+        # Convert date from string to date object
+        try:
+            date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            messages.error(request, "Invalid date format.")
+            return redirect('Add_Lab_Attendance')
+
+        # Fetch students from the same semester as the lab
         try:
             semester = lab.semester
             temp_students = Student.objects.filter(semester=semester)
-            students_in_batch=[]
-            for student in temp_students:
-                if student.batches[str(lab.index)] == lab_batch:
-                    students_in_batch.append(student)
+            students_in_batch = [
+                student for student in temp_students
+                if student.batches.get(str(lab.index)) == lab_batch
+            ]
         except Exception as e:
             messages.error(request, f"Error fetching batch: {str(e)}")
             return redirect('Add_Lab_Attendance')
 
         # Ensure students exist for the selected batch
-        if not students_in_batch[0]:
+        if not students_in_batch:
             messages.warning(request, f"No students found for {lab_name}, batch {lab_batch}.")
             return redirect('Add_Lab_Attendance')
 
-        # Prepare attendance records
-        attendance_records = []
+        # Prepare lab attendance records
+        lab_attendance_records = []
         for student in students_in_batch:
             student_id = str(student.id)
             is_present = request.POST.get(f'attendance_{student_id}') == 'Present'
             is_absent = student_id in absent_students
 
-            # Create attendance record
-            attendance_records.append(
-                Attendance(
+            # Create lab attendance record
+            lab_attendance_records.append(
+                LabAttendance(
                     student=student,
-                    course=lab.course,
+                    lab=lab,
                     lab_batch=lab_batch,
                     date=date,
                     present=is_present and not is_absent,
@@ -699,10 +714,15 @@ def submit_lab_attendance(request):
                 )
             )
 
-        # Bulk create attendance records
-        Attendance.objects.bulk_create(attendance_records)
-        messages.success(request, f"Attendance records for {len(attendance_records)} students submitted successfully!")
+        # Bulk create lab attendance records
+        try:
+            LabAttendance.objects.bulk_create(lab_attendance_records)
+            messages.success(request, f"Lab attendance records for {len(lab_attendance_records)} students submitted successfully!")
+        except Exception as e:
+            messages.error(request, f"Error submitting lab attendance: {str(e)}")
+            return redirect('Add_Lab_Attendance')
 
+        # Redirect to the lab attendance page after successful submission
         return redirect('Add_Lab_Attendance')
 
     # Redirect to the attendance form if the request is not POST
