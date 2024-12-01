@@ -1,12 +1,6 @@
 from django.urls import path
-
-from . import studentViews
-
-from . import principalViews
-
-from . import hodViews
+from . import principalViews,adminViews,studentViews, hodViews,teacherViews
 from . import views
-from . import teacherViews
 
 urlpatterns = [
     path('update_profile/', views.update_student_profile, name='update_student_profile'),
@@ -128,4 +122,5 @@ urlpatterns = [
     path('delete_staff/<int:pk>/', views.delete_staff, name='delete_staff'),  # For deleting staff
     path('staff/', views.StaffListView.as_view(), name='staff_list'),  # Staff list view
 
+    path('admin_dashboard/', adminViews.admin_dashboard, name='admin_dashboard'),
 ]

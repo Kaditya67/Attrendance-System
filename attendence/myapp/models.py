@@ -169,16 +169,29 @@ class Program(models.Model):
         ]
 
 class HonorsMinors(models.Model):
+    SEMESTER_CHOICES = [
+        (5, "Semester 5"),
+        (6, "Semester 6"),
+        (7, "Semester 7"),
+        (8, "Semester 8"),
+    ]
+
+    code = models.CharField(max_length=10, unique=True, verbose_name="Course Code")
     name = models.CharField(max_length=100, verbose_name="Honors/Minors Name")
-    semester = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name='honors_minors', null=True, blank=True, verbose_name="Semester")
+    semester = models.IntegerField(
+        verbose_name="Semester", blank=True, null=True, choices=SEMESTER_CHOICES
+    )
 
     def __str__(self):
-        return self.name
+        return f"{self.code} - {self.name}"
 
     class Meta:
         indexes = [
-            models.Index(fields=['name']),
+            models.Index(fields=["name"]),
         ]
+        verbose_name = "Honors/Minor"
+        verbose_name_plural = "Honors/Minors"
+
 
 class LabsBatches(models.Model):
     name = models.CharField(max_length=100, verbose_name="Batch Name")

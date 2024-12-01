@@ -688,6 +688,8 @@ def login_view(request):
         user = request.user
         if user.is_superuser:
             return redirect('/admin/')
+        elif user.groups.filter(name='Admin').exists():
+            return redirect('admin_dashboard')
         elif user.groups.filter(name='Principal').exists():
             return redirect('PrincipalDashboard')
         elif user.groups.filter(name='HOD').exists():
@@ -711,6 +713,8 @@ def login_view(request):
             print(user.groups)
             if user.is_superuser:
                 return redirect('/admin/')
+            elif user.groups.filter(name='Admin').exists():
+                return redirect('admin_dashboard')
             elif user.groups.filter(name='Principal').exists():
                 return redirect('PrincipalDashboard')
             elif user.groups.filter(name='HOD').exists():
