@@ -168,31 +168,6 @@ class Program(models.Model):
             models.Index(fields=['name']),
         ]
 
-class HonorsMinors(models.Model):
-    SEMESTER_CHOICES = [
-        (5, "Semester 5"),
-        (6, "Semester 6"),
-        (7, "Semester 7"),
-        (8, "Semester 8"),
-    ]
-
-    code = models.CharField(max_length=10, unique=True, verbose_name="Course Code")
-    name = models.CharField(max_length=100, verbose_name="Honors/Minors Name")
-    semester = models.IntegerField(
-        verbose_name="Semester", blank=True, null=True, choices=SEMESTER_CHOICES
-    )
-
-    def __str__(self):
-        return f"{self.code} - {self.name}"
-
-    class Meta:
-        indexes = [
-            models.Index(fields=["name"]),
-        ]
-        verbose_name = "Honors/Minor"
-        verbose_name_plural = "Honors/Minors"
-
-
 class LabsBatches(models.Model):
     name = models.CharField(max_length=100, verbose_name="Batch Name")
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name='labs_batches', verbose_name="Program")
@@ -205,35 +180,6 @@ class LabsBatches(models.Model):
         indexes = [
             models.Index(fields=['name']),
         ]
-
-class Teacher(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name='teachers', verbose_name="Department")
-    courses_taught = models.ManyToManyField(Course, blank=True, related_name='teachers', verbose_name="Courses Taught")
-    faculty_id = models.CharField(max_length=10, unique=True, verbose_name="Faculty ID")
-    mobile_no = models.CharField(max_length=15, blank=True, null=True, verbose_name="Mobile Number")
-    email = models.EmailField(blank=True, null=True, verbose_name="Email")
-    experience = models.TextField(blank=True, null=True, verbose_name="Experience")
-    assigned_courses = models.ManyToManyField(Course, related_name='assigned_teachers', verbose_name="Assigned Courses", blank=True)
-    assigned_labs = models.ManyToManyField(Labs, related_name='assigned_labs', verbose_name="Assigned Labs", blank=True)
-    class Meta:
-        indexes = [
-            models.Index(fields=['faculty_id']),
-            models.Index(fields=['mobile_no']),
-            models.Index(fields=['email']),
-        ]
-
-    def __str__(self):
-        return f"Teacher: {self.user.username} - Department: {self.department.name if self.department else 'No Department'}"
-
-
-class HOD(models.Model):
-    teacher = models.OneToOneField(Teacher, on_delete=models.CASCADE) 
-    office_number = models.CharField(max_length=20, blank=True, null=True, verbose_name="Office Number")
-    managing_teachers = models.IntegerField(verbose_name="Managing Teachers")
-
-    def __str__(self):
-        return self.teacher.user.get_full_name()
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -290,6 +236,64 @@ class Student(models.Model):
             models.Index(fields=['email']),
         ]
 
+    
+class HonorsMinors(models.Model):
+    SEMESTER_CHOICES = [
+        (5, "Semester 5"),
+        (6, "Semester 6"),
+        (7, "Semester 7"),
+        (8, "Semester 8"),
+    ]
+
+    code = models.CharField(max_length=10, unique=True, verbose_name="Course Code", blank=True, null=True)
+    name = models.CharField(max_length=100, verbose_name="Honors/Minors Name")
+    semester = models.IntegerField(
+        verbose_name="Semester", blank=True, null=True, choices=SEMESTER_CHOICES
+    )
+    students = models.ManyToManyField(
+        Student, related_name='honors_minors', verbose_name="Students", blank=True
+    )
+
+    def __str__(self):
+        return f"{self.code} - {self.name}"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["name"]),
+        ]
+        verbose_name = "Honors/Minor"
+        verbose_name_plural = "Honors/Minors"
+
+
+class Teacher(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name='teachers', verbose_name="Department")
+    courses_taught = models.ManyToManyField(Course, blank=True, related_name='teachers', verbose_name="Courses Taught")
+    faculty_id = models.CharField(max_length=10, unique=True, verbose_name="Faculty ID")
+    mobile_no = models.CharField(max_length=15, blank=True, null=True, verbose_name="Mobile Number")
+    email = models.EmailField(blank=True, null=True, verbose_name="Email")
+    experience = models.TextField(blank=True, null=True, verbose_name="Experience")
+    assigned_courses = models.ManyToManyField(Course, related_name='assigned_teachers', verbose_name="Assigned Courses", blank=True)
+    assigned_labs = models.ManyToManyField(Labs, related_name='assigned_labs', verbose_name="Assigned Labs", blank=True)
+    assigned_hms = models.ManyToManyField(HonorsMinors, related_name='assigned_hms', verbose_name="Assigned Honors/Minors", blank=True)
+    class Meta:
+        indexes = [
+            models.Index(fields=['faculty_id']),
+            models.Index(fields=['mobile_no']),
+            models.Index(fields=['email']),
+        ]
+
+    def __str__(self):
+        return f"Teacher: {self.user.username} - Department: {self.department.name if self.department else 'No Department'}"
+
+
+class HOD(models.Model):
+    teacher = models.OneToOneField(Teacher, on_delete=models.CASCADE) 
+    office_number = models.CharField(max_length=20, blank=True, null=True, verbose_name="Office Number")
+    managing_teachers = models.IntegerField(verbose_name="Managing Teachers")
+
+    def __str__(self):
+        return self.teacher.user.get_full_name()
 
 class Enrollment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='enrollments', verbose_name="Student")
@@ -428,6 +432,36 @@ class LabAttendance(models.Model):
             models.Index(fields=['lab_batch']),
         ]
         unique_together = ('student', 'lab', 'date', 'lab_batch','count')  # Ensures unique attendance for a lab session
+
+class HmsAttendance(models.Model):
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name='hms_attendances',
+        verbose_name="Student"
+    )
+    hms_course = models.ForeignKey(
+        HonorsMinors,
+        on_delete=models.CASCADE,
+        related_name='hms_attendances',
+        verbose_name="HMS Course"
+    )
+    date = models.DateField(verbose_name="Date")
+    present = models.BooleanField(default=False, verbose_name="Present")
+    notes = models.TextField(blank=True, null=True, verbose_name="Notes")
+    count = models.IntegerField(default=0, verbose_name="Count", null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
+
+    def __str__(self):
+        return f"LabAttendance: {self.student.user.username} - {self.date} - {'Present' if self.present else 'Absent'}"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['date']),
+            models.Index(fields=['present']), 
+        ]
+        unique_together = ('student', 'date','count')  # Ensures unique attendance for a lab session
 
 
 class SemesterCGPA(models.Model):

@@ -121,7 +121,9 @@ class CourseAdmin(admin.ModelAdmin):
     ordering = ('name',)
 
 
-from .models import SessionYear, Semester, LabAttendance
+from .models import SessionYear, Semester, LabAttendance, HonorsMinors, HmsAttendance
 admin.site.register(SessionYear)
 admin.site.register(Semester)
 admin.site.register(LabAttendance)
+admin.site.register(HonorsMinors)
+admin.site.register(HmsAttendance)

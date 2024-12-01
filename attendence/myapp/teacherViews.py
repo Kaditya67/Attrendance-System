@@ -5,7 +5,7 @@ from django.db.models import Max
 from collections import defaultdict
 import json
 from django.urls import reverse  
-from .models import Labs, Batches, Teacher, Student, Course, Attendance, Semester, LabsBatches
+from .models import Labs, Batches, Teacher, Student, Course, Attendance, HmsAttendance, Semester, LabsBatches, HonorsMinors
 import openpyxl
 from .forms import LabForm, TeacherUpdateForm
 from django.http import HttpResponse
@@ -1413,3 +1413,130 @@ def Class_Report(request):
         'semesters': semesters,
         'selected_semester': selected_semester
     })
+
+
+@login_required
+def honors_add_attendance(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
+    
+    # Get all courses taught by the teacher
+    hmscourses = teacher.assigned_hms.all()
+
+    course_data = []
+    for course in hmscourses:
+        students_in_semester = course.students.all()
+
+        course_data.append({
+            'course': course, 
+            'students': students_in_semester,
+        })
+
+    context = {
+        'course_data': course_data,
+        'teacher': teacher
+    }
+
+    return render(request, 'teachertemplates/honors_add_attendance.html', context)
+
+
+def get_hms_teacher_courses(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
+
+    # Get all courses assigned to the teacher
+    courses = teacher.assigned_hms.all()
+
+    course_data = []
+    for course in courses:
+        students_in_semester = course.students.all()  # Fetch distinct students for the semester
+
+        # Append course, semester, and students information to course_data
+        course_data.append({
+            'course': course, 
+            'students': students_in_semester,
+        })
+
+    return course_data
+
+
+
+@login_required
+def fetch_hms_students(request):
+    if request.method == 'POST':
+        subject_id = request.POST.get('subject')
+        date = request.POST.get('date')
+
+        # Get the selected course
+        course = HonorsMinors.objects.get(id=subject_id)
+        # print("Course is:", course)
+       
+        # Get students for the selected course's semester
+        students = course.students.all()
+        # print("Students are:", students)
+
+        context = {
+            'students': students,
+            'selected_course': course,
+            'selected_date': date,
+            'course_data': get_hms_teacher_courses(request),  # Function to fetch teacher's courses
+        }
+
+        return render(request, 'teachertemplates/honors_add_attendance.html', context)
+    
+    return redirect('honors_add_attendance')
+
+
+@login_required
+def submit_hms_attendance(request):
+    if request.method == "POST":
+        # print("Received POST request for submit_attendance")
+        subject_id = request.POST.get('subject')
+        date = request.POST.get('date')
+        common_notes = request.POST.get('common_notes', '')
+        absent_students = request.POST.get('absent_students', '').split(',')
+        
+        # print(f"Subject ID: {subject_id}, Date: {date}, Common Notes: {common_notes}, Absent Students: {absent_students}")
+        course = HonorsMinors.objects.get(id=subject_id)
+        # print(f"Course: {course}")
+        # Retrieve current attendance records
+        existing_attendance_records = HmsAttendance.objects.filter(hms_course=course, date=date)
+        common_count = existing_attendance_records.last().count + 1 if existing_attendance_records.exists() else 1
+
+        attendance_created = 0
+
+        for key in request.POST:
+            if key.startswith('attendance_'):
+                student_id = key.split('_')[1]
+                student = Student.objects.get(id=int(student_id))
+                present = request.POST[key] == 'Present'
+
+                HmsAttendance.objects.create(
+                    student=student, 
+                    hms_course = course,
+                    date=date,
+                    present=present,
+                    count=common_count,
+                    notes=common_notes
+                )
+                attendance_created += 1
+
+        for student_id in absent_students:
+            if student_id:
+                student = Student.objects.get(id=int(student_id))
+                HmsAttendance.objects.create(
+                    student=student, 
+                    hms_course = course,
+                    date=date,
+                    present=False,
+                    count=common_count,
+                    notes=common_notes
+                )
+                attendance_created += 1
+
+        if attendance_created > 0:
+            messages.success(request, f"{attendance_created} attendance records submitted successfully!")
+        else:
+            messages.warning(request, "No attendance records were created.")
+
+        return redirect('honors_add_attendance')
+
+    return redirect('honors_add_attendance')
