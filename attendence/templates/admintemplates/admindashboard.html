@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Subject-wise Attendance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            max-width: 100%;
+        }
+
+        .container {
+            width: 90%;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            overflow-x: auto; /* Enable horizontal scrolling */
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #0202028b;
+            padding: 12px;
+            text-align: center;
+        }
+
+        table th {
+            background-color: #ffffff;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .present {
+            background-color: #b3ffb3; /* Light green for present */
+        }
+
+        .absent {
+            background-color: #ff9999; /* Light red for absent */
+        }
+
+        .average-attendance {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 1.5rem;
+        }
+
+        /* Add specific classes for colors */
+        .above-threshold {
+            color: green; /* Color for average attendance >= 60% */
+        }
+
+        .below-threshold {
+            color: red; /* Color for average attendance < 60% */
+        }
+
+        /* Optional: Styling for scrollbars (visible in certain browsers) */
+        .table-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 10px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background-color: #f1f1f1;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px; /* Add space between buttons */
+            justify-content: center;
+        }
+
+        /* CSS for print visibility */
+        @media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #defaultersTable, #defaultersTable * {
+        visibility: visible;
+    }
+
+    /* Set the defaulters table container to take full screen */
+    #defaultersTable {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Make sure the container takes up full screen width */
+    .container {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Ensure the table and heading are on the same page */
+    h1, h2, h3, h4 {
+        text-align: center;
+        page-break-before: avoid; /* Prevent a page break before headings */
+        page-break-after: avoid;  /* Prevent a page break after headings */
+    }
+
+    /* Ensure the table doesn't break between pages */
+    table {
+        width: 100%;
+        page-break-inside: auto; /* Allow the table to break into multiple pages if necessary, but don't force it */
+        page-break-before: avoid;
+        page-break-after: avoid;
+    }
+
+    /* Prevent page break between rows */
+    tr {
+        page-break-inside: avoid; /* Avoid breaking rows across pages */
+    }
+
+    /* Prevent page break between table header and body */
+    thead {
+        display: table-header-group;
+    }
+
+    tbody {
+        display: table-row-group;
+    }
+
+    /* Reduce extra space after headings */
+    h1, h2, h3, h4 {
+        margin-bottom: 10px;
+    }
+
+    /* Adjust margins and padding to reduce extra space */
+    .table-responsive {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+}
+
+    </style>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    {% load custom_filters %}
+    <!-- Navbar -->
+    {% include 'admintemplates/sidebar.html' %}
+
+    <div class="content">
+        <div class="container" style="background-color: #ffffff;">
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
