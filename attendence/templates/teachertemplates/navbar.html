@@ -285,25 +285,25 @@
                 class="dropdown-item {% if request.path == honors_add_attendance_url %}active{% endif %}"
                 href="{{ honors_add_attendance_url }}"
               >
-                <b style="margin-left:15px">-</b> Honors Add Attendance
+                <b style="margin-left:15px">-</b> Add H/M Attendance
               </a>
             </li>
             
-            {% url 'view_lab_Attendance' as view_lab_Attendance_url %}
+            {% url 'view_hms_Attendance' as view_hms_Attendance_url %}
             <li>
               <a
-                class="dropdown-item {% if request.path == view_lab_Attendance_url %}active{% endif %}"
-                href="{{ view_lab_Attendance_url }}"
+                class="dropdown-item {% if request.path == view_hms_Attendance_url %}active{% endif %}"
+                href="{{ view_hms_Attendance_url }}"
               >
-                <b style="margin-left:15px">-</b> View Lab Attendance
+                <b style="margin-left:15px">-</b> View H/M Attendance
               </a>
             </li>
 
-            {% url 'update_lab_Attendance' as update_attendance_url %}
+            {% url 'update_hms_Attendance' as update_hms_Attendance_url %}
             <li>
               <a
-                class="dropdown-item {% if request.path == update_attendance_url %}active{% endif %}"
-                href="{{ update_attendance_url }}"
+                class="dropdown-item {% if request.path == update_hms_Attendance_url %}active{% endif %}"
+                href="{{ update_hms_Attendance_url }}"
               >
                 <b style="margin-left:15px">-</b> Update Lab Attendance
               </a>

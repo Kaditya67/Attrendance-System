@@ -1540,3 +1540,204 @@ def submit_hms_attendance(request):
         return redirect('honors_add_attendance')
 
     return redirect('honors_add_attendance')
+from collections import defaultdict
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db.models import Max
+from django.urls import reverse
+
+@login_required
+def view_hms_Attendance(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
+    courses = teacher.assigned_hms.all()
+    selected_course = None
+    attendance_summary = []
+
+    if request.method == 'POST':
+        subject_id = request.POST.get('subject')
+        selected_course = get_object_or_404(HonorsMinors, id=subject_id)
+        attendance_records = HmsAttendance.objects.filter(hms_course=selected_course)
+
+        if not attendance_records.exists():
+            messages.warning(request, "No attendance records found for the selected course.")
+            return redirect('view_hms_Attendance')
+
+        # Summarize attendance records by date and lecture count
+        summary = defaultdict(lambda: [0, '', 0])  # [total present, common notes, lecture count]
+        for record in attendance_records:
+            key = (record.date, record.count)
+            summary[key][0] += record.present
+            summary[key][1] = record.notes
+            summary[key][2] = record.count
+
+        attendance_summary = [
+            (date, total_present, notes, count) 
+            for (date, count), (total_present, notes, _) in summary.items()
+        ]
+
+    context = {
+        'courses': courses,
+        'attendance_summary': attendance_summary,
+        'selected_course': selected_course,
+        'teacher': teacher,
+    }
+    return render(request, 'teachertemplates/view_hms_Attendance.html', context)
+
+
+@login_required
+def select_hms_course_lecture(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
+    courses = teacher.assigned_hms.all()
+
+    if request.method == 'POST':
+        subject_id = request.POST.get('subject')
+        date = request.POST.get('date')
+        course = get_object_or_404(HonorsMinors, id=subject_id)
+        attendance_records = HmsAttendance.objects.filter(hms_course=course, date=date)
+
+        if not attendance_records.exists():
+            messages.warning(request, "No attendance records found for the selected date.")
+            return redirect('select_hms_course_lecture')
+
+        max_count = attendance_records.aggregate(Max('count'))['count__max'] or 0
+        lecture_numbers = list(range(1, max_count + 1))
+
+        lecture_number = request.POST.get('lecture_number')
+        if lecture_number:
+            return redirect(reverse('edit_hms_attendance', args=[subject_id, date, lecture_number]))
+
+        context = {
+            'courses': courses,
+            'lecture_numbers': lecture_numbers,
+            'selected_course': course,
+            'selected_date': date,
+            'teacher': teacher,
+        }
+        return render(request, 'teachertemplates/select_hms_course_lecture.html', context)
+
+    context = {'courses': courses, 'teacher': teacher}
+    return render(request, 'teachertemplates/select_hms_course_lecture.html', context)
+
+
+@login_required
+def edit_hms_attendance(request, subject_id, date, lecture_number):
+    teacher = get_object_or_404(Teacher, user=request.user)
+    courses = teacher.assigned_hms.all()
+    course = get_object_or_404(HonorsMinors, id=subject_id)
+
+    attendance_records = HmsAttendance.objects.filter(hms_course=course, date=date, count=lecture_number)
+
+    if not attendance_records.exists():
+        messages.warning(request, "No attendance records found for the selected lecture.")
+        return redirect('select_hms_course_lecture')
+
+    if request.method == 'POST':
+        attendance_updated = 0
+        for record in attendance_records:
+            student_id = record.student.id
+            attendance_status = request.POST.get(f'attendance_{student_id}')
+            if attendance_status is not None:
+                record.present = (attendance_status == 'Present')
+                record.save()
+                attendance_updated += 1
+
+        if attendance_updated:
+            messages.success(request, f"{attendance_updated} attendance records updated successfully!")
+            return redirect('select_hms_course_lecture')
+        else:
+            messages.warning(request, "No attendance records were updated.")
+
+    context = {
+        'courses': courses,
+        'attendance_records': attendance_records,
+        'selected_course': course,
+        'selected_date': date,
+        'lecture_number': lecture_number,
+        'teacher': teacher,
+    }
+    return render(request, 'teachertemplates/edit_hms_Attendance.html', context)
+
+
+@login_required
+def Update_hms_Attedance(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
+    courses = teacher.assigned_hms.all()
+
+    if request.method == 'POST':
+
+        # Step 1: Fetch attendance records (Subject and Date selection)
+        if 'fetch' in request.POST:
+            subject_id = request.POST.get('subject')
+            date = request.POST.get('date')
+
+            course = get_object_or_404(HonorsMinors, id=subject_id)
+            attendance_records = HmsAttendance.objects.filter(hms_course=course, date=date)
+
+            if not attendance_records.exists():
+                messages.warning(request, "No attendance records found for the selected date.")
+                return redirect('Update_hms_Attedance')
+
+            max_count = attendance_records.aggregate(Max('count'))['count__max']
+            lecture_numbers = list(range(1, max_count + 1))
+
+            context = {
+                'courses': courses,
+                'lecture_numbers': lecture_numbers,
+                'selected_course': course,
+                'selected_date': date,
+            }
+            return render(request, 'teachertemplates/Update_hms_Attedance.html', context)
+
+        # Step 3: Update attendance records
+        elif 'update_attendance' in request.POST and 'lecture_number' in request.POST:
+            subject_id = request.POST.get('subject')
+            date = request.POST.get('date')
+            lecture_number = request.POST.get('lecture_number')
+
+            course = get_object_or_404(HonorsMinors, id=subject_id)
+            attendance_records = HmsAttendance.objects.filter(hms_course=course, date=date, count=lecture_number)
+
+            attendance_updated = 0
+            for record in attendance_records:
+                student_id = record.student.id
+                attendance_status = request.POST.get(f'attendance_{student_id}', None)
+
+                if attendance_status is not None:
+                    record.present = (attendance_status == 'Present')
+                    record.save()
+                    attendance_updated += 1
+
+            if attendance_updated > 0:
+                messages.success(request, f"{attendance_updated} attendance records updated successfully!")
+            else:
+                messages.warning(request, "No attendance records were updated.")
+
+            context = {
+                'courses': courses,
+                'attendance_records': attendance_records,
+                'selected_course': course,
+                'selected_date': date,
+                'lecture_number': lecture_number,
+            }
+            return render(request, 'teachertemplates/Update_hms_Attedance.html', context)
+        # Step 2: Load attendance for a specific lecture number
+        elif 'lecture_number' in request.POST:
+            subject_id = request.POST.get('subject')
+            date = request.POST.get('date')
+            lecture_number = request.POST.get('lecture_number')
+
+            course = get_object_or_404(HonorsMinors, id=subject_id)
+            attendance_records = HmsAttendance.objects.filter(hms_course=course, date=date, count=lecture_number)
+
+            context = {
+                'courses': courses,
+                'attendance_records': attendance_records,
+                'selected_course': course,
+                'selected_date': date,
+                'lecture_number': lecture_number,
+            }
+            return render(request, 'teachertemplates/Update_hms_Attedance.html', context)
+    else:
+        context = {'courses': courses}
+        return render(request, 'teachertemplates/Update_hms_Attedance.html', context)

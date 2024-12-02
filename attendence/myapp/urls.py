@@ -16,11 +16,14 @@ urlpatterns = [
     path('batches/<int:batch_id>/delete/', teacherViews.delete_batch, name='delete_batch'),
     #to do
     path('attendance/select/', teacherViews.select_course_lecture, name='select_course_lecture'),
+    path('attendance/select/hms/', teacherViews.select_hms_course_lecture, name='select_hms_course_lecture'),
     path('attendance/edit/<int:subject_id>/<str:date>/<int:lecture_number>/', teacherViews.edit_attendance, name='edit_attendance'),
     path('attendance_lab/edit/<int:lab_id>/<str:date>/<int:session_number>/<str:batch>/', teacherViews.edit_lab_attendance, name='edit_lab_attendance'),
+    path('attendance/edit/hms/<int:subject_id>/<str:date>/<int:lecture_number>/', teacherViews.edit_hms_attendance, name='edit_hms_attendance'),
 
     path('update_Attendance',teacherViews.update_Attendance,name='update_Attendance'), 
     path('update_lab_Attendance',teacherViews.update_lab_Attendance,name='update_lab_Attendance'), 
+    path('update_hms_Attendance',teacherViews.Update_hms_Attedance,name='update_hms_Attendance'), 
     path('fetch_students/', teacherViews.fetch_students, name='fetch_students'),
     path('fetch_lab_students/', teacherViews.fetch_lab_students, name='fetch_lab_students'),
     path('fetch_hms_students/', teacherViews.fetch_hms_students, name='fetch_hms_students'),
@@ -29,6 +32,8 @@ urlpatterns = [
     path('Add_Lab_Attendance',teacherViews.Add_Lab_Attendance,name='Add_Lab_Attendance'),
     path('view_Attendance',teacherViews.view_attendance,name='view_Attendance'),
     path('view_lab_Attendance',teacherViews.view_lab_attendance,name='view_lab_Attendance'),
+    path('view_hms_Attendance',teacherViews.view_hms_Attendance,name='view_hms_Attendance'),
+
     path('submit_attendance/', teacherViews.submit_attendance, name='submit_attendance'),
     path('submit_lab_attendance/', teacherViews.submit_lab_attendance, name='submit_lab_attendance'),
     path('submit_hms_attendance/', teacherViews.submit_hms_attendance, name='submit_hms_attendance'),

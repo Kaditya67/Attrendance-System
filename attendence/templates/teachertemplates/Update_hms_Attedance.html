@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Update Attendance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        width: 80%;
+        margin: auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-top: 50px;
+        border-radius: 10px;
+        animation: fadeIn 0.5s ease-in;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #2c3e50;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #34495e;
+      }
+
+      select,
+      input[type="date"],
+      input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        background-color: #f9f9f9;
+        transition: border-color 0.3s ease;
+      }
+
+      select:focus,
+      input[type="date"]:focus,
+      input[type="text"]:focus {
+        border-color: #2b2b2b;
+        outline: none;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        animation: fadeIn 1s ease-in;
+      }
+
+      table th,
+      table td {
+        border: 1px solid #ddd;
+        padding: 15px;
+        text-align: center;
+      }
+
+      table th {
+        background-color: #2b2b2b;
+        color: #fff;
+        font-weight: 500;
+      }
+
+      table tr {
+        transition: background-color 0.3s ease;
+      }
+
+      table tr:hover {
+        background-color: #f1f1f1;
+      }
+
+      table td.present {
+        background-color: #d4edda;
+        color: #155724;
+        font-weight: 600;
+      }
+
+      .button {
+        background-color: #2b2b2b;
+        color: white;
+        padding: 12px 20px;
+        font-size: 18px;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        text-align: center;
+        border-radius: 5px;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .button:hover {
+        background-color: #2980b9;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .messages {
+        list-style: none;
+        padding: 0;
+      }
+
+      .messages li {
+        margin: 10px 0;
+        padding: 15px;
+        border-radius: 5px;
+        font-size: 16px;
+      }
+
+      .messages li.success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .messages li.warning {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+
+      .notes {
+        margin: 20px 0;
+        text-align: center;
+      }
+
+      .back-link {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      a {
+        text-decoration: none;
+        color: #2b2b2b;
+        font-weight: 500;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+    </style>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        const today = new Date().toISOString().split('T')[0];
+        const dateInput = document.getElementById('date');
+
+        // Set the current date as the default value
+        dateInput.value = today;
+
+        // Set the current date as the maximum value (no future dates allowed)
+        dateInput.max = today;
+    });
+    </script>
+  </head>
+  <body>
+    {% include 'teachertemplates/navbar.html' %}
+    <div class="content">
+      <div class="container">
+        <h1>Update H/M Attendance</h1>
+
+        <!-- Display success/warning messages -->
+        {% if messages %}
+        <div class="messages">
+          {% for message in messages %}
+          <p class="{{ message.tags }}"><b>Note:</b> {{ message }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Step 1: Select Subject and Date -->
+        <form method="POST" action="">
+          {% csrf_token %}
+          <input type="hidden" name="fetch" value="1" />
+          <!-- Subject Name -->
+          <label for="subject">Subject:</label>
+          <select id="subject" name="subject" required>
+            {% for course in courses %}
+            <option value="{{ course.id }}">{{ course.name }}</option>
+            {% endfor %}
+          </select>
+
+          <!-- Date -->
+          <label for="date">Date:</label>
+          <input type="date" id="date" name="date" required />
+
+          <!-- Submit Button to Fetch Attendance Records -->
+          <button type="submit" class="button">Fetch Attendance Records</button>
+        </form>
+
+        <!-- Step 2: If records are fetched, show the lecture dropdown -->
+        {% if lecture_numbers %}
+        <form method="POST" action="" style="padding-top:2px ;padding-bottom: 4px;">
+          {% csrf_token %}
+          <!-- Subject and Date -->
+          <input type="hidden" name="subject" value="{{ selected_course.id }}" />
+          <input type="hidden" name="date" value="{{ selected_date }}" />
+
+          <!-- Lecture Number Selection -->
+          <label for="lecture_number">Select Lecture:</label>
+          <select id="lecture_number" name="lecture_number" required>
+            {% for number in lecture_numbers %}
+            <option value="{{ number }}">Lecture {{ number }}</option>
+            {% endfor %}
+          </select>
+
+          <!-- Submit Button to Load Attendance for the Selected Lecture -->
+          <button type="submit" class="button" style="margin-top:5px ;">Load Attendance for Lecture</button>
+        </form>
+        {% endif %}
+
+        <!-- Step 3: Display and Update Attendance -->
+        {% if attendance_records %}
+        <form method="POST" action="">
+          {% csrf_token %}
+          
+
+          <input type="hidden" name="subject" value="{{ selected_course.id }}" />
+          <input type="hidden" name="date" value="{{ selected_date }}" />
+          <input type="hidden" name="lecture_number" value="{{ lecture_number }}" />
+
+          <div class="info-message" style="margin: 20px; text-align: center;">
+            <p>You're updating attendance for the course: <strong>{{ selected_course.name }}</strong> (ID: {{ selected_course.id }})</p>
+            <p>Date of attendance: <strong>{{ selected_date }}</strong></p>
+            <p>Lecture Number: <strong>{{ lecture_number }}</strong></p>
+        </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Student Name</th>
+                <th>Attendance Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for record in attendance_records %}
+              <tr>
+                <td>
+                  {{ record.student.user.first_name }}
+                  {{ record.student.user.last_name }}
+                </td>
+                <td>
+                  <label>
+                    <input
+                      type="radio"
+                      name="attendance_{{ record.student.id }}"
+                      value="Present"
+                      {% if record.present %}checked{% endif %}
+                    /> Present
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="attendance_{{ record.student.id }}"
+                      value="Absent"
+                      {% if not record.present %}checked{% endif %}
+                    /> Absent
+                  </label>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <!-- Submit Button to Update Attendance -->
+          <button type="submit" class="button" name="update_attendance">Update Attendance</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </body>
+</html>
