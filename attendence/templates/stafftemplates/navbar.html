@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        display: flex;
+        height: 100vh;
+        margin: 0;
+        background-color: #eaeaea; /* Light Gray Background */
+    }
+    
+    .sidebar {
+        width: 20%; /* Fixed width for sidebar */
+        background-color: #2b2b2b; /* Dark Charcoal Sidebar */
+        padding-top: 20px;
+        height: 100vh;
+        position: fixed;
+        overflow-y: auto;
+        z-index: 1000;
+    }
+    
+    .sidebar a {
+        font-weight: bold;
+        color: #b3b3b3; /* Medium Gray Text */
+        display: block;
+        padding: 10px 20px;
+        text-decoration: none;
+        transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    }
+    
+    .sidebar a.active {
+        background-color: #1f6fe5; /* Cyan for Active/Hover */
+        color: #ffffff; /* White Text */
+        border-radius: 5px;
+    }
+    
+    .sidebar a:hover {
+        background-color: #a3aeae; /* Light Cyan for Active/Hover */
+        color: #ffffff; /* White Text */
+        border-radius: 5px;
+    }
+    
+    .content {
+        margin-left: 20%; /* Align next to the sidebar */
+        padding: 20px;
+        width: 80%; /* Occupy remaining width */
+        box-sizing: border-box; /* Include padding in width calculation */
+        background-color: #ffffff; /* White background for content */
+        min-height: 100vh; /* Ensure full-page height */
+        overflow-y: auto; /* Enable scrolling if content overflows */
+    }
+    
+    h1, h3 {
+        color: #333333; /* Dark text color */
+    }
+    
+    select {
+        width: 100%; /* Full width for dropdowns */
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #cccccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    
+    #students-container {
+        margin-top: 20px;
+        background-color: #f9f9f9; /* Light background for student list */
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    
+    #students-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    #students-list li {
+        padding: 5px;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    #students-list li:last-child {
+        border-bottom: none;
+    }
+    
+    </style>
+    
+  </head>
+  <body>
+    <!-- Sidebar -->
+<nav class="sidebar">
+  <a class="navbar-brand" href="#">Attendance System</a>
+  <ul class="navbar-nav">
+    <!-- Add Attendance -->
+    <li class="nav-item">
+      <a
+        class="nav-link {% if request.path == '/add_staff_attendance/' %}active{% endif %}"
+        href="{% url 'Add_staff_Attendance' %}">
+        <i class="bi bi-plus-circle sidebar-icon"></i>Add Attendance
+      </a>
+    </li>
+
+       <!-- Update Attendance -->
+       <li class="nav-item">
+        <a
+          class="nav-link {% if request.path == '/view_attendance/' %}active{% endif %}"
+          href="{% url 'view_attendance' %}">
+          <i class="bi bi-pencil sidebar-icon"></i>View Attendance
+        </a>
+      </li>
+
+    <!-- Update Attendance -->
+    <li class="nav-item">
+      <a
+        class="nav-link {% if request.path == '/Update_staff_Attendance/' %}active{% endif %}"
+        href="{% url 'Update_staff_Attendance' %}">
+        <i class="bi bi-pencil sidebar-icon"></i>Update Attendance
+      </a>
+    </li>
+
+    <!-- Logout -->
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'logout' %}" style="color: red;">
+        <i class="bi bi-box-arrow-right sidebar-icon"></i>Logout
+      </a>
+    </li>
+  </ul>
+</nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Toggle dropdown menu on click with animation
+      function toggleDropdown(event) {
+        event.preventDefault();
+        const dropdownMenu = event.currentTarget.nextElementSibling;
+        dropdownMenu.classList.toggle("show");
+      }
+
+      // Hide dropdown when clicking outside
+      document.addEventListener("click", function (event) {
+        const dropdowns = document.querySelectorAll(".dropdown-menu");
+        dropdowns.forEach(function (dropdown) {
+          if (
+            !dropdown.previousElementSibling.contains(event.target) &&
+            !dropdown.contains(event.target)
+          ) {
+            dropdown.classList.remove("show");
+          }
+        });
+      });
+
+     
+    
+    </script>
+  </body>
+</html>

@@ -686,6 +686,7 @@ def login_view(request):
     if request.user.is_authenticated:
         # If the user is already logged in, redirect to the appropriate dashboard
         user = request.user
+        print(user)
         if user.is_superuser:
             return redirect('/admin/')
         elif user.groups.filter(name='Principal').exists():
@@ -694,6 +695,8 @@ def login_view(request):
             return redirect('HOD_Dashboard')
         elif user.groups.filter(name='Teacher').exists():
             return redirect('Teacher_dashboard')
+        elif user.groups.filter(name='Staff').exists():
+            return redirect('Add_staff_Attendance')  # Redirect to staff dashboard
         elif user.groups.filter(name='Student').exists():
             try:
                 student = Student.objects.get(user=user)
@@ -707,8 +710,8 @@ def login_view(request):
         form = UserLoginForm(request.POST)
         if form.is_valid():
             user = form.get_user()
+            print(user)
             auth_login(request, user)
-            print(user.groups)
             if user.is_superuser:
                 return redirect('/admin/')
             elif user.groups.filter(name='Principal').exists():
@@ -717,6 +720,8 @@ def login_view(request):
                 return redirect('HOD_Dashboard')
             elif user.groups.filter(name='Teacher').exists():
                 return redirect('Teacher_dashboard')
+            elif user.groups.filter(name='Staff').exists():
+                return redirect('Add_staff_Attendance')  # Redirect to staff dashboard
             elif user.groups.filter(name='Student').exists():
                 try:
                     student = Student.objects.get(user=user)
@@ -796,17 +801,6 @@ def hod_dashboard(request):
     students = Student.objects.filter(department=department)
 
     return render(request, 'hod_dashboard.html', {'department': department, 'teachers': teachers, 'students': students})
-
-@login_required
-def staff_dashboard(request):
-    if not request.user.groups.filter(name='Staff').exists():
-        return redirect('no_permission')
-
-    staff_profile = get_object_or_404(Staff, user=request.user)
-    department = staff_profile.department
-
-    students = Student.objects.filter(department=department)
-    return render(request, 'staff_dashboard.html', {'students': students})
 
 @login_required
 def view_student_details(request):

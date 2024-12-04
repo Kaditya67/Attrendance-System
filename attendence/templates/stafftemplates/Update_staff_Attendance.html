@@ -161,6 +161,30 @@
       a:hover {
         text-decoration: underline;
       }
+
+      .hidden{
+        display:none;
+      }
+      .messages {
+        margin: 20px 0;
+      }
+      
+      .message {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      
+      .success {
+        background-color: #4CAF50;
+        color: white;
+      }
+      
+      .warning {
+        background-color: #f44336;
+        color: white;
+      }
+      
     </style>
     <script>
       document.addEventListener("DOMContentLoaded", function() {
@@ -176,7 +200,7 @@
     </script>
   </head>
   <body>
-    {% include 'teachertemplates/navbar.html' %}
+    {% include 'stafftemplates/navbar.html' %}
     <div class="content">
       <div class="container">
         <h1>Update Attendance</h1>
@@ -185,11 +209,29 @@
         {% if messages %}
         <div class="messages">
           {% for message in messages %}
-          <p class="{{ message.tags }}"><b>Note:</b> {{ message }}</p>
+            <div class="message {{ message.tags }}">
+              {{ message }}
+            </div>
           {% endfor %}
         </div>
-        {% endif %}
+      {% endif %}
+      
+      <!-- The rest of your form rendering code goes here -->
+      
 
+          <!-- First Part: Course and Date Selection -->
+          <form id="fetchCourseForm" method="post" class="{% if course_data %}hidden{% endif %}">
+            {% csrf_token %}
+            <label for="semester">Semesters:</label>
+            <select id="semester" name="semester" required>
+                {% for semester in semesters %}
+                <option value="{{ semester.id }}"> Semester {{ semester.semester_number }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="button">Fetch Courses</button>
+        </form>       
+        
+        {% if course_data %}
         <!-- Step 1: Select Subject and Date -->
         <form method="POST" action="">
           {% csrf_token %}
@@ -197,8 +239,8 @@
           <!-- Subject Name -->
           <label for="subject">Subject:</label>
           <select id="subject" name="subject" required>
-            {% for course in courses %}
-            <option value="{{ course.id }}">{{ course.name }}</option>
+            {% for data in course_data %}
+              <option value="{{ data.course.id }}">{{ data.course.name }} ({{ data.semester }})</option>
             {% endfor %}
           </select>
 
@@ -209,6 +251,7 @@
           <!-- Submit Button to Fetch Attendance Records -->
           <button type="submit" class="button">Fetch Attendance Records</button>
         </form>
+        {% endif%}
 
         <!-- Step 2: If records are fetched, show the lecture dropdown -->
         {% if lecture_numbers %}
@@ -235,18 +278,17 @@
         {% if attendance_records %}
         <form method="POST" action="">
           {% csrf_token %}
-          
-
+      
           <input type="hidden" name="subject" value="{{ selected_course.id }}" />
           <input type="hidden" name="date" value="{{ selected_date }}" />
           <input type="hidden" name="lecture_number" value="{{ lecture_number }}" />
-
+      
           <div class="info-message" style="margin: 20px; text-align: center;">
             <p>You're updating attendance for the course: <strong>{{ selected_course.name }}</strong> (ID: {{ selected_course.id }})</p>
             <p>Date of attendance: <strong>{{ selected_date }}</strong></p>
             <p>Lecture Number: <strong>{{ lecture_number }}</strong></p>
-        </div>
-
+          </div>
+      
           <table>
             <thead>
               <tr>
@@ -258,8 +300,7 @@
               {% for record in attendance_records %}
               <tr>
                 <td>
-                  {{ record.student.user.first_name }}
-                  {{ record.student.user.last_name }}
+                  {{ record.student.user.first_name }} {{ record.student.user.last_name }}
                 </td>
                 <td>
                   <label>
@@ -283,10 +324,11 @@
               {% endfor %}
             </tbody>
           </table>
-
+      
           <!-- Submit Button to Update Attendance -->
           <button type="submit" class="button" name="update_attendance">Update Attendance</button>
         </form>
+      
         {% endif %}
       </div>
     </div>

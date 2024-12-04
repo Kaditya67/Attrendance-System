@@ -7,11 +7,13 @@ from . import principalViews
 from . import hodViews
 from . import views
 from . import teacherViews
+from . import staffViews
 
 urlpatterns = [
     path('update_profile/', views.update_student_profile, name='update_student_profile'),
     path('teacher/<int:teacher_id>/update/', teacherViews.update_teacher, name='update_teach'),
     path('students/<int:student_id>/update/', teacherViews.update_student, name='update_student'),
+    path('error/',staffViews.error,name='error'),
 
     path('labs/', teacherViews.lab_dashboard, name='lab_dashboard'),
     path('labs/add/', teacherViews.add_lab, name='add_lab'),
@@ -22,18 +24,22 @@ urlpatterns = [
     path('batches/<int:batch_id>/delete/', teacherViews.delete_batch, name='delete_batch'),
     #to do
     path('attendance/select/', teacherViews.select_course_lecture, name='select_course_lecture'),
+     path('attendance/edit/<int:subject_id>/<str:date>/<int:lecture_number>/', staffViews.edit_staff_attendance, name='edit_staff_attendance'),
+
     path('attendance/edit/<int:subject_id>/<str:date>/<int:lecture_number>/', teacherViews.edit_attendance, name='edit_attendance'),
     path('attendance_lab/edit/<int:lab_id>/<str:date>/<int:session_number>/<str:batch>/', teacherViews.edit_lab_attendance, name='edit_lab_attendance'),
 
     path('update_Attendance',teacherViews.update_Attendance,name='update_Attendance'), 
     path('update_lab_Attendance',teacherViews.update_lab_Attendance,name='update_lab_Attendance'), 
     path('fetch_students/', teacherViews.fetch_students, name='fetch_students'),
+    path('fetch_staff_students/', staffViews.fetch_staff_students, name='fetch_staff_students'),
     path('fetch_lab_students/', teacherViews.fetch_lab_students, name='fetch_lab_students'),
     path('Add_Attendance',teacherViews.Add_Attendance,name='Add_Attendance'),
     path('Add_Lab_Attendance',teacherViews.Add_Lab_Attendance,name='Add_Lab_Attendance'),
     path('view_Attendance',teacherViews.view_attendance,name='view_Attendance'),
     path('view_lab_Attendance',teacherViews.view_lab_attendance,name='view_lab_Attendance'),
     path('submit_attendance/', teacherViews.submit_attendance, name='submit_attendance'),
+    path('submit_staff_attendance/', staffViews.submit_staff_attendance, name='submit_staff_attendance'),
     path('submit_lab_attendance/', teacherViews.submit_lab_attendance, name='submit_lab_attendance'),
     # path('SubjectDetails',views.SubjectDetails,name='SubjectDetails'),
     
@@ -83,8 +89,17 @@ urlpatterns = [
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('teacher/dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
     path('hod/dashboard/', views.hod_dashboard, name='hod_dashboard'),
-    path('staff/dashboard/', views.staff_dashboard, name='staff_dashboard'),
-    
+    path('add_staff_attendance/', staffViews.Add_staff_Attendance, name='Add_staff_Attendance'),
+    path('get-courses/', staffViews.get_courses, name='get_courses'),
+    path('get_students_for_course/', staffViews.get_students_for_course, name='get_students_for_course'),
+     path('save-attendance/', staffViews.save_attendance, name='save_attendance'),
+     path('Update_staff_Attendance/', staffViews.Update_staff_Attendance, name='Update_staff_Attendance'),
+     path('view_attendance',staffViews.view_attendance,name='view_attendance'),
+    path('attendance/edit/<int:subject_id>/<str:date>/<int:lecture_number>/', staffViews.edit_staff_attendance, name='edit_staff_attendance'),
+
+
+
+
     # Attendance
     # path('mark_attendance/', views.attendance, name='mark_attendance'),
     

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Attendance</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+      .container {
+        width: 80%;
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-top: 50px;
+        border-radius: 10px;
+      }
+      h1 {
+        margin-bottom: 20px;
+        color: #333;
+      }
+      h2 {
+        margin: 20px 0;
+        color: #2b2b2b;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        font-size: 1em;
+      }
+      table th,
+      table td {
+        border: 1px solid #ddd;
+        padding: 15px;
+        text-align: center;
+      }
+      table th {
+        background-color: #2b2b2b;
+        color: #fff;
+      }
+      table tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+      table tr:hover {
+        background-color: #e1e1e1;
+      }
+      .button {
+        background-color: #2b2b2b;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+      .button:hover {
+        background-color: #2980b9;
+        transform: scale(1.05);
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        margin-right: 10px;
+      }
+      select {
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        width: 200px;
+      }
+      .button-container {
+        margin-top: 20px;
+      }
+      .error {
+        color: red; /* Error message color */
+        font-size: 0.9em; /* Slightly smaller font size for error messages */
+        margin-top: 5px; /* Spacing for error messages */
+      }
+    </style>
+    <script>
+      function validateForm(event) {
+          const selectElement = document.getElementById('course');
+          const errorMessage = document.getElementById('error-message');
+  
+          if (!selectElement.value) {
+              errorMessage.textContent = 'Please select a course.';
+              event.preventDefault(); // Prevent form submission
+          } else {
+              errorMessage.textContent = ''; // Clear error message
+          }
+      }
+  </script>
+  </head>
+  <body>
+      {% include 'stafftemplates/navbar.html' %}
+      <div class="content">
+          <div class="container">
+              <h1 style="text-align: center;">View Attendance</h1>
+  
+              <!-- Course Selection Form -->
+              <form method="POST" action="{% url 'view_attendance' %}" onsubmit="validateForm(event)">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="semester">Select Semester:</label>
+                    <select name="semester" id="semester">
+                        <option value="">-- Select a Semester --</option>
+                        {% for semester in semesters %}
+                            <option value="{{ semester.id }}" {% if selected_course and selected_course.semester.id == semester.id %}selected{% endif %}>
+                                {{ semester }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            
+                {% if course_data %}
+                    <div class="form-group">
+                        <label for="course">Select Course:</label>
+                        <select name="subject" id="course">
+                            <option value="">-- Select a Course --</option>
+                            {% for course in course_data %}
+                                <option value="{{ course.course.id }}" {% if selected_course and selected_course.id == course.course.id %}selected{% endif %}>
+                                    {{ course.course.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                {% endif %}
+            
+                <button type="submit">Fetch Attendance</button>
+            </form>
+            
+              {% if selected_course %}
+                  <h2 style="margin-top: 20px; text-align: center;">Attendance for {{ selected_course.name }}</h2>
+                  <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
+                      <thead>
+                          <tr>
+                              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Date</th>
+                              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Total Present Students</th>
+                              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Notes</th>
+                              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Lecture No.</th>
+                              <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Action</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {% for record in attendance_summary %}
+                              <tr>
+                                  <td style="border: 1px solid #ddd; padding: 8px;">{{ record.0 }}</td>
+                                  <td style="border: 1px solid #ddd; padding: 8px;">{{ record.1 }}</td>
+                                  <td style="border: 1px solid #ddd; padding: 8px;">{{ record.2 }}</td>
+                                  <td style="border: 1px solid #ddd; padding: 8px;">{{ record.3 }}</td>
+                                  <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
+                                      <form method="GET" action="{% url 'edit_staff_attendance' subject_id=selected_course.id date=record.0|date:'Y-m-d' lecture_number=record.3 %}">
+                                          <button type="submit" class="button" style="background-color: #28a745; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer;">
+                                              Edit
+                                          </button>
+                                      </form>
+                                  </td>
+                              </tr>
+                          {% endfor %}
+                      </tbody>
+                  </table>
+              {% endif %}
+          </div>
+      </div>
+  </body>
+  </html>
+  
